@@ -111,8 +111,8 @@ foreach ($jobs as $job) {
         foreach ($recipients as $r) {
             $destination = $DB->get_record('user', array('email' => trim($r)));
             if ($destination) {
-                $postsubject = get_string('sessionclosing', 'tool_delivery', $SITE->shortname);
-                @email_to_user($destination, $USER, $postsubject, $posttext, $posthtml, $attachment, get_string('deliveryreport', 'tool_delivery').'.pdf');
+                $postsubject = get_string('reportgeneration', 'report_learningtimecheck', $SITE->shortname);
+                @email_to_user($destination, $USER, $postsubject, $posttext, $posthtml, $attachment, get_string('leargnintimecheckreport', 'report_learningtimecheck').'.pdf');
             }
         }
     }
