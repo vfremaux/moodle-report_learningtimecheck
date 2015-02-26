@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="report/leaningtimecheck/db" VERSION="20110121" COMMENT="XMLDB file for Moodle LearningTimeCheck reports"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="report_learningtimecheck_btc" COMMENT="Default comment for learningtimecheck reports" NEXT="report_learningtimecheck_opt">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid" />
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="type" />
+        <FIELD NAME="type" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="detail" />
+        <FIELD NAME="detail" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0" PREVIOUS="type" NEXT="output" />
+        <FIELD NAME="output" TYPE="char" LENGTH="8" NOTNULL="false" SEQUENCE="false" PREVIOUS="detail" NEXT="itemid" />
+        <FIELD NAME="itemid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" PREVIOUS="output" NEXT="name" />
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="itemid" NEXT="filters" />
+        <FIELD NAME="filters" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" NEXT="runtime" />
+        <FIELD NAME="runtime" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" PREVIOUS="filters" NEXT="repeatdelay" />
+        <FIELD NAME="repeatdelay" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false" DEFAULT="0" PREVIOUS="runtime" NEXT="processed" />
+        <FIELD NAME="processed" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false" DEFAULT="0" PREVIOUS="repeatdelay" NEXT="notifymails" />
+        <FIELD NAME="notifymails" TYPE="text" LENGTH="11" NOTNULL="false" SEQUENCE="false" PREVIOUS="processed" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="report_learningtimecheck_opt" COMMENT="Default comment for learningtimecheck reports" PREVIOUS="report_learningtimecheck_btc">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid" />
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="name" />
+        <FIELD NAME="name" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="value" />
+        <FIELD NAME="value" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

@@ -1,0 +1,18 @@
+
+#batchtable {
+    border-collapse:separate;
+}
+
+#batchtable > tr > th,
+#batchtable > tr > td {
+    padding:10px;
+}
+
+.learningtimecheck-fromnow {
+    font-size:0.8em;
+    color:#7068A4;
+}
+
+.learningtimecheck-report .generaltable {
+    background-color:white;
+}
