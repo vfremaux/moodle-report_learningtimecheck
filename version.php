@@ -29,4 +29,4 @@ $plugin->version   = 2015022100; // The current plugin version (Date: YYYYMMDDXX
 $plugin->requires  = 2012120300; // Requires this Moodle version
 $plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_RC; 
-$plugin->release = '2.4.0 (build 2015022100)';
+$plugin->release = '2.5.0 (build 2015022100)';
