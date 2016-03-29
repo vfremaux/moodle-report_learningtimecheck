@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Screen for regisytering a batch from a report screen
+ * Screen for registering a batch from a report screen
  *
- * @package    report
- * @version    moodle 2.x
- * @subpackage learningtimecheck
+ * @package    report_learningtimecheck
+ * @category   report
+ * @author     Valery Fremaux <valery.fremaux@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,6 +31,9 @@ require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 $id = required_param('id', PARAM_INT); // Course id
 $view = optional_param('view', 'course', PARAM_ALPHA);
 $itemid = optional_param('itemid', 0, PARAM_INT);
+$param = optional_param('param', '', PARAM_INT);
+$detail = optional_param('detail', 0, PARAM_BOOL);
+$action = optional_param('what', '', PARAM_TEXT);
 
 // This is the origin course. But reports are given over the course level.
 if (!$fromcourse = $DB->get_record('course', array('id' => $id))) {
@@ -49,9 +52,9 @@ require_capability('report/learningtimecheck:view', $context);
 require_capability('report/learningtimecheck:viewother', $context);
 
 if ($view == 'batchs') {
-    $form = new BatchForm($thisurl);
+    $form = new BatchForm($thisurl->out_omit_querystring());
 } else {
-    $form = new BatchForm($thisurl, array('type' => $view));
+    $form = new BatchForm($thisurl->out_omit_querystring(), array('type' => $view));
 }
 
 if ($form->is_cancelled()) {
@@ -63,11 +66,15 @@ if ($form->is_cancelled()) {
 }
 
 if ($data = $form->get_data()) {
-
     if (!empty($data->shared)) {
         $data->userid = 0; // Unpersonalize the batch.
     } else {
         $data->userid = $USER->id;
+    }
+
+    if (empty($data->param)) {
+        // Preserve the original itemid in param for detailed batch.
+        $data->param = $data->itemids;
     }
 
     unset($data->id);
@@ -81,25 +88,46 @@ if ($data = $form->get_data()) {
     redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => 'batchs', 'id' => $id)));
 }
 
+// second controller
+if ($action == 'delete') {
+    $batchid = required_param('batchid', PARAM_INT);
+    require_sesskey();
+    $DB->delete_records('report_learningtimecheck_btc', array('id' => $batchid));
+    redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => 'batchs', 'id' => $id)));
+}
+
 echo $OUTPUT->header();
 
-echo $OUTPUT->heading(get_string('scheduleabatch', 'report_learningtimecheck'));
+if ($itemid) {
+    echo $OUTPUT->heading(get_string('scheduleabatch', 'report_learningtimecheck'));
 
-$formdata = new StdClass();
-$formdata->params = json_encode(report_learningtimecheck_get_user_options());
-$formdata->filters = json_encode((!empty($SESSION->learningtimecheck->filterrules)) ? $SESSION->learningtimecheck->filterrules : array());
-$formdata->id = $id;
-$formdata->view = $view;
-$formdata->type = $view;
-$formdata->itemid = $itemid;
-$formdata->typelabel = get_string($view, 'report_learningtimecheck');
+    $formdata = new StdClass();
+    $formdata->params = json_encode(report_learningtimecheck_get_user_options());
+    $formdata->filters = json_encode((!empty($SESSION->learningtimecheck->filterrules)) ? $SESSION->learningtimecheck->filterrules : array());
+    $formdata->id = $id;
+    $formdata->view = $view;
+    $formdata->type = $view;
+    $formdata->detail = $detail;
+    $formdata->runtime = time() + 1800; // let half hour delay as minimum for a new immediate batch
+    $formdata->itemids = $itemid;
+    $formdata->param = $param;
+    $formdata->options = json_encode(report_learningtimecheck_get_user_options());
+    $formdata->typelabel = get_string($view, 'report_learningtimecheck');
+    $formdata->itemlabel = $itemid;
 
-$form->set_data($formdata);
+    $form->set_data($formdata);
+} else {
+    $formdata = new StdClass();
+    $formdata->id = $id;
+    $formdata->type = 'user';
+    $formdata->view = $view;
+    $formdata->options = json_encode(report_learningtimecheck_get_user_options());
+    $formdata->filters = json_encode((!empty($SESSION->learningtimecheck->filterrules)) ? $SESSION->learningtimecheck->filterrules : array());
+    $form->set_data($formdata);
+    echo $OUTPUT->heading(get_string('newbatch', 'report_learningtimecheck'));
+}
 
 echo $OUTPUT->box_start('learningtimecheck-progressbar');
-
-// echo $OUTPUT->heading(get_string('newbatch', 'report_learningtimecheck'));
-
 $form->display();
 echo $OUTPUT->box_end();
 

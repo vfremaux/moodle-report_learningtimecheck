@@ -60,54 +60,15 @@ $PAGE->set_url(new moodle_url('/report/learningtimecheck/export.php'));
 $PAGE->set_context($context);
 
 // Data recollection.
-/*
-$globals = null;
-
-if ($range == 'global') {
-    switch($exporttype) {
-        case 'userdetail':
-            $user = $DB->get_record('user', array('id' => $exportitem));
-            $data = report_learningtimecheck_user_course_results($id, $user);
-            break;
-        case 'user':
-            $user = $DB->get_record('user', array('id' => $exportitem));
-            if ($range == 'detail') {
-                $data = report_learningtimecheck_user_results_by_course($id, $user);
-            } else {
-                $data = report_learningtimecheck_user_results_by_course($id, $user);
-            }
-            break;
-        case 'course':
-            $course = $DB->get_record('course', array('id' => $exportitem));
-            $coursecontext = context_course::instance($course->id);
-            if ($groupingid) {
-                $courseusers = array();
-                if ($groupinggroups = $DB->get_records('groupings_groups', array('groupingid' => $groupingid))) {
-                    foreach ($groupinggroups as $gpm) {
-                        $courseusers = report_learningtimecheck_get_users($course->id, $gpm->id);
-                    }
-                }
-            } else {
-                $courseusers = report_learningtimecheck_get_users($course->id, $groupid);
-            }
-            $globals = array();
-            $data = report_learningtimecheck_course_results($id, $courseusers, $course->id, $globals);
-            break;
-        case 'cohort':
-            $cohort = $DB->get_record('cohort', array('id' => $exportitem));
-            $cohortmembers = report_learningtimecheck_get_cohort_users($cohort->id);
-            $data = report_learningtimecheck_cohort_results($id, $cohortmembers);
-            break;
-    }
-}
-*/
 
 $job = new StdClass;
 $job->type = $exporttype;
-$job->itemid = $exportitem;
+$job->itemids = $exportitem;
 $job->filters = json_encode(@$SESSION->learningtimecheck->rulefilters);
 $job->detail = $detail;
 $job->courseid = $courseid;
+$job->groupid = $groupid;
+$job->options = json_encode(report_learningtimecheck_get_user_options());
 $data = array();
 $globals = array();
 report_learningtimecheck_prepare_data($job, $data, $globals);
@@ -121,11 +82,17 @@ require_once($exportclassfile);
 $exportcontext = new StdClass();
 $exportcontext->exporttype = $exporttype;
 $exportcontext->exportitem = $exportitem;
+$exportcontext->param = $courseid;
+$exportcontext->exportfilename = $exporttype.'_'.$exportitem.'_'.date('Ymd-Hi', time());
+
+// this is a temp hack
+if ($exporttype == 'cohort' && $detail) {
+    $exportcontext->exporttype = 'cohortdetail';
+}
 
 $classname = $output.'_exporter';
 $exporter = new $classname($exportcontext);
 
-// print_object($data);
 $exporter->set_data($data, $globals);
 
 // Output production.

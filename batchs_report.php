@@ -18,48 +18,27 @@ if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
 
 $reportrenderer = $PAGE->get_renderer('report_learningtimecheck');
 
-echo $OUTPUT->heading(get_string('batchs', 'report_learningtimecheck'));
+echo $OUTPUT->heading(get_string('batchs', 'report_learningtimecheck'), 1);
 
-echo '<table width="100%" cellspacing="10" id="batchtable">';
-echo '<tr valign="top">';
-echo '<th width="48%">';
-echo get_string('pendings', 'report_learningtimecheck');
-echo '</th>';
-echo '<th width="4%"></th>';
-echo '<th width="48%">';
-echo get_string('results', 'report_learningtimecheck');
-echo '</th>';
-echo '</tr>';
-echo '<tr valign="top">';
-echo '<td width="48%">';
-echo $reportrenderer->batch_list();
-echo '</td>';
-echo '<td></td>';
-echo '<td width="48%">';
+echo '<div id="report-learningtimecheck-batchtable" class="container-fluid">';
+echo '<div class="row-fluid  report-learningtimecheck-batchrow">';
+echo '<div class="span6 report-learningtimecheck-batchcell">';
+echo $OUTPUT->heading(get_string('pendings', 'report_learningtimecheck'), 2);
+echo $reportrenderer->batch_list($id);
+echo '</div>';
+echo '</div>';
+echo $OUTPUT->heading(get_string('results', 'report_learningtimecheck'), 2);
+echo '<div class="row-fluid  report-learningtimecheck-batchrow">';
 echo $reportrenderer->batch_result_area();
-echo '</td>';
-echo '<tr>';
+echo '</div>';
+echo '</div>';
 
-// command line
-$clearallstr = get_string('clearall', 'report_learningtimecheck');
-$clearownedstr = get_string('clearowned', 'report_learningtimecheck');
-$clearmarksstr = get_string('clearmarks', 'report_learningtimecheck');
-$addbatchstr = get_string('addbatch', 'report_learningtimecheck');
-$makebatchstr = get_string('makebatch', 'report_learningtimecheck');
+// Command line.
 
-echo '<tr>';
-echo '<td colspan="2"><br/>';
-echo '<form name="batch_commands" action="batch_controller.php">';
-echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-echo '<input type="hidden" name="view" value="'.$view.'" />';
-echo '<input type="hidden" name="id" value="'.$id.'" />';
-echo '<input type="submit" name="clearall" value="'.$clearallstr.'" />';
-echo '<input type="submit" name="clearowned" value="'.$clearownedstr.'"/>';
-echo '<input type="submit" name="clearmarks" value="'.$clearmarksstr.'" />';
-echo '<input type="submit" name="addbatch" value="'.$addbatchstr.'" />';
-echo '<input type="submit" name="makebatchfrommarks" value="'.$makebatchstr.'" />';
-echo '</form>';
-echo '</td>';
-echo '</tr>';
+echo '<div class="row-fluid  report-learningtimecheck-batchrow">';
+echo '<div class="span12 report-learningtimecheck-batchcell">';
+echo $reportrenderer->batch_commands($view, $id);
+echo '</div>';
+echo '</div>';
 
-echo '</table>';
+echo '</div>';

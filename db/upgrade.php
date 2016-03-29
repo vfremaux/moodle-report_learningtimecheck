@@ -1,14 +1,40 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-function xmldb_report_learningtimecheck_upgrade($oldversion=0) {
+defined('MOODLE_INTERNAL') || die;
 
+/**
+ * @package    report_learningtimecheck
+ * @category   report
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * Standard upgrade handler.
+ * @param int $oldversion
+ */
+function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
     global $CFG, $THEME, $DB;
-    
+
     $dbman = $DB->get_manager();
 
     $result = true;
     //removed old upgrade stuff, as it now uses install.xml by default to install.
-    
+
     if ($oldversion < 2014041600) {
 
         // Define table report_learningtimecheck_btc to be created
@@ -87,7 +113,7 @@ function xmldb_report_learningtimecheck_upgrade($oldversion=0) {
         upgrade_plugin_savepoint(true, 2015021900, 'report', 'learningtimecheck');
     }
 
-    if ($oldversion < 2015022100) {
+    if ($oldversion < 2015022101) {
 
         // Add field for storing detail indicator.
         $table = new xmldb_table('report_learningtimecheck_btc');
@@ -105,7 +131,48 @@ function xmldb_report_learningtimecheck_upgrade($oldversion=0) {
         }
 
         // Learningtimecheck savepoint reached.
-        upgrade_plugin_savepoint(true, 2015022100, 'report', 'learningtimecheck');
+        upgrade_plugin_savepoint(true, 2015022101, 'report', 'learningtimecheck');
+    }
+
+    if ($oldversion < 2015022102) {
+
+        // Add field for storing detail indicator.
+        $table = new xmldb_table('report_learningtimecheck_btc');
+        $field = new xmldb_field('param', XMLDB_TYPE_CHAR, '30', null, null, null, null, 'itemid');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Learningtimecheck savepoint reached.
+        upgrade_plugin_savepoint(true, 2015022102, 'report', 'learningtimecheck');
+    }
+
+    if ($oldversion < 2015042302) {
+        $table = new xmldb_table('report_learningtimecheck_btc');
+        $field = new xmldb_field('itemid', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'itemids');
+            $field = new xmldb_field('itemids', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+            $dbman->change_field_type($table, $field);
+            $dbman->change_field_precision($table, $field);
+        }
+
+        // Learningtimecheck savepoint reached.
+        upgrade_plugin_savepoint(true, 2015042302, 'report', 'learningtimecheck');
+    }
+
+    if ($oldversion < 2015050200) {
+        $table = new xmldb_table('report_learningtimecheck_btc');
+        $field = new xmldb_field('options', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'filters');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Learningtimecheck savepoint reached.
+        upgrade_plugin_savepoint(true, 2015050200, 'report', 'learningtimecheck');
     }
 
     return $result;

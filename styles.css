@@ -16,3 +16,36 @@
 .learningtimecheck-report .generaltable {
     background-color:white;
 }
+
+.report-learningtimecheck-siteadmin{
+    background-color:#fff0f0;
+    border:1px solid #ffd0d0;
+    padding:5px;
+    margin-top:5px;
+}
+
+.report-learningtimecheck-batchcell.commands {
+    padding-top:20px;
+}
+
+#report-learningtimecheck-form-buttons {
+    margin-bottom:10px;
+}
+
+.zerowidth {
+    width:0px;
+    max-width:0px;
+    display:none;
+}
+
+#report-learningtimecheck-buttons{
+    line-height:24px;
+}
+
+#learningtimecheck-user-options > img {
+    vertical-align: middle;
+}
+
+#report-learningtimecheck-batch-commands {
+    margin-top:30px;
+}

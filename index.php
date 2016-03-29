@@ -51,9 +51,13 @@ $PAGE->requires->js('/mod/learningtimecheck/js/jquery.report.js');
 // Security : we yet are controlled against our originating course.
 
 require_login($fromcourse);
-$systemcontext = context_system::instance();
-require_capability('report/trainingsessions:view', $context);
 
+if (!$fromcourse) {
+    $viewcontext = context_system::instance();
+} else {
+    $viewcontext = context_course::instance($fromcourse->id);
+}
+require_capability('report/learningtimecheck:view', $context);
 
 $action = optional_param('what', '', PARAM_TEXT);
 if ($action) {
@@ -85,27 +89,15 @@ $reportrenderer = $PAGE->get_renderer('report_learningtimecheck');
 echo $OUTPUT->header();
 $OUTPUT->container_start();
 
-// Print tabs with options for user.
-$rows[0][] = new tabobject('user', "index.php?id={$fromcourse->id}&amp;view=user", get_string('user', 'report_learningtimecheck'));
-if (has_capability('report/learningtimecheck:viewother', $context)) {
-    $rows[0][] = new tabobject('course', "index.php?id={$fromcourse->id}&amp;view=course", get_string('course', 'report_learningtimecheck'));
-}
-if (has_capability('report/learningtimecheck:viewother', $systemcontext)) {
-    $rows[0][] = new tabobject('cohort', "index.php?id={$fromcourse->id}&amp;view=cohort", get_string('cohort', 'report_learningtimecheck'));
-}
-if (has_capability('report/learningtimecheck:viewother', $context)) {
-    $rows[0][] = new tabobject('batchs', "index.php?id={$fromcourse->id}&amp;view=batchs", get_string('batchs', 'report_learningtimecheck'));
-}
-
-print_tabs($rows, $view);
+echo $reportrenderer->tabs($fromcourse);
 
 $OUTPUT->container_end();
 
 @ini_set('max_execution_time','3000');
 raise_memory_limit('250M');
 
-if (file_exists($CFG->dirroot."/report/learningtimecheck/{$view}_report.php")) {
-    include($CFG->dirroot."/report/learningtimecheck/{$view}_report.php");
+if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php')) {
+    include($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php');
 } else {
     print_error('errorbadviewid', 'report_learningtimecheck');
 }

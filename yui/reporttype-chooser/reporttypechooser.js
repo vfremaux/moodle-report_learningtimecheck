@@ -1,4 +1,4 @@
-YUI.add('moodle-report-learningtimecheck-reporttypechooser', function(Y) {
+YUI.add('moodle-report_learningtimecheck-reporttypechooser', function(Y) {
     var REPORTTYPECHOOSER = function() {
         REPORTTYPECHOOSER.superclass.constructor.apply(this, arguments);
     }

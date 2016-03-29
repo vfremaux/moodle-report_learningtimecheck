@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * @package    report_learningtimecheck
+ * @category   report
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once($CFG->dirroot.'/report/learningtimecheck/export/export.class.php');
 require_once($CFG->dirroot.'/backup/util/xml/output/memory_xml_output.class.php');
 require_once($CFG->dirroot.'/backup/util/xml/xml_writer.class.php');

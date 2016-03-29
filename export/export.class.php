@@ -1,4 +1,20 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die;
 
 abstract class learningtimecheck_exporter {
 
@@ -8,7 +24,7 @@ abstract class learningtimecheck_exporter {
     var $data;
 
     /**
-     * Some potential addiitonal data a content formatter may need
+     * Some potential additionnal data a content formatter may need
      */
     var $globals;
 
@@ -21,6 +37,11 @@ abstract class learningtimecheck_exporter {
      * An object giving export context such as ecxplicit output type and exported item information
      */
     var $exportcontext;
+    
+    /**
+     * the pathed filename
+     */
+    var $filename;
 
     function __construct($exportcontext = null) {
         $this->exportcontext = $exportcontext;
@@ -33,7 +54,7 @@ abstract class learningtimecheck_exporter {
      */
     function set_data(&$data, &$globals) {
         $this->data = $data;
-        $this->globals = $globals;
+        $this->globals = (array)$globals;
     }
 
     /**
@@ -68,7 +89,9 @@ abstract class learningtimecheck_exporter {
     /**
      *
      */
-    function save_content() {
+    function save_content($tempdirectory = null) {
+        global $CFG, $DB;
+
         if ($this->data == null) {
             throw new coding_exception('Data not initialized');
         }
@@ -79,15 +102,35 @@ abstract class learningtimecheck_exporter {
 
         $fs = get_file_storage();
 
+        $itemidentifier = report_learningtimecheck_get_itemidentifier($this->exportcontext->exporttype, $this->exportcontext->exportitem);
+
         if (is_string($this->content)) {
-            $filerecord = new StdClass;
-            $filerecord->contextid = $this->exportcontext->contextid;
-            $filerecord->component = 'report_learningtimecheck';
-            $filerecord->filearea = 'batchresult';
-            $filerecord->itemid = 0;
-            $filerecord->filepath = '/'.date('Y-m-d', time()).'/';
-            $filerecord->filename = $this->exportcontext->type.'_'.$this->exportcontext->id.'.'.$this->exportcontext->output;
-            $fs->create_file_from_string($filerecord, $this->content);
+            if (empty($tempdirectory)) {
+
+                $fs->delete_area_files($this->exportcontext->contextid, 'report_learningtimecheck', 'batchresult', 0);
+
+                $filerecord = new StdClass;
+                $filerecord->contextid = $this->exportcontext->contextid;
+                $filerecord->component = 'report_learningtimecheck';
+                $filerecord->filearea = 'batchresult';
+                $filerecord->itemid = 0;
+                $filerecord->filepath = '/';
+                $filerecord->filename = $this->exportcontext->exporttype.'_'.$itemidentifier.'_'.strftime('%Y%m%d%H%M', time()).'.'.$this->exportcontext->output;
+                $this->filename = '<moodlefiles>/report_learningtimecheck/batchresult/0/'.$filerecord->filepath.$filerecord->filename;
+                $fs->create_file_from_string($filerecord, $this->content);
+            } else {
+                $filename = $this->exportcontext->exporttype.'_'.$itemidentifier.'.'.$this->exportcontext->output;
+                $this->filename = $CFG->tempdir.'/'.$tempdirectory.'/'.$filename;
+                if ($FILE = fopen($CFG->tempdir.'/'.$tempdirectory.'/'.$filename, 'w')) {
+                    fputs($FILE, $this->content);
+                    fclose($FILE);
+                    return $tempdirectory.'/'.$filename;
+                }
+            }
         }
+    }
+
+    function get_filename() {
+        return $this->filename;
     }
 }

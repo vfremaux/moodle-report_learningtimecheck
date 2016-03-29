@@ -13,12 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
 
 define('PDF_WIDTH_FACTOR', 1.85);
 
 // Protects core cron from reloading here the actualized TCPDF class.
 if (!class_exists('TCPDF')) {
-    require_once($CFG->dirroot.'/admin/tool/delivery/tcpdf/tcpdf.php');
+    require_once($CFG->dirroot.'/local/vflibs/tcpdf/tcpdf.php');
 }
 
 /**
@@ -34,7 +35,7 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from view.php
 }
 
-function report_learningtimecheck_check_page_break(&$pdf, $y, $last = false) {
+function report_learningtimecheck_check_page_break(&$pdf, $y, &$isnewpage, $last = false) {
     static $pdfpage = 1;
 
     if ($y > 240) {
@@ -49,6 +50,7 @@ function report_learningtimecheck_check_page_break(&$pdf, $y, $last = false) {
             report_learningtimecheck_print_footer($pdf);
             // Add images and lines.
             report_learningtimecheck_draw_frame($pdf);
+            $isnewpage = true;
         }
     }
 
@@ -73,6 +75,12 @@ function report_learningtimecheck_check_page_break(&$pdf, $y, $last = false) {
  */
 function report_learningtimecheck_print_text(&$pdf, $text, $x, $y, $l = '', $h = '', $align = 'L', $font='freeserif', $style = '', $size=10) {
 
+    if (preg_match('/^<h>/', $text)) {
+        $text = str_replace('<h>', '', $text);
+        $size += 2;
+        $style = 'B';
+    }
+
     $pdf->setFont($font, $style, $size);
     $pdf->writeHTMLCell($l, $h, $x, $y, $text, 0, 1, 0, true, $align);
 
@@ -93,10 +101,10 @@ function report_learningtimecheck_print_pdf_overheadline(&$pdf, $y, &$table){
     $pdf->SetXY($x, $y);
     $pdf->SetFontSize(10);
     $border = array('LTBR' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255)));
-    
+
     $i = 0;
     foreach ($table->pdfhead1 as $header) {
-        if (empty($table->noprint[$i])) {
+        if (!empty($table->pdfprintinfo[$i])) {
             list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfbgcolor1[$i]);
             $pdf->SetFillColor($r, $v, $b);
             list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfcolor1[$i], true);
@@ -131,13 +139,13 @@ function report_learningtimecheck_print_pdf_headline($pdf, $y, &$table) {
 
     $i = 0;
     foreach ($table->pdfhead2 as $header) {
-        if (empty($table->noprint[$i])) {
-            $cellsize = str_replace('%', '', $table->size2[$i]) * PDF_WIDTH_FACTOR;
+        if ($table->pdfprintinfo[$i]) {
+            $cellsize = str_replace('%', '', $table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
             list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfbgcolor2[$i]);
             $pdf->SetFillColor($r, $v, $b);
             list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfcolor2[$i], true);
             $pdf->SetTextColor($r, $v, $b);
-            $pdf->writeHTMLCell($cellsize, 0, $x, $y, $header, $border, 0, 1, true, $table->align[$i]);
+            $pdf->writeHTMLCell($cellsize, 0, $x, $y, $header, $border, 0, 1, true, $table->pdfalign2[$i]);
             $x += $cellsize;
         }
         $i++;
@@ -154,11 +162,36 @@ function report_learningtimecheck_print_pdf_headline($pdf, $y, &$table) {
  *
  * @param stdClass $pdf
  * @param int $y vertical position
+ * @param int $table the table with all data
+ * @return the new Y pos after the log line has been written
+ */
+function report_learningtimecheck_print_pdf_studentline($pdf, $y, $username) {
+
+    $x = 10;
+    $pdf->SetXY($x, $y);
+    $pdf->SetFontSize(12);
+
+    $pdf->SetFillColor(230);
+    $pdf->SetTextColor(0);
+
+    $pdf->writeHTMLCell($cellsize, 0, $x, $y, $username, null, 0, 1, true);
+
+    $pdf->SetFillColor(255);
+    $pdf->SetTextColor(0);
+
+    return $pdf->getY();
+}
+
+/**
+ * Sends text to output given the following params.
+ *
+ * @param stdClass $pdf
+ * @param int $y vertical position
  * @param array $dataline the data to print
  * @param objectref $table the table with all data
  * @return the new Y pos after the log line has been written
  */
-function report_learningtimecheck_print_pdf_dataline($pdf, $y, $dataline, &$table, $line) {
+function report_learningtimecheck_print_pdf_dataline(&$pdf, $y, $dataline, &$table, $line) {
 
     $x = 10;
     $pdf->SetXY($x, $y);
@@ -166,57 +199,62 @@ function report_learningtimecheck_print_pdf_dataline($pdf, $y, $dataline, &$tabl
 
     $i = 0;
     foreach ($dataline as $datum) {
-        // echo "Cell $i<br/>";
-        if (empty($table->noprint[$i])) {
-            $cellsize = str_replace('%', '', @$table->size2[$i]) * PDF_WIDTH_FACTOR;
+        // debug_trace("Data Cell $i: ".$table->pdfprintinfo[$i]."<br/>\n");
+        if ($table->pdfprintinfo[$i]) {
+            // debug_trace("Printing Data Cell\n");
+            $cellsize = str_replace('%', '', @$table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
             if (is_object($datum) || isset($span)) {
+                // debug_trace("Data $i) Print start<br/>\n");
                 if (!empty($datum->colspan)) {
+                    // debug_trace("Data $i) init $spantoreach <br/>\n");
                     // This is a span start, save content and span to reach
-                    if (@$table->pdfprintctl[$i] == 'raw') {
-                        $content = ''.@$table->rawdata[$line][$i];
-                    } else {
-                        $content = $datum->text;
-                    }
+                    $content = ''.@$datum->text;
                     $spantoreach = $datum->colspan;
                     $span = 1;
-                    $align = $table->align[$i];
+                    $align = $table->pdfalign2[$i];
                     $size = $cellsize;
-                    // echo "$i) init $spantoreach ";
                     $i++;
                     continue;
-                } elseif(!isset($span)) {
+
+                } elseif (!isset($span)) {
                     // Non spanning single cell
-                    // echo "$i) normal out ($x, $y, $cellsize) with ".htmlentities($datum->text).'<br/>';
-                    $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum->text, 0, 0, 0, true, @$table->align[$i]);
+                    // debug_trace("Data $i) normal out ($x, $y, $cellsize) with ".htmlentities($datum->text)."<br/>\n");
+                    $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum->text, 0, 0, 0, true, @$table->pfdalign2[$i]);
                     $x += $cellsize;
                     $i++;
                     continue;
                 }
+
                 if ($span < $spantoreach) {
                     $span++;
-                    // echo "$i) up $span ";
-                    $size += str_replace('%', '', $table->size2[$i]) * PDF_WIDTH_FACTOR;
+                    // debug_trace("Data $i) Up span to $span<br/>\n");
+                    $size += str_replace('%', '', $table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
+                    $i++;
+                    continue;
                 }
+
                 if ($span == $spantoreach) {
                     unset($spantoreach);
                     unset($span);
-                    // echo "$i) resolve at ($x,$y, $cellsize) with ".htmlentities($content).'<br/>';
+                    // debug_trace("Data $i) resolve at ($x,$y, $cellsize) with ".htmlentities($content)."<br/>\n");
                     $pdf->writeHTMLCell($size, 0, $x, $y, $content, 0, 0, 0, true, $align);
                     $x += $size;
+                    $i++;
+                    continue;
                 }
+
+                debug_trace("Data $i) Weird case<br/>\n");
             } else {
-                if (@$table->pdfprintctl[$i] == 'raw') {
-                    $datum = ''.@$table->rawdata[$line][$i];
-                }
-                $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum, 0, 0, 0, true, $table->align[$i]);
-                // echo "$i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum).'<br/>';
+                // debug_trace("Data $i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum)."<br/>\n");
+                // $datum = ''.@$table->pdfdata[$line][$i];
+                $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum, 0, 0, 0, true, $table->pdfalign2[$i]);
                 $x += $cellsize;
             }
         }
         $i++;
     }
 
-    return $pdf->getY() + 5;
+    return $pdf->getY();
 }
 
 /**
@@ -237,47 +275,43 @@ function report_learningtimecheck_print_pdf_sumline($pdf, $y, $dataline, &$table
 
     $i = 0;
     foreach ($dataline as $datum) {
-        // echo "Cell $i<br/>";
-        if (empty($table->noprint[$i])) {
-            $cellsize = str_replace('%', '', @$table->size2[$i]) * PDF_WIDTH_FACTOR;
-            if (is_object($datum) || isset($span)) {
+        // debug_trace("Cell $i: ".$table->pdfprintinfo[$i]."<br/>\n");
+        $cellsize = str_replace('%', '', @$table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
+        if (is_object($datum) || isset($span)) {
+            if ($table->pdfprintinfo[$i]) {
                 if (!empty($datum->colspan)) {
                     // This is a span start, save content and span to reach
-                    if (@$table->pdfprintctl[$i] == 'raw') {
-                        $content = ''.@$table->rawdata[$line][$i];
-                    } else {
-                        $content = $datum->text;
-                    }
+                    $content = $datum->text;
                     $spantoreach = $datum->colspan;
                     $span = 1;
                     $align = $table->align[$i];
                     $size = $cellsize;
                     $sumbgcolor = @$table->pdfbgcolor3[$i];
                     $sumcolor = @$table->pdfcolor3[$i];
-                    // echo "$i) init $spantoreach ";
+                    // debug_trace("$i) init $spantoreach <br/>\n");
                     $i++;
                     continue;
                 } elseif(!isset($span)) {
                     // Non spanning single cell
-                    // echo "$i) normal out ($x, $y, $cellsize) with ".htmlentities($datum->text).'<br/>';
+                    // debug_trace("$i) normal out ($x, $y, $cellsize) with ".htmlentities($datum->text)."<br/>\n");
                     list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfbgcolor3[$i]);
                     $pdf->SetFillColor($r, $v, $b);
                     list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfcolor3[$i], true);
                     $pdf->SetTextColor($r, $v, $b);
-                    $pdf->writeHTMLCell($cellsize, 15, $x, $y, $datum->text, $border, 0, 1, true, @$table->align[$i]);
+                    $pdf->writeHTMLCell($cellsize, 15, $x, $y, $datum->text, $border, 0, 1, true, @$table->pdfalign3[$i]);
                     $x += $cellsize;
                     $i++;
                     continue;
                 }
                 if ($span < $spantoreach) {
                     $span++;
-                    // echo "$i) up $span ";
-                    $size += str_replace('%', '', $table->size2[$i]) * PDF_WIDTH_FACTOR;
+                    debug_trace("$i) up $span<br/>\n");
+                    $size += str_replace('%', '', $table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
                 }
                 if ($span == $spantoreach) {
                     unset($spantoreach);
                     unset($span);
-                    // echo "$i) resolve at ($x,$y, $cellsize) with ".htmlentities($content).'<br/>';
+                    // debug_trace("$i) resolve at ($x,$y, $cellsize) with ".htmlentities($content)."<br/>\n");
                     list($r, $v, $b) = report_learningtimecheck_decode_html_color($sumbgcolor);
                     $pdf->SetFillColor($r, $v, $b);
                     list($r, $v, $b) = report_learningtimecheck_decode_html_color($sumcolor, true);
@@ -285,18 +319,15 @@ function report_learningtimecheck_print_pdf_sumline($pdf, $y, $dataline, &$table
                     $pdf->writeHTMLCell($size, 15, $x, $y, $content, $border, 0, 1, true, $align);
                     $x += $size;
                 }
-            } else {
-                if (@$table->pdfprintctl[$i] == 'raw') {
-                    $datum = ''.@$table->rawdata[$line][$i];
-                }
-                list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfbgcolor3[$i]);
-                $pdf->SetFillColor($r, $v, $b);
-                list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfcolor3[$i], true);
-                $pdf->SetTextColor($r, $v, $b);
-                $pdf->writeHTMLCell($cellsize, 15, $x, $y, $datum, $border, 0, 1, true, $table->align[$i]);
-                // echo "$i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum).'<br/>';
-                $x += $cellsize;
             }
+        } else {
+            list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfbgcolor3[$i]);
+            $pdf->SetFillColor($r, $v, $b);
+            list($r, $v, $b) = report_learningtimecheck_decode_html_color(@$table->pdfcolor3[$i], true);
+            $pdf->SetTextColor($r, $v, $b);
+            $pdf->writeHTMLCell($cellsize, 15, $x, $y, $datum, $border, 0, 1, true, $table->pdfalign3[$i]);
+            // debug_trace("$i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum)."<br/>\n");
+            $x += $cellsize;
         }
         $i++;
     }

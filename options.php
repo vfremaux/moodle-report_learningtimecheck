@@ -30,6 +30,7 @@ require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 $id = required_param('id', PARAM_INT); // Course id
 $view = optional_param('view', 'course', PARAM_ALPHA);
 $itemid = optional_param('itemid', null, PARAM_INT);
+$return = optional_param('return', '', PARAM_TEXT);
 
 // This is the origin course. But reports are given over the course level.
 if (!$fromcourse = $DB->get_record('course', array('id' => $id))) {
@@ -39,14 +40,12 @@ if (!$fromcourse = $DB->get_record('course', array('id' => $id))) {
 $PAGE->set_url('/report/learningtimecheck/options.php', array('id' => $id, 'view' => $view));
 $PAGE->set_pagelayout('report');
 
-// Security : we yet are controlled against our originating course.
+// Security.
 
 require_login($fromcourse);
 $context = context_course::instance($fromcourse->id);
 require_capability('report/learningtimecheck:view', $context);
 require_capability('report/learningtimecheck:viewother', $context);
-
-add_to_log($fromcourse->id, "course", "learningtimecheck options", "/report/learningtimecheck/index.php?id=$fromcourse->id", $fromcourse->id);
 
 $form = new UserOptionsForm();
 
@@ -55,24 +54,40 @@ if ($form->is_cancelled()) {
 }
 
 if ($data = $form->get_data()) {
-    $data->workdays = implode(',', $data->workday);
-    unset($data->workday);
+    if (!isset($data->hideidnumber)) {
+        $data->hideidnumber = 0;
+    }
+    if (!isset($data->hidegroup)) {
+        $data->hidegroup = 0;
+    }
+    if (!isset($data->hideunmarkedchecks)) {
+        $data->hideunmarkedchecks = 0;
+    }
+    if (!isset($data->hideheadings)) {
+        $data->hideheadings = 0;
+    }
+    if (!isset($data->hidenocredittime)) {
+        $data->hidenocredittime = 0;
+    }
+    $DB->delete_records('report_learningtimecheck_opt', array('userid' => $USER->id));
     foreach ($data as $key => $value) {
-        if (in_array($key, array('submitbutton', 'view', 'id'))) {
+        if (in_array($key, array('submitbutton', 'view', 'id', 'itemid'))) {
             continue;
         }
-        if ($oldrec = $DB->get_record('report_learningtimecheck_opt', array('userid' => $USER->id, 'name' => $key))) {
-            $oldrec->value = $value;
-            $DB->update_record('report_learningtimecheck_opt', $oldrec);
-        } else {
-            $rec = new StdClass();
-            $rec->userid = $USER->id;
-            $rec->name = $key;
-            $rec->value = trim($value);
-            $DB->insert_record('report_learningtimecheck_opt', $rec);
+        $rec = new StdClass();
+        $rec->userid = $USER->id;
+        $rec->name = $key;
+        $rec->value = trim($value);
+        $DB->insert_record('report_learningtimecheck_opt', $rec);
+    }
+    if ($data->return) {
+        list($plugin, $cmid, $view) = explode('/', $data->return);
+        if ($plugin == 'mod') {
+            $url = new moodle_url('/mod/learningtimecheck/view.php', array('view' => $view, 'id' => $cmid, 'sesskey' => sesskey()));
+            redirect($url);
         }
     }
-    redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => $view, 'id' => $id)));
+    redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => $view, 'id' => $id, 'itemid' => $itemid)));
 }
 
 echo $OUTPUT->header();
@@ -85,7 +100,9 @@ if (array_key_exists('workdays', $formdata)) {
     unset($formdata->workdays);
 }
 $formdata->id = $id;
+$formdata->itemid = $itemid;
 $formdata->view = $view;
+$formdata->return = $return;
 $form->set_data($formdata);
 echo $OUTPUT->box_start('learningtimecheck-progressbar');
 $form->display();

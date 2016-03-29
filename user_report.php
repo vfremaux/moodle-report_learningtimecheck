@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Course learningtimecheck user report view
  *
@@ -25,24 +27,26 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('You cannot use this script this way');
-}
-
 require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_user_form.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
 $itemid = optional_param('itemid', null, PARAM_INT); // Item is a user
+$page = optional_param('page', 0, PARAM_INT);
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
-$mygroups = groups_get_my_groups();
+$mygroups = groups_get_user_groups($fromcourse->id, $USER->id);
+$pagesize = 50;
+$alluserscount = 0;
 
 if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $context)) {
 
     $form = new SearchUserForm();
 
+    $pagerecnum = $page * $pagesize;
+
     if ($data = $form->get_data()) {
          $select = " firstname LIKE '%{$data->searchpattern}%' OR lastname LIKE '%{$data->searchpattern}%' ";
-         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,firstname,lastname');
+         $alluserscount = $DB->count_records_select('user', $select, array());
+         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,firstname,lastname', $pagerecnum, $pagesize);
     }
 
     $formdata = new Stdclass;
@@ -64,7 +68,11 @@ if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $cont
             $table->data[] = array('<a href="'.$thisurl.'?id='.$id.'&view=user&itemid='.$user->id.'">'.fullname($user).'</a>');
         }
 
+        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl);
+
         echo html_writer::table($table);
+
+        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl);
 
     } else {
         echo $OUTPUT->box(get_string('noresults', 'report_learningtimecheck'));
@@ -79,17 +87,20 @@ if ($itemid != $USER->id && !has_capability('report/learningtimecheck:viewother'
 
 $user = $DB->get_record('user', array('id' => $itemid));
 
-$usertable = report_learningtimecheck_user_results_by_course($id, $user);
-
 echo $OUTPUT->user_picture($user, array('size' => 45));
 echo $OUTPUT->heading(get_string('userreport', 'report_learningtimecheck', $user));
+echo $reportrenderer->options('user', $id, $itemid);
+$useroptions = report_learningtimecheck_get_user_options();
 
+$usertable = report_learningtimecheck_user_results_by_course($id, $user, $globals, $useroptions, true);
+
+echo '<div id="report-learningtimecheck-buttons">';
 echo $reportrenderer->print_export_excel_button($id, 'user', $itemid);
 echo $reportrenderer->print_export_pdf_button($id, 'user', $itemid);
+echo $reportrenderer->print_export_pdf_button($id, 'usercursus', $itemid, false, null, get_string('exportpdfcursus', 'report_learningtimecheck'));
 echo $reportrenderer->print_back_search_button('user', $id);
-echo $reportrenderer->print_user_options_button('user', $id, $itemid);
-$options = report_learningtimecheck_get_user_options();
-echo $reportrenderer->print_send_to_batch_button('user', $id, $itemid, $options);
+echo $reportrenderer->print_send_to_batch_button('user', $id, $itemid, $useroptions);
+echo '</div>';
 
 echo $OUTPUT->box_start('learningtimecheck-progressbar');
 echo html_writer::table($usertable);

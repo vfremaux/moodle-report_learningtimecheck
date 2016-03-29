@@ -1,7 +1,23 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/report/learningtimecheck/export/export.class.php');
-require_once($CFG->dirroot.'/report/learningtimecheck/tcpdf/tcpdf.php');
+require_once($CFG->dirroot.'/local/vflibs/tcpdf/tcpdf.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/pdfgeneratelib.php');
 
 class pdf_exporter extends learningtimecheck_exporter {
@@ -29,9 +45,9 @@ class pdf_exporter extends learningtimecheck_exporter {
         // Portrait
         $x = 20;
         $y = 70;
-        $lineincr = 8;
-        $dblelineincr = 16;
-        $smalllineincr = 5;
+        $lineincr = (!empty($this->data->lineincr)) ? $this->data->lineincr : 8;
+        $dblelineincr = $lineincr * 2;
+        $smalllineincr = (!empty($this->data->smalllineincr)) ? $this->data->smalllineincr : 4;
 
         // Set alpha to no-transparency
         // $pdf->SetAlpha(1);
@@ -70,7 +86,7 @@ class pdf_exporter extends learningtimecheck_exporter {
                 $user = $DB->get_record('user', array('id' => $this->exportcontext->exportitem));
                 $y = report_learningtimecheck_print_text($pdf, fullname($user), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
 
-                $course = $DB->get_record('course', array('id' => $this->exportcontext->exportitem ));
+                $course = $DB->get_record('course', array('id' => $this->exportcontext->param));
                 // $y += $dblelineincr;
                 $label = get_string('reportforcourse', 'report_learningtimecheck').':';
                 report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
@@ -90,11 +106,27 @@ class pdf_exporter extends learningtimecheck_exporter {
 
                 $label = get_string('usercourseprogress', 'report_learningtimecheck').':';
                 report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-                $y = report_learningtimecheck_print_text($pdf, $this->data->globals->courseprogressratio, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+                $y = report_learningtimecheck_print_text($pdf, $this->globals['courseprogressratio'], $x + 50, $y, '', '', 'L', 'freesans', '', 13);
 
                 $label = get_string('usertimeearned', 'report_learningtimecheck').':';
                 report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-                $y = report_learningtimecheck_print_text($pdf, learningtimecheck_format_time($this->data->globals->courseearnedtime), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+                $y = report_learningtimecheck_print_text($pdf, learningtimecheck_format_time($this->globals['courseearnedtime']), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+                break;
+
+            case 'usercursus':
+                $y += $lineincr;
+                $label = get_string('reportforuser', 'report_learningtimecheck').':';
+                report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+                $user = $DB->get_record('user', array('id' => $this->exportcontext->exportitem));
+                $y = report_learningtimecheck_print_text($pdf, fullname($user), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+
+                $label = get_string('usercursusprogress', 'report_learningtimecheck').':';
+                report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+                $y = report_learningtimecheck_print_text($pdf, $this->globals['userprogressratio'], $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+
+                $label = get_string('usertimeearned', 'report_learningtimecheck').':';
+                report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+                $y = report_learningtimecheck_print_text($pdf, learningtimecheck_format_time($this->globals['userearnedtime']), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
                 break;
 
             case 'user':
@@ -107,7 +139,7 @@ class pdf_exporter extends learningtimecheck_exporter {
                 break;
 
             case 'course':
-                $course = $DB->get_record('course', array('id' => $this->exportcontext->exportitem ));
+                $course = $DB->get_record('course', array('id' => $this->exportcontext->exportitem));
                 // $y += $dblelineincr;
                 $label = get_string('reportforcourse', 'report_learningtimecheck').':';
                 report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
@@ -163,6 +195,7 @@ class pdf_exporter extends learningtimecheck_exporter {
                 break;
 
             case 'cohort':
+            case 'cohortdetail':
                 $cohort = $DB->get_record('cohort', array('id' => $this->exportcontext->exportitem));
                 // $y += $dblelineincr;
                 $label = get_string('reportforcohort', 'report_learningtimecheck').':';
@@ -173,46 +206,92 @@ class pdf_exporter extends learningtimecheck_exporter {
 
         $y += $lineincr;
 
+        if (!empty($this->globals['startrange'])) {
+            $label = get_string('startrange', 'report_learningtimecheck').':';
+            report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 12);
+            $y = report_learningtimecheck_print_text($pdf, userdate(0 + $this->globals['startrange']), $x + 50, $y, '', '', 'L', 'freesans', '', 12);
+        }
+        if (!empty($this->globals['endrange'])) {
+            $label = get_string('endrange', 'report_learningtimecheck').':';
+            report_learningtimecheck_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 12);
+            $y = report_learningtimecheck_print_text($pdf, userdate(0 + $this->globals['endrange']), $x + 50, $y, '', '', 'L', 'freesans', '', 12);
+        }
+
+        $y += $lineincr;
+
         // redraw headers labels for pdf layout
 
-        if ($this->exportcontext->exporttype != 'userdetail') {
-            $y = report_learningtimecheck_print_pdf_overheadline($pdf, $y, $this->data);
-            $y += $lineincr;
+        $dataarr = array();
+        if ($this->exportcontext->exporttype == 'cohortdetail') {
+            // this may need to be reorganised for other interactive "detail" report queries.
+            foreach ($this->data as $stubid => $datastub) {
+                $dataarr[$stubid] = $datastub->data;
+            }
+        } else {
+            $dataarr[] = $this->data;
         }
-        $y = report_learningtimecheck_print_pdf_headline($pdf, $y, $this->data);
-        $y += $lineincr;
-        $y += $lineincr;
 
-        $datacount = count($this->data->data);
-        if ($datacount) {
-            for ($i = 0 ; $i < $datacount ; $i++) {
-                if (is_object($this->data->data[$i])) {
-                    $dataline = array();
-                    foreach ($this->data->data[$i]->cells as $acell) {
-                        $dataline[] = $acell;
-                        if (!empty($acell->colspan)) {
-                            for ($j = 1 ; $j < $acell->colspan ; $j++) {
-                                $dataline[] = '';
+        foreach ($dataarr as $dataid => $data) {
+            if ($this->exportcontext->exporttype == 'cohortdetail') {
+                $user = $DB->get_record('user', array('id' => $dataid));
+                $y += $lineincr;
+                $y = report_learningtimecheck_print_pdf_studentline($pdf, $y, fullname($user));
+                $y += $lineincr;
+            }
+
+            if ($this->exportcontext->exporttype != 'userdetail') {
+                if (!empty($table->pdfhead1)) {
+                    $y = report_learningtimecheck_print_pdf_overheadline($pdf, $y, $data);
+                    $y += $lineincr;
+                }
+            }
+            $y = report_learningtimecheck_print_pdf_headline($pdf, $y, $data);
+            $y += $lineincr;
+            $y += $dblelineincr;
+    
+            $datacount = count($data->pdfdata);
+            if ($datacount) {
+                for ($i = 0 ; $i < $datacount ; $i++) {
+                    if (is_object($data->pdfdata[$i])) {
+                        $dataline = array();
+                        foreach ($data->pdfdata[$i]->cells as $acell) {
+                            $dataline[] = $acell;
+                            if (!empty($acell->colspan)) {
+                                for ($j = 1 ; $j < $acell->colspan ; $j++) {
+                                    $dataline[] = '';
+                                }
                             }
                         }
+                    } else {
+                        $dataline = $data->pdfdata[$i];
                     }
-                } else {
-                    $dataline = $this->data->data[$i];
+                    if ($i == $datacount - 1) {
+                        // This is last line.
+                        $y = report_learningtimecheck_print_pdf_sumline($pdf, $y, $dataline, $data, $i);
+                    } else {
+                        $y = report_learningtimecheck_print_pdf_dataline($pdf, $y, $dataline, $data, $i);
+                    }
+                    $isnewpage = false;
+                    $y = report_learningtimecheck_check_page_break($pdf, $y, $isnewpage, false);
+                    if ($isnewpage) {
+                        // Add a page column header
+                        if ($this->exportcontext->exporttype != 'userdetail') {
+                            // $y = report_learningtimecheck_print_pdf_overheadline($pdf, $y, $data);
+                            $y += $lineincr;
+                        }
+                        $y = report_learningtimecheck_print_pdf_headline($pdf, $y, $data);
+                        $y += $lineincr;
+                        $y += $lineincr;
+                    }
+                    $y += $dblelineincr;
                 }
-                if ($i == $datacount - 1) {
-                    // This is last line.
-                    $y = report_learningtimecheck_print_pdf_sumline($pdf, $y, $dataline, $this->data, $i);
-                } else {
-                    $y = report_learningtimecheck_print_pdf_dataline($pdf, $y, $dataline, $this->data, $i);
-                }
-                $y = report_learningtimecheck_check_page_break($pdf, $y);
-                $y += 10;
             }
+
+            $y = report_learningtimecheck_check_page_break($pdf, $y, $foo, true);
         }
 
-        $y = report_learningtimecheck_check_page_break($pdf, $y, true);
-
         $return = $pdf->Output('', 'S');
+
         $this->content = $return;
     }
 }

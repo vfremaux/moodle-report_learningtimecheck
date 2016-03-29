@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Report capabilities
  *
- * @package    report
- * @subpackage learningtimecheck
+ * @package    report_learningtimecheck
+ * @category   report
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -59,6 +61,18 @@ $capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
+        ),
+    ),
+
+    /*
+     * People having this capability are sensible to 'working days' filter. this has no role
+     * preassigned and should be added to a custom role for marking sensible users.
+     */
+    'report/learningtimecheck:iswdsensitive' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
         ),
     ),
 );
