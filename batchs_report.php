@@ -21,16 +21,19 @@ $reportrenderer = $PAGE->get_renderer('report_learningtimecheck');
 echo $OUTPUT->heading(get_string('batchs', 'report_learningtimecheck'), 1);
 
 echo '<div id="report-learningtimecheck-batchtable" class="container-fluid">';
+
 echo '<div class="row-fluid  report-learningtimecheck-batchrow">';
+
 echo '<div class="span6 report-learningtimecheck-batchcell">';
 echo $OUTPUT->heading(get_string('pendings', 'report_learningtimecheck'), 2);
 echo $reportrenderer->batch_list($id);
 echo '</div>';
-echo '</div>';
+
+echo '<div class="span6 report-learningtimecheck-batchcell">';
 echo $OUTPUT->heading(get_string('results', 'report_learningtimecheck'), 2);
-echo '<div class="row-fluid  report-learningtimecheck-batchrow">';
 echo $reportrenderer->batch_result_area();
 echo '</div>';
+
 echo '</div>';
 
 // Command line.

@@ -164,7 +164,7 @@ function report_learningtimecheck_get_cohort_users($cohortid){
  * on line or dumped onto a report file format
  * @param int $id
  * @param array $cohortmembers
- * @param objectref &$globals an objevt to be filled by the function with global aggregates
+ * @param objectref &$globals an object to be filled by the function with global aggregates
  * @param array $useroptions an array of display options from the current user's session
  * @return a table definition with all data for pdf, csv or html output
  */
@@ -796,6 +796,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
 
     // the raw data for exports
     $table->rawdata = array();
+    $table->pdfdata = array();
 
     $reportsettings = new StdClass;
     $reportsettings->showoptional = false;
@@ -1604,19 +1605,23 @@ function report_learningtimecheck_create_form_elements(&$mform, $type) {
 
     switch($type) {
         case 'user':
-            $useroptions = $DB->get_records_menu('user', array('deleted' => 0), 'id, CONCAT(lastname, \' \', firstname)', 'id, lastname, firstname');
-            $elements[] = &$mform->createElement('select', 'itemid', get_string('user'), $useroptions);
+            $users = $DB->get_records('user', array('deleted' => 0, 'confirmed' => 1), 'lastname,firstname', 'id,lastname,firstname');
+            $useroptions = array();
+            foreach ($users as $u) {
+                $useroptions[$u->id] = $u->lastname.' '.$u->firstname;
+            }
+            $elements[] = &$mform->createElement('select', 'itemids', get_string('user'), $useroptions);
             break;
 
         case 'cohort':
             $contextsystem = context_system::instance();
             $cohortoptions = $DB->get_records_menu('cohort', array('contextid' => $contextsystem->id), 'name', 'id, name');
-            $elements[] = &$mform->createElement('select', 'itemid', get_string('cohort', 'report_learningtimecheck'), $cohortoptions);
+            $elements[] = &$mform->createElement('select', 'itemids', get_string('cohort', 'report_learningtimecheck'), $cohortoptions);
             break;
 
         case 'course':
             $courseoptions = $DB->get_records_menu('course', array(), 'sortorder', 'id, fullname');
-            $elements[] = &$mform->createElement('select', 'itemid', get_string('course'), $courseoptions);
+            $elements[] = &$mform->createElement('select', 'itemids', get_string('course'), $courseoptions);
             break;
     }
 
@@ -1912,7 +1917,7 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                 // Global course document prints a single document with user by user summary
                 $course = $DB->get_record('course', array('id' => $job->itemids));
                 $coursecontext = context_course::instance($course->id);
-                $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id, '.get_all_user_name_fields(true, 'u').', u.idnumber', 'lastname, firstname', 0, 0, $job->groupid, '', false);
+                $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id, '.get_all_user_name_fields(true, 'u').', u.idnumber', 'lastname, firstname', 0, 0, 0 + @$job->groupid, '', false);
                 learningtimecheck_apply_rules($targetusers, $job->filters);
                 $data = report_learningtimecheck_course_results($job->itemids, $targetusers, $course->id, $globals, $options);
                 break;
@@ -1939,7 +1944,7 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                     $reportdata->itemid = $job->itemids;
                     $reportdata->jobcontext = $DB->get_record('course', array('id' => $courseid));
                     $reportdata->data = report_learningtimecheck_user_course_results($notusedid, $user, $userglobals, $options);
-                    $globals[$uid] = $userglobals;
+                    $globals[$courseid] = $userglobals;
                     $data[$courseid] = $reportdata;
                 }
                 break;
@@ -2004,48 +2009,69 @@ function report_learningtimecheck_get_itemidentifier($type, $id) {
         case 'usercursus':
         case 'user':
                 switch ($config->infilenameuseridentifier) {
-                    case REPORT_IDENTIFIER_ID:
-                        $itemidentifier = $id;
-                        break;
 
                     case REPORT_IDENTIFIER_IDNUMBER:
                         $itemidentifier = $DB->get_field('user', 'idnumber', array('id' => $id));
+                        if (empty($itemidentifier)) {
+                            $itemidentifier = 'id$'.$id;
+                        }
                         break;
 
                     case REPORT_IDENTIFIER_NAME:
                         $itemidentifier = $DB->get_field('user', 'username', array('id' => $id));
                         break;
+
+                    case REPORT_IDENTIFIER_ID:
+                    default:
+                        $itemidentifier = $id;
+                        break;
+
                 }
             break;
         case 'course':
                 switch ($config->infilenamecourseidentifier) {
-                    case REPORT_IDENTIFIER_ID:
-                        $itemidentifier = $id;
-                        break;
 
                     case REPORT_IDENTIFIER_IDNUMBER:
                         $itemidentifier = $DB->get_field('course', 'idnumber', array('id' => $id));
+                        if (empty($itemidentifier)) {
+                            $itemidentifier = 'id$'.$id;
+                        }
                         break;
 
                     case REPORT_IDENTIFIER_NAME:
                         $itemidentifier = $DB->get_field('course', 'shortname', array('id' => $id));
                         break;
+
+                    case REPORT_IDENTIFIER_ID:
+                    default:
+                        $itemidentifier = $id;
+                        break;
+
                 }
             break;
         case 'cohort':
                 switch ($config->infilenamecohortidentifier) {
-                    case REPORT_IDENTIFIER_ID:
-                        $itemidentifier = $id;
-                        break;
 
                     case REPORT_IDENTIFIER_IDNUMBER:
                         $itemidentifier = $DB->get_field('cohort', 'idnumber', array('id' => $id));
+                        if (empty($itemidentifier)) {
+                            $itemidentifier = 'id$'.$id;
+                        }
                         break;
 
                     case REPORT_IDENTIFIER_NAME:
                         $itemidentifier = $DB->get_field('cohort', 'name', array('id' => $id));
                         break;
+
+                    case REPORT_IDENTIFIER_ID:
+                    default:
+                        $itemidentifier = $id;
+                        break;
+
                 }
+            break;
+
+        default:
             break;
     }
 
@@ -2396,7 +2422,7 @@ function report_learningtimecheck_is_empty_line_or_format(&$text, $resetfirst = 
 
     // we may have a risk the BOM is present on first line
     if ($resetfirst) $first = true;
-    if (!isset($textlib)) $textlib = new textlib(); // singleton
+    if (!isset($textlib)) $textlib = new core_text(); // singleton
     if ($first) {
         $text = $textlib->trim_utf8_bom($text);
         $first = false;
@@ -2429,4 +2455,10 @@ function report_learningtimecheck_check_report_range($useroptions, $itemcheck) {
     }
 
     return true;
+}
+
+function report_learningtimecheck_get_user_workdays($userid) {
+    global $DB;
+
+    return $DB->get_records('event', array('userid' => $userid, 'eventtype' => 'user', 'uuid' => 'learningtimecheck'));
 }

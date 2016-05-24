@@ -92,6 +92,9 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('generateselectusers', 'report_learningtimecheck'));
 
+$checkurl = new moodle_url('/report/learningtimecheck/checkwdmarks.php');
+echo '<div class="menu"><a href="'.$checkurl.'">'.get_string('checkwdmarks', 'report_learningtimecheck').'</a></div>';
+
 echo '<form name="generatemarksform" method="post">';
 
 $table = new html_table();
