@@ -116,7 +116,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $str = '';
 
-        echo '<div class="span6 report-learningtimecheck-batchcell batchs">';
         $str .= $OUTPUT->heading(get_string('globalbatchs', 'report_learningtimecheck'), 3);
 
         $sharedbatchs = $DB->get_records('report_learningtimecheck_btc', array('userid' => 0));
@@ -149,7 +148,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         }
                         break;
                     case 'course':
-                        $courses = $DB->get_records_list('course', 'id', explode(',', $batch->itemids), 'id,'.get_all_user_name_fields(true, ''), '*');
+                        $courses = $DB->get_records_list('course', 'id', explode(',', $batch->itemids), 'id,shortname,idnumber,fullname', '*');
                         if ($courses) {
                             $shortnames = array();
                             foreach ($courses as $c) {
@@ -182,9 +181,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             $newbatchsclause = ' AND processed IS NULL OR processed = 0 OR (processed > runtime AND repeatdelay > 0)';
         }
 
-        echo '</div>';
-
-        echo '<div class="span6 report-learningtimecheck-batchcell batchs">';
         $mybatchs = $DB->get_records_select('report_learningtimecheck_btc', " userid =  $USER->id $newbatchsclause");
 
         $str .= $OUTPUT->heading(get_string('ownedbatchs', 'report_learningtimecheck'), 3);
@@ -216,17 +212,25 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 switch ($batch->type) {
                     case 'user':
                         $user = $DB->get_record('user', array('id' => $batch->itemids), 'id,firstname,lastname');
-                        $row[] = fullname($user);
+                        $row[] = $batch->name.'<br/>'.$user->lastname.' '.$user->firstname;
                         break;
 
                     case 'course':
                         $course = $DB->get_record('course', array('id' => $batch->itemids));
-                        $row[] = '['.$course->shortname.'] '.$course->fullname;
+                        if (!$course) {
+                            // Course has gone away
+                            continue;
+                        }
+                        $row[] = $batch->name.'<br/>['.$course->shortname.'] '.$course->fullname;
                         break;
 
                     case 'cohort':
                         $cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name');
-                        $row[] = $cohort->name;
+                        if (!$cohort) {
+                            // Cohort has gone away.
+                            continue;
+                        }
+                        $row[] = $batch->name.'<br/>'.$cohort->name;
                         break;
                 }
                 $row[] = learningtimecheck_format_time($batch->repeatdelay, 'min');
@@ -243,7 +247,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             }
             $str .= html_writer::table($table);
         }
-        echo '</div>';
 
         return $str;
     }

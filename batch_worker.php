@@ -116,6 +116,7 @@ if (!$sendresult) {
         $exportcontext->exporttype = $job->type;
         $exportcontext->exportitem = $job->itemids;
         $exportcontext->param = $job->param;
+        $exportcontext->output = $job->output;
         $exportcontext->contextid = $contextid;
         $exportcontext->exportfilename = $job->type.'_'.$job->itemids.'_'.date('Ymd-Hi', time());
 
@@ -127,7 +128,10 @@ if (!$sendresult) {
             $exporter->set_data($data, $globals);
 
             $exporter->output_content();
-            $exporter->save_content();
+            if (!$storedfile = $exporter->save_content()) {
+                mtrace('Failure in producing batch export.');
+                die;
+            }
         } else {
             // When producing a detailed, we need make a temp dir, then produce all single docs inside
             // Zip all files and present the final zip as document.
@@ -178,6 +182,7 @@ if (!$sendresult) {
 
             if (!$storedfile = $packer->archive_to_storage($files, $contextid, 'report_learningtimecheck', 'batchresult', 0, '/', $exportname)) {
                 mtrace('Failure in archiving.');
+                die;
             }
         }
     }

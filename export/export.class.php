@@ -117,7 +117,7 @@ abstract class learningtimecheck_exporter {
                 $filerecord->filepath = '/';
                 $filerecord->filename = $this->exportcontext->exporttype.'_'.$itemidentifier.'_'.strftime('%Y%m%d%H%M', time()).'.'.$this->exportcontext->output;
                 $this->filename = '<moodlefiles>/report_learningtimecheck/batchresult/0/'.$filerecord->filepath.$filerecord->filename;
-                $fs->create_file_from_string($filerecord, $this->content);
+                return $fs->create_file_from_string($filerecord, $this->content);
             } else {
                 $filename = $this->exportcontext->exporttype.'_'.$itemidentifier.'.'.$this->exportcontext->output;
                 $this->filename = $CFG->tempdir.'/'.$tempdirectory.'/'.$filename;

@@ -13,8 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    report_learningtimecheck
+ * @category   report
+ * @copyright  2014 Dan Poltawski <dan@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require('../../../config.php');
-require($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
+require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
 // Security.
 require_login();
