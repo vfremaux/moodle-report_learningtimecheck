@@ -2431,7 +2431,7 @@ function report_learningtimecheck_is_empty_line_or_format(&$text, $resetfirst = 
 
     // we may have a risk the BOM is present on first line
     if ($resetfirst) $first = true;
-    if (!isset($textlib)) $textlib = new textlib(); // singleton
+    if (!isset($textlib)) $textlib = new core_text(); // singleton
     if ($first) {
         $text = $textlib->trim_utf8_bom($text);
         $first = false;
