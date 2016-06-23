@@ -61,6 +61,9 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('checkwdmarks', 'report_learningtimecheck'));
 
+$importurl = new moodle_url('/report/learningtimecheck/import/importwdmarks.php');
+echo '<div class="menu"><a href="'.$importurl.'">'.get_string('generatemarks', 'report_learningtimecheck').'</a></div>';
+
 echo '<form name="checkmarksform" method="post">';
 $userselector->display();
 echo '<div><input type="submit" name="generate" value="'.get_string('checkusermarks', 'report_learningtimecheck').'" /> <input type="submit" name="clearmarks" value="'.get_string('clearusermarks', 'report_learningtimecheck').'" /></div>';
@@ -81,7 +84,7 @@ if ($results) {
         echo html_writer::table($table);
     }
 } else {
-    echo $OUTPUT->box($OUTPUT->notification('chooseauser', 'report_learningtimecheck'));
+    echo $OUTPUT->box($OUTPUT->notification(get_string('chooseauser', 'report_learningtimecheck')));
 }
 
 echo $OUTPUT->footer();

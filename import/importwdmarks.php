@@ -44,6 +44,9 @@ $config = get_config('report_learningtimecheck');
 
 echo $OUTPUT->header();
 
+$checkurl = new moodle_url('/report/learningtimecheck/checkwdmarks.php');
+echo '<div class="menu"><a href="'.$checkurl.'">'.get_string('checkwdmarks', 'report_learningtimecheck').'</a></div>';
+
 echo $OUTPUT->heading(get_string('importmarks', 'report_learningtimecheck'));
 
 $mform = new ImportMarksForm();
