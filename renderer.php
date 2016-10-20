@@ -506,22 +506,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $str = '';
 
-        $mayhide = false;
-
         foreach($useroptions as $key => $value) {
             if ($key == 'sortby') {
                 $sortby = ($value) ? $value : 'name';
-                $title = get_string($key.$sortby, 'report_learningtimecheck');
-                $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
-            } elseif ($key == 'progressbars') {
-                $ICONS = array('items', 'time', 'both');
-                $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
-                $str .= '<img src="'.$OUTPUT->pix_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
+                $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'"> ';
             } else {
                 if ($value) {
-                    if (in_array($key, array('hidenocredittime','startrange', 'endrange'))) {
-                        $mayhide = true;
-                    }
                     if (preg_match('/range$/', $key)) {
                         $title = get_string($key, 'report_learningtimecheck').': '.userdate($value);
                     } else {
@@ -533,12 +523,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         }
 
         $optionsbutton = $this->print_user_options_button($view, $id, $itemid);
-
-        $str = '<div id="learningtimecheck-user-options">'.get_string('useroptions', 'report_learningtimecheck').' '.$str.' </div>';
-        if ($mayhide) {
-            $str .= '<div class="report-learningtimecheck-dataloss-advice">'.get_string('possibledataloss', 'report_learningtimecheck').'</div>';
-        }
-        $str .= '<div>'.$optionsbutton.'</div>';
+        $str = '<div id="learningtimecheck-user-options">'.get_string('useroptions', 'report_learningtimecheck').' '.$str.' '.$optionsbutton.'</div>';
 
         return $str;
     }
