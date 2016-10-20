@@ -243,7 +243,7 @@ function report_learningtimecheck_print_pdf_dataline(&$pdf, $y, $dataline, &$tab
                     continue;
                 }
 
-                // debug_trace("Data $i) Weird case<br/>\n");
+                debug_trace("Data $i) Weird case<br/>\n");
             } else {
                 // debug_trace("Data $i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum)."<br/>\n");
                 // $datum = ''.@$table->pdfdata[$line][$i];
@@ -305,7 +305,7 @@ function report_learningtimecheck_print_pdf_sumline($pdf, $y, $dataline, &$table
                 }
                 if ($span < $spantoreach) {
                     $span++;
-                    // debug_trace("$i) up $span<br/>\n");
+                    debug_trace("$i) up $span<br/>\n");
                     $size += str_replace('%', '', $table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
                 }
                 if ($span == $spantoreach) {

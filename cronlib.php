@@ -68,7 +68,7 @@ function report_learningtimecheck_cron() {
              * so we could spend all the multicore power by parallelizing.
              * The security key avoids weird use of the workers by anyone
              */
-            $rq = 'joblist='.implode(',', $jobgroup).'&securekey='.urlencode(md5($SITE->fullname.@$CFG->passwordsaltmain));
+            $rq = 'joblist='.implode(',', $jobgroup).'&securekey='.urlencode(md5($SITE->fullname.$CFG->passwordsaltmain));
 
             // Launch tasks by firing CURL shooting.
             $uri = new moodle_url('/report/learningtimecheck/batch_worker.php');
