@@ -19,19 +19,19 @@
  *
  * @package     report_learningtimecheck
  * @category    report
- * @author      Valery Fremaux <valery.fremaux@gmail.com>
- * @copyright   2014 onwards Valery Fremaux (http://www.mylearningfactory.com)
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright   Valery Fremaux (http://www.mylearningfactory.com)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2015100802; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2015050500; // Requires this Moodle version
-$plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics)
+$plugin->version = 2015100802; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires = 2015111000; // Requires this Moodle version.
+$plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_RC;
-$plugin->release = '2.9.0 (build 2015100802)';
+$plugin->release = '3.0.0 (build 2015100802)';
 $plugin->dependencies = array('mod_learningtimecheck' => '2015061200');
 
 // Non moodle attributes.
-$plugin->codeincrement = '2.9.0000';
+$plugin->codeincrement = '3.0.0000';
