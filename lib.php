@@ -1530,11 +1530,6 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettings, &$useroptions, &$user, &$idnumber) {
     global $CB, $COURSE, $DB;
     static $CMCACHE = array();
-    static $modinfo;
-
-    if (empty($modinfo)) {
-        $modinfo = get_fast_modinfo($COURSE->id, $user->id);
-    }
 
     if (empty($reportsettings->showoptional) && ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_YES)) {
         return false;
@@ -1562,12 +1557,8 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Check module can be elected.
     if (!empty($check->moduleid)) {
         if (!array_key_exists($check->moduleid, $CMCACHE)) {
-            try {
-                $cm = $modinfo->get_cm($check->moduleid);
-                $CMCACHE[$check->moduleid] = $cm;
-            } catch(Exception $e) {
-                $CMCACHE[$check->moduleid] = null;
-            }
+            $cm = $DB->get_record('course_modules', array('id' => $check->moduleid));
+            $CMCACHE[$check->moduleid] = $cm;
         }
 
         if (empty($CMCACHE[$check->moduleid])) {
@@ -1582,7 +1573,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
             }
         }
 
-        if (!$cm->uservisible) {
+        if (!groups_course_module_visible($CMCACHE[$check->moduleid], $user->id)) {
             return false;
         }
         $idnumber = $CMCACHE[$check->moduleid]->idnumber;
