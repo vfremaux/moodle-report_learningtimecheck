@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    report_learningtimecheck
- * @category   report
- * @author     Valery Fremaux <valery.fremaux@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_learningtimecheck
+ * @category    report
+ * @author      Valery Fremaux <valery.fremaux@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
 require('../../config.php');
@@ -66,7 +65,10 @@ echo '<div class="menu"><a href="'.$importurl.'">'.get_string('generatemarks', '
 
 echo '<form name="checkmarksform" method="post">';
 $userselector->display();
-echo '<div><input type="submit" name="generate" value="'.get_string('checkusermarks', 'report_learningtimecheck').'" /> <input type="submit" name="clearmarks" value="'.get_string('clearusermarks', 'report_learningtimecheck').'" /></div>';
+echo '<div>';
+echo '<input type="submit" name="generate" value="'.get_string('checkusermarks', 'report_learningtimecheck').'" />';
+echo ' <input type="submit" name="clearmarks" value="'.get_string('clearusermarks', 'report_learningtimecheck').'" />';
+echo '</div>';
 echo '</form>';
 
 if ($results) {

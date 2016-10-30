@@ -19,7 +19,7 @@
  *
  * @package    report
  * @subpackage learningtimecheck
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @copyright  2014 onwards Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,3 +31,6 @@ $plugin->component = 'report_learningtimecheck'; // Full name of the plugin (use
 $plugin->maturity = MATURITY_RC;
 $plugin->release = '2.7.0 (build 2015100800)';
 $plugin->dependencies = array('mod_learningtimecheck' => '2015042200', 'local_vflibs' => '2015122000');
+
+// Non moodle attributes.
+$plugin->codeincrement = '2.7.0000';
