@@ -52,7 +52,7 @@ class UserOptionsForm extends moodleform {
         $mform->addElement('date_selector', 'endrange', get_string('endrange', 'report_learningtimecheck'), array('optional' => true));
         $mform->setType('endrange', PARAM_INT);
 
-        $mform->addElement('header', 'head1', get_string('columnoptions', 'report_learningtimecheck'));
+        $mform->addElement('header', 'head2', get_string('columnoptions', 'report_learningtimecheck'));
 
         $mform->addElement('checkbox', 'hideidnumber', get_string('hideidnumber', 'report_learningtimecheck'));
         $mform->setType('hideidnumber', PARAM_BOOL);
