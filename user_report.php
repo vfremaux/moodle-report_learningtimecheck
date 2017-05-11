@@ -46,7 +46,7 @@ if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $cont
     if ($data = $form->get_data()) {
          $select = " firstname LIKE '%{$data->searchpattern}%' OR lastname LIKE '%{$data->searchpattern}%' ";
          $alluserscount = $DB->count_records_select('user', $select, array());
-         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,firstname,lastname', $pagerecnum, $pagesize);
+         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,'.get_all_user_name_fields(true, ''), $pagerecnum, $pagesize);
     }
 
     $formdata = new Stdclass;

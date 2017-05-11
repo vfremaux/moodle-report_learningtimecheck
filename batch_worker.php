@@ -35,16 +35,21 @@ $sendresult = optional_param('distribute', 0, PARAM_INT);
 $PAGE->set_context(context_system::instance());
 
 // Security.
-// this script can be run through a cron CURL call using an internal static security key without anny 
-// user session.
-// In case there is no security key provided, this could be result of an interactive online run request
-// from a logged user, thus we require for valid sesskey to allow the script to run.
+
+/*
+ * this script can be run through a cron CURL call using an internal static security key without anny 
+ * user session.
+ * In case there is no security key provided, this could be result of an interactive online run request
+ * from a logged user, thus we require for valid sesskey to allow the script to run.
+ */
 
 $securekey = optional_param('securekey', '', PARAM_RAW);
 $internalkey = md5($SITE->fullname.@$CFG->passwordsaltmain);
 
 if (!empty($securekey)) {
-    if ($internalkey != $securekey) die('You cannot fire workers this way');
+    if ($internalkey != $securekey) {
+        die('You cannot fire workers this way');
+    }
 } else {
     $id = required_param('id', PARAM_INT);
 
@@ -63,10 +68,12 @@ if (!empty($securekey)) {
 set_time_limit(1200);
 
 if ($interactive) {
-    $PAGE->set_url(new moodle_url('/report/learningtimecheck/batch_worker.php', array('joblist' => $joblist, 'interactive' => $interactive)));
+    $params = array('joblist' => $joblist, 'interactive' => $interactive);
+    $PAGE->set_url(new moodle_url('/report/learningtimecheck/batch_worker.php', $params));
     $PAGE->set_context(context_system::instance());
     $PAGE->set_pagetype('admin');
-    $PAGE->navbar->add(get_string('pluginname', 'report_learningtimecheck'), new moodle_url('/report/learningtimecheck/index.php', array('view' => 'batchs', 'id' => $id)));
+    $reporturl = new moodle_url('/report/learningtimecheck/index.php', array('view' => 'batchs', 'id' => $id));
+    $PAGE->navbar->add(get_string('pluginname', 'report_learningtimecheck'), $reporturl);
     $PAGE->navbar->add(get_string('batchwork', 'report_learningtimecheck'));
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('batchwork', 'report_learningtimecheck'));
@@ -98,7 +105,8 @@ if (!$sendresult) {
         $reportidentifier = report_learningtimecheck_get_itemidentifier($job->type, $job->itemids);
         $exportname = $job->type.'_'.$reportidentifier.'_'.date('YmdHi', time()).'.'.$job->output;
 
-        // Two arrays to be filled
+        // Two arrays to be filled.
+
         $data = array();
         $globals = array();
         report_learningtimecheck_prepare_data($job, $data, $globals);
@@ -133,16 +141,18 @@ if (!$sendresult) {
                 die;
             }
         } else {
-            // When producing a detailed, we need make a temp dir, then produce all single docs inside
-            // Zip all files and present the final zip as document.
+            /*
+             * When producing a detailed, we need make a temp dir, then produce all single docs inside
+             * Zip all files and present the final zip as document.
+             */
 
-            // Make temp
+            // Make temp.
             $gendate = date('Ymd_His', time());
             $tempdirectory = 'ltc_report_'.$gendate;
 
             make_temp_directory($tempdirectory);
 
-            switch($job->type) {
+            switch ($job->type) {
                 case 'user':
                     $detailexporttype = 'userdetail';
                     break;
@@ -175,12 +185,14 @@ if (!$sendresult) {
 
             $files['reports'] = $CFG->tempdir.'/'.$tempdirectory;
 
-            // Finally zip everything
+            // Finally zip everything.
+
             $packer = new zip_packer();
             $exportname = preg_replace('/\\.'.$job->output.'$/', '.zip', $exportname);
             mtrace("Exporting as $exportname ");
 
-            if (!$storedfile = $packer->archive_to_storage($files, $contextid, 'report_learningtimecheck', 'batchresult', 0, '/', $exportname)) {
+            if (!$storedfile = $packer->archive_to_storage($files, $contextid, 'report_learningtimecheck',
+                                                           'batchresult', 0, '/', $exportname)) {
                 mtrace('Failure in archiving.');
                 die;
             }
@@ -192,7 +204,7 @@ if (!$sendresult) {
     if (!$interactive || $sendresult) {
 
         if ($sendresult) {
-            // We dpo not have yet a storedfile but it is present in storage
+            // We do not have yet a storedfile but it is present in storage.
             $resultfileid = optional_param('resultfile', 0, PARAM_INT);
 
             // Reinforce security to access the file.
@@ -221,8 +233,7 @@ if (!$sendresult) {
                             JobID: $job->id
                             Output: $job->output
                         ';
-                        $posthtml = '
-                        ';
+                        $posthtml = '';
                         @email_to_user($destination, $USER, $postsubject, $posttext, $posthtml);
                     }
                 }
@@ -251,7 +262,7 @@ if (!$sendresult) {
         // Repeatdelay in minutes.
         $DB->set_field('report_learningtimecheck_btc', 'runtime', $job->runtime + $job->repeatdelay * 60, array('id' => $job->id));
 
-        // Shift option dates accordingly
+        // Shift option dates accordingly.
         $options = json_decode($job->options);
         if (!empty($options)) {
             if ($options->startrange) {

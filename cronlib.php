@@ -33,7 +33,7 @@ require_once($CFG->dirroot.'/report/learningtimecheck/multi_curl.php');
  * availability of your computing resources. Daytime compilations should be done
  * as less as possible, or using interactive, unity report build.
  */
-function report_learningtimecheck_cron() {
+function report_learningtimecheck_crontask() {
     global $DB, $SITE, $CFG;
 
     mtrace("Starting Learningtimecheck Cron.");
@@ -53,7 +53,7 @@ function report_learningtimecheck_cron() {
             mtrace("Preparing jobgroup ".($i+1));
             $jobgroups[$i][] = $tid;
             $i++;
-            if ($i == REPORT_LEARNINGTIMECHECK_MAX_WORKERS) {
+            if ($i == REPORT_LTC_MAX_WORKERS) {
                 $i = 0;
             }
         }
@@ -68,7 +68,7 @@ function report_learningtimecheck_cron() {
              * so we could spend all the multicore power by parallelizing.
              * The security key avoids weird use of the workers by anyone
              */
-            $rq = 'joblist='.implode(',', $jobgroup).'&securekey='.urlencode(md5($SITE->fullname.$CFG->passwordsaltmain));
+            $rq = 'joblist='.implode(',', $jobgroup).'&securekey='.urlencode(md5($SITE->fullname.@$CFG->passwordsaltmain));
 
             // Launch tasks by firing CURL shooting.
             $uri = new moodle_url('/report/learningtimecheck/batch_worker.php');
