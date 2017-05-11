@@ -30,8 +30,6 @@ if (!class_exists('admin_setting_configimage')) {
 }
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
-defined('MOODLE_INTERNAL') || die;
-
 $options = array(
     24 * HOURSECS => '1 '.get_string('day'),
     48 * HOURSECS => '2 '.get_string('days'),

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
+defined('MOODLE_INTERNAL') || die();
 
 $reportrenderer = $PAGE->get_renderer('report_learningtimecheck');
 
