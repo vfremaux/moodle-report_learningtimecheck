@@ -311,6 +311,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $str;
     }
 
+    /**
+     * @param string $type the view (type of report)
+     * @param int $courseid the ID of the course in the current context
+     * @param int $itemid the reportable item id (user id or courseid, or cohortid)
+     * @param string $return where to return (module or report)
+     */
     public function print_user_options_button($type, $courseid, $itemid, $return = '') {
         global $CFG;
 
@@ -499,6 +505,11 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         print_tabs($rows, $view);
     }
 
+    /**
+     * @param string $view
+     * @param int $id
+     * @param int $itemid
+     */
     function options($view, $id, $itemid) {
         global $OUTPUT;
 
