@@ -126,7 +126,7 @@ function report_learningtimecheck_pluginfile($course, $cm, $context, $filearea, 
 
     $forcedownload = true;
 
-    session_get_instance()->write_close();
+    \core\session\manager::write_close();
     send_stored_file($file, 60*60, 0, $forcedownload);
 }
 
@@ -823,8 +823,10 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                 $table->data[] = $row1;
                 $table->pdfdata[] = $row1;
             }
+
             if ($checks = $clobj->get_checks($user->id)) {
-                foreach ($checks as $ck => $check) {
+
+				foreach ($checks as $ck => $check) {
 
                     if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                         continue;
@@ -867,7 +869,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $data[4] = $marktime = report_learningtimecheck_get_marktime($check, $clobj, true);
                         $data[5] = $isvalid = report_learningtimecheck_is_valid($check);
                         $data[6] = $marker = fullname($teacher);
-                    } elseif ($check->usertimestamp) {
+                    } else if ($check->usertimestamp) {
                         $data[4] = $marktime = report_learningtimecheck_get_marktime($check, $clobj, true);
                         $data[5] = $isvalid = report_learningtimecheck_is_valid($check);
                         $data[6] = $marker = get_string('selfmarked', 'report_learningtimecheck');
@@ -1565,7 +1567,21 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
                 $cm = $modinfo->get_cm($check->moduleid);
                 $CMCACHE[$check->moduleid] = $cm;
             } catch(Exception $e) {
-                $CMCACHE[$check->moduleid] = null;
+                rebuild_course_cache($COURSE->id);
+            }
+
+            // Second try once course rebuilt.
+            try {
+                $cm = $modinfo->get_cm($check->moduleid);
+                $CMCACHE[$check->moduleid] = $cm;
+            } catch(Exception $e) {
+                // Third try.
+                $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
+                if (empty($cm)) {
+                    // Forget this module we tried everything.
+                    return false;
+                }
+                $cm->uservisible = $cm->visible;
             }
         } else {
             $cm = $CMCACHE[$check->moduleid];

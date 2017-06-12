@@ -99,14 +99,14 @@ if ($action == 'delete') {
 
 echo $OUTPUT->header();
 
-$hasrules = (!empty($SESSION->learningtimecheck->filterrules);
+$hasrules = !empty($SESSION->learningtimecheck->filterrules);
 
 if ($itemid) {
     echo $OUTPUT->heading(get_string('scheduleabatch', 'report_learningtimecheck'));
 
     $formdata = new StdClass();
     $formdata->params = json_encode(report_learningtimecheck_get_user_options());
-    $formdata->filters = json_encode($hasrules) ? $SESSION->learningtimecheck->filterrules : array());
+    $formdata->filters = json_encode($hasrules) ? $SESSION->learningtimecheck->filterrules : array();
     $formdata->id = $id;
     $formdata->view = $view;
     $formdata->type = $view;
