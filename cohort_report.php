@@ -56,7 +56,10 @@ if (empty($itemid)) {
 
         foreach ($results as $cid => $cohort) {
             $countusers = $DB->count_records('cohort_members', array('cohortid' => $cohort->id));
-            $table->data[] = array('<a href="'.$thisurl->out_omit_querystring().'?id='.$id.'&view=cohort&itemid='.$cohort->id.'">'.$cohort->name.'</a> ('.$countusers.' '.get_string('users').')<br>'.$cohort->description);
+            $linkurl = $thisurl->out_omit_querystring().'?id='.$id.'&view=cohort&itemid='.$cohort->id;
+            $link = '<a href="'.$linkurl.'">'.$cohort->name.'</a> ('.$countusers.' '.get_string('users').')<br>':
+            $link .= $cohort->description;
+            $table->data[] = array($link);
         }
 
         echo html_writer::table($table);
