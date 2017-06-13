@@ -45,7 +45,8 @@ class batchreports_task extends \core\task\scheduled_task {
      */
     public function execute() {
         global $CFG;
-        require_once($CFG->dirroot.'/report/learningtimecheck/cronlib.php');
-        report_learningtimecheck_cron();
+
+        include_once($CFG->dirroot.'/report/learningtimecheck/cronlib.php');
+        \report_learningtimecheck_crontask();
     }
 }
