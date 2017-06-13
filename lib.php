@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * This file contains functions used by the trainingsessions report
  *
@@ -24,19 +22,20 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2012 Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/renderer.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/xlib.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/multi_curl.php');
 
-// The max number of report build workers. This will depend on your processing capabilities (number of clusters/cores/threads)
-define('REPORT_LEARNINGTIMECHECK_MAX_WORKERS', 4);
+// The max number of report build workers. This will depend on your processing capabilities (number of clusters/cores/threads).
+define('REPORT_LTC_MAX_WORKERS', 4);
 define('REPORT_IDENTIFIER_ID', 0);
 define('REPORT_IDENTIFIER_IDNUMBER', 1);
 define('REPORT_IDENTIFIER_NAME', 2);
 
-define('DEBUG_LEARNINGTIMECHECK_CHECK', 0);
+define('DEBUG_LTC_CHECK', 0);
 /**
  * This function extends the navigation with the report items
  *
@@ -880,7 +879,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                     }
 
                     // This is  a check raw information array for exports
-                    if ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_HEADING) {
+                    if ($check->itemoptional == LTC_OPTIONAL_HEADING) {
                         $rawdata = array();
                         $rawdata[0] = '';
                         $rawdata[1] = '<h>'.$check->displaytext;
@@ -902,7 +901,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                     $table->rawdata[] = $rawdata;
 
                     $pdfdata = $rawdata;
-                    if ($check->itemoptional != LEARNINGTIMECHECK_OPTIONAL_HEADING) {
+                    if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
                         $pdfdata[2] .= ' min';
                         $pdfdata[3] .= ' min';
                     }
@@ -1136,7 +1135,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             continue;
                         }
 
-                        if ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_NO) {
+                        if ($check->itemoptional == LTC_OPTIONAL_NO) {
                             // This is a real marking module
                             $globals->totaluseritems++;
                             $globals->totalusertime += $check->credittime;
@@ -1192,7 +1191,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                         }
     
                         // This is  a check raw information array for exports
-                        if ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_HEADING) {
+                        if ($check->itemoptional == LTC_OPTIONAL_HEADING) {
                             $rawdata = array();
                             $rawdata[0] = '';
                             $rawdata[1] = $check->displaytext;
@@ -1214,7 +1213,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                         $table->rawdata[] = $rawdata;
     
                         $pdfdata = $rawdata;
-                        if ($check->itemoptional != LEARNINGTIMECHECK_OPTIONAL_HEADING) {
+                        if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
                             $pdfdata[2] .= ' min';
                             $pdfdata[3] .= ($pdfdata[3]) ? ' min' : '';
                             $pdfdata[5] = ($isvalid) ? $yesstr : $nostr;
@@ -1530,12 +1529,17 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettings, &$useroptions, &$user, &$idnumber) {
     global $CB, $COURSE, $DB;
     static $CMCACHE = array();
+    static $modinfo;
 
-    if (empty($reportsettings->showoptional) && ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_YES)) {
+    if (empty($modinfo)) {
+        $modinfo = get_fast_modinfo($COURSE->id, $user->id);
+    }
+
+    if (empty($reportsettings->showoptional) && ($check->itemoptional == LTC_OPTIONAL_YES)) {
         return false;
     }
 
-    if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LEARNINGTIMECHECK_OPTIONAL_HEADING)) {
+    if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
         return false;
     }
 
@@ -1557,17 +1561,23 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Check module can be elected.
     if (!empty($check->moduleid)) {
         if (!array_key_exists($check->moduleid, $CMCACHE)) {
-            $cm = $DB->get_record('course_modules', array('id' => $check->moduleid));
-            $CMCACHE[$check->moduleid] = $cm;
+            try {
+                $cm = $modinfo->get_cm($check->moduleid);
+                $CMCACHE[$check->moduleid] = $cm;
+            } catch(Exception $e) {
+                $CMCACHE[$check->moduleid] = null;
+            }
+        } else {
+            $cm = $CMCACHE[$check->moduleid];
         }
 
         if (empty($CMCACHE[$check->moduleid])) {
-            // those modules were deleted ? 
+            // Those modules were deleted ?
             return false;
         }
 
         if ($COURSE->format == 'page') {
-            // if paged, check the module is on a visible page.
+            // If paged, check the module is on a visible page.
             if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
                 return false;
             }
@@ -1656,11 +1666,11 @@ function report_learningtimecheck_get_user_options() {
  */
 function report_learningtimecheck_is_marked($check, &$checklist) {
 
-    if ($checklist->learningtimecheck->teacheredit == LEARNINGTIMECHECK_MARKING_TEACHER) {
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_YES) {
+    if ($checklist->learningtimecheck->teacheredit == LTC_MARKING_TEACHER) {
+        if ($check->teachermark == LTC_TEACHERMARK_YES) {
             return 2;
         }
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_NO) {
+        if ($check->teachermark == LTC_TEACHERMARK_NO) {
             return -1;
         }
         if (!empty($check->usertimestamp)) {
@@ -1669,11 +1679,11 @@ function report_learningtimecheck_is_marked($check, &$checklist) {
         return 0;
     }
 
-    if ($checklist->learningtimecheck->teacheredit == LEARNINGTIMECHECK_MARKING_BOTH) {
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_YES && !empty($check->usertimestamp)) {
+    if ($checklist->learningtimecheck->teacheredit == LTC_MARKING_BOTH) {
+        if ($check->teachermark == LTC_TEACHERMARK_YES && !empty($check->usertimestamp)) {
             return 2;
         }
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_NO) {
+        if ($check->teachermark == LTC_TEACHERMARK_NO) {
             return -1;
         }
         if (!empty($check->usertimestamp)) {
@@ -1682,18 +1692,18 @@ function report_learningtimecheck_is_marked($check, &$checklist) {
         return -1;
     }
 
-    if ($checklist->learningtimecheck->teacheredit == LEARNINGTIMECHECK_MARKING_EITHER) {
+    if ($checklist->learningtimecheck->teacheredit == LTC_MARKING_EITHER) {
         // Only when strictly marking teachers. If both rely on student marking by skipping this.
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_YES || !empty($check->usertimestamp)) {
+        if ($check->teachermark == LTC_TEACHERMARK_YES || !empty($check->usertimestamp)) {
             return 2;
         }
-        if ($check->teachermark == LEARNINGTIMECHECK_TEACHERMARK_NO) {
+        if ($check->teachermark == LTC_TEACHERMARK_NO) {
             return -1;
         }
         return 0;
     }
 
-    if ($checklist->learningtimecheck->teacheredit == LEARNINGTIMECHECK_MARKING_STUDENT) {
+    if ($checklist->learningtimecheck->teacheredit == LTC_MARKING_STUDENT) {
         if (!empty($check->usertimestamp)) {
             // Student marked and allowed to self validate.
             return 2;
@@ -2085,7 +2095,7 @@ function report_learningtimecheck_get_itemidentifier($type, $id) {
  * @param string $formatted a time format (function date) or false for a default time format.
  */
 function report_learningtimecheck_get_marktime($check, $learningtimecheck, $formatted = false) {
-    if ($learningtimecheck->teacheredit >= LEARNINGTIMECHECK_MARKING_TEACHER) {
+    if ($learningtimecheck->teacheredit >= LTC_MARKING_TEACHER) {
         $time = $check->teachertimestamp;
     } else {
         $time = $check->usertimestamp;
@@ -2116,13 +2126,18 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
     global $DB;
 
     // defaults to a global marking role being setup at site level for those users.
-    if (is_null($context)) $context = context_system::instance();
+    if (is_null($context)) {
+        $context = context_system::instance();
+    }
 
-    if (is_null($config)) $config = get_config('report_learningtimecheck');
+    if (is_null($config)) {
+        $config = get_config('report_learningtimecheck');
+    }
 
-    if ($config->checkworkingdays || has_capability('report/learningtimecheck:iswdsensitive', $context, $check->userid)) {
+    if ($config->checkworkingdays ||
+            has_capability('report/learningtimecheck:iswdsensitive', $context, $check->userid)) {
 
-        if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+        if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
             if ($config->checkworkingdays) {
                 debug_trace('checking on by configuration');
                 mtrace('checking on by configuration<br/>');
@@ -2142,7 +2157,7 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
             uuid = 'learningtimecheck'
         ";
 
-        if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+        if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
             mtrace("checking events for $check->userid ar $checkdate<br/>");
         }
         $possibleevents = $DB->get_records_select('event', $select, array($check->userid, $checkdate));
@@ -2152,23 +2167,23 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
 
         if ($possibleevents) {
 
-            if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+            if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
                 mtrace('possible events');
             }
             foreach ($possibleevents as $ev) {
-                if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") &&DEBUG_LEARNINGTIMECHECK_CHECK) {
+                if (defined("DEBUG_LTC_CHECK") &&DEBUG_LTC_CHECK) {
                     mtrace('Event '.$ev->description);
                 }
                 if ($eventkey = report_learningtimecheck_extract_eventkey($ev)) {
 
                     // The event is a "Working Day" event.
                     $userkey = report_learningtimecheck_get_eventkey($ev, $user);
-                    if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+                    if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
                         mtrace('key match '.$eventkey.' == '.$userkey);
                     }
                     if ($eventkey == $userkey) {
                         $result = report_learningtimecheck_check_time($check, $config);
-                        if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+                        if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
                             mtrace('checking time '.$result);
                         }
                         return $result;
@@ -2177,7 +2192,7 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
             }
         }
 
-        if (defined("DEBUG_LEARNINGTIMECHECK_CHECK") && DEBUG_LEARNINGTIMECHECK_CHECK) {
+        if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
             mtrace('Not agreeing event ');
         }
         return false;
@@ -2273,8 +2288,12 @@ function report_learningtimecheck_check_day(&$check, &$config) {
  * and range are not sequent
  */
 function report_learningtimecheck_crop_session(&$session, &$config) {
-    $ss = date('G', $session->sessionstart) * HOURSECS + date('i', $session->sessionstart) * MINSECS + date('s', $session->sessionstart);
-    $se = date('G', $session->sessionend) * HOURSECS + date('i', $session->sessionend) * MINSECS + date('s', $session->sessionend);
+
+    $start = $session->sessionstart;
+    $end = $session->sessionend;
+
+    $ss = date('G', $start) * HOURSECS + date('i', $start) * MINSECS + date('s', $start);
+    $se = date('G', $end) * HOURSECS + date('i', $end) * MINSECS + date('s', $end);
     $rs = $config->workingtimestart_h * HOURSECS + $config->workingtimestart_m * MINSECS;
     $re = $config->workingtimeend_h * HOURSECS + $config->workingtimeend_m * MINSECS;
 
@@ -2286,16 +2305,16 @@ function report_learningtimecheck_crop_session(&$session, &$config) {
         // echo "match 1 ";
         $session->sessionstart = 0;
         $session->sessionend = 0;
-    } elseif ($ss < $rs && $se > $re) {
+    } else if ($ss < $rs && $se > $re) {
         // session is containing range. Crop to range (shifting session boundaries)
         // echo "match 2 ";
         $session->sessionstart += $rs - $ss;
         $session->sessionend -= $se - $re;
-    } elseif ($ss < $rs && $se > $rs) {
+    } else if ($ss < $rs && $se > $rs) {
         // Session match range start, Crop session start (shifting session start)
         // echo "match 3 ";
         $session->sessionstart += $rs - $ss;
-    } elseif ($ss < $re && $se > $re) {
+    } else if ($ss < $re && $se > $re) {
         // Session match range end, Crop session end (shifting session end)
         // echo "match 4 ";
         $session->sessionend -= $se - $re;
@@ -2350,7 +2369,7 @@ function report_learningtimecheck_remove_events($what = 'all') {
 
     if ($what == 'all') {
         $DB->delete_records('event', array('uuid' => 'learningtimecheck'));
-    } elseif ($what == 'invalid') {
+    } else if ($what == 'invalid') {
         // Use recordset to scan records with less memory foot print.
         $rs = $DB->get_recordset('event', array('uuid' => 'learningtimecheck'));
         foreach ($rs as $record) {
@@ -2384,7 +2403,8 @@ function report_learningtimecheck_generate_event($user, $day, $month, $year) {
 
     $event = new StdClass();
     $event->name = $stringmgr->get_string('event', 'report_learningtimecheck', '', $user->lang);
-    $event->description = $stringmgr->get_string('eventbody', 'report_learningtimecheck', report_learningtimecheck_get_eventkey($time, $user->username), $user->lang);
+    $lkey = report_learningtimecheck_get_eventkey($time, $user->username);
+    $event->description = $stringmgr->get_string('eventbody', 'report_learningtimecheck', $lkey, $user->lang);
     $event->format = FORMAT_MOODLE;
     $event->courseid = 0;
     $event->groupid = 0;
@@ -2401,7 +2421,8 @@ function report_learningtimecheck_generate_event($user, $day, $month, $year) {
     $event->timemodified = time();
     $event->subscriptionid = 0;
 
-    if (!$DB->record_exists('event', array('eventtype' => 'user', 'userid' => $user->id, 'uuid' => 'learningtimecheck', 'timestart' => $time))) {
+    $params = array('eventtype' => 'user', 'userid' => $user->id, 'uuid' => 'learningtimecheck', 'timestart' => $time);
+    if (!$DB->record_exists('event', $params)) {
         $DB->insert_record('event', $event);
         return true;
     }
@@ -2420,9 +2441,13 @@ function report_learningtimecheck_is_empty_line_or_format(&$text, $resetfirst = 
     static $textlib;
     static $first = true;
 
-    // we may have a risk the BOM is present on first line
-    if ($resetfirst) $first = true;
-    if (!isset($textlib)) $textlib = new core_text(); // singleton
+    // We may have a risk the BOM is present on first line.
+    if ($resetfirst) {
+        $first = true;
+    }
+    if (!isset($textlib)) {
+        $textlib = new core_text(); // Singleton.
+    }
     if ($first) {
         $text = $textlib->trim_utf8_bom($text);
         $first = false;
@@ -2433,7 +2458,7 @@ function report_learningtimecheck_is_empty_line_or_format(&$text, $resetfirst = 
     return preg_match('/^$/', $text) || preg_match('/^(\(|\[|-|#|\/| )/', $text);
 }
 
-/** 
+/**
  * checks a learningtimecheck item against report user requirements
  * @param array $useroptions
  * @param object $itemcheck
@@ -2444,13 +2469,17 @@ function report_learningtimecheck_check_report_range($useroptions, $itemcheck) {
 
     if (!empty($useroptions->startrange)) {
         if ($useroptions->startrange > 0) {
-            if ($itemcheck->usertimestamp < $useroptions->startrange) return false;
+            if ($itemcheck->usertimestamp < $useroptions->startrange) {
+                return false;
+            }
         }
     }
 
     if (!empty($useroptions->endrange)) {
         if ($useroptions->endrange > 0) {
-            if ($itemcheck->usertimestamp > $useroptions->endrange) return false;
+            if ($itemcheck->usertimestamp > $useroptions->endrange) {
+                return false;
+            }
         }
     }
 
@@ -2460,5 +2489,6 @@ function report_learningtimecheck_check_report_range($useroptions, $itemcheck) {
 function report_learningtimecheck_get_user_workdays($userid) {
     global $DB;
 
-    return $DB->get_records('event', array('userid' => $userid, 'eventtype' => 'user', 'uuid' => 'learningtimecheck'));
+    $params = array('userid' => $userid, 'eventtype' => 'user', 'uuid' => 'learningtimecheck');
+    return $DB->get_records('event', $params);
 }
