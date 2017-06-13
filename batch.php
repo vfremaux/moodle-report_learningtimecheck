@@ -17,10 +17,11 @@
 /**
  * Screen for registering a batch from a report screen
  *
- * @package    report_learningtimecheck
- * @category   report
- * @author     Valery Fremaux <valery.fremaux@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_learningtimecheck
+ * @category    report
+ * @author      Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright   2014 onwards Valery Fremaux (http://www.mylearningfactory.com)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require('../../config.php');
@@ -88,7 +89,7 @@ if ($data = $form->get_data()) {
     redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => 'batchs', 'id' => $id)));
 }
 
-// second controller
+// Second controller.
 if ($action == 'delete') {
     $batchid = required_param('batchid', PARAM_INT);
     require_sesskey();
@@ -98,17 +99,19 @@ if ($action == 'delete') {
 
 echo $OUTPUT->header();
 
+$hasrules = !empty($SESSION->learningtimecheck->filterrules);
+
 if ($itemid) {
     echo $OUTPUT->heading(get_string('scheduleabatch', 'report_learningtimecheck'));
 
     $formdata = new StdClass();
     $formdata->params = json_encode(report_learningtimecheck_get_user_options());
-    $formdata->filters = json_encode((!empty($SESSION->learningtimecheck->filterrules)) ? $SESSION->learningtimecheck->filterrules : array());
+    $formdata->filters = json_encode($hasrules) ? $SESSION->learningtimecheck->filterrules : array();
     $formdata->id = $id;
     $formdata->view = $view;
     $formdata->type = $view;
     $formdata->detail = $detail;
-    $formdata->runtime = time() + 1800; // let half hour delay as minimum for a new immediate batch
+    $formdata->runtime = time() + 1800; // Let half hour delay as minimum for a new immediate batch.
     $formdata->itemids = $itemid;
     $formdata->param = $param;
     $formdata->options = json_encode(report_learningtimecheck_get_user_options());
@@ -122,7 +125,7 @@ if ($itemid) {
     $formdata->type = 'user';
     $formdata->view = $view;
     $formdata->options = json_encode(report_learningtimecheck_get_user_options());
-    $formdata->filters = json_encode((!empty($SESSION->learningtimecheck->filterrules)) ? $SESSION->learningtimecheck->filterrules : array());
+    $formdata->filters = json_encode($hasrules ? $SESSION->learningtimecheck->filterrules : array());
     $form->set_data($formdata);
     echo $OUTPUT->heading(get_string('newbatch', 'report_learningtimecheck'));
 }

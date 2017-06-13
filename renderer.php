@@ -311,6 +311,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $str;
     }
 
+    /**
+     * @param string $type the view (type of report)
+     * @param int $courseid the ID of the course in the current context
+     * @param int $itemid the reportable item id (user id or courseid, or cohortid)
+     * @param string $return where to return (module or report)
+     */
     public function print_user_options_button($type, $courseid, $itemid, $return = '') {
         global $CFG;
 
@@ -499,6 +505,11 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         print_tabs($rows, $view);
     }
 
+    /**
+     * @param string $view
+     * @param int $id
+     * @param int $itemid
+     */
     function options($view, $id, $itemid) {
         global $OUTPUT;
 
@@ -506,12 +517,22 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $str = '';
 
+        $mayhide = false;
+
         foreach($useroptions as $key => $value) {
             if ($key == 'sortby') {
                 $sortby = ($value) ? $value : 'name';
-                $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'"> ';
+                $title = get_string($key.$sortby, 'report_learningtimecheck');
+                $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
+            } elseif ($key == 'progressbars') {
+                $ICONS = array('items', 'time', 'both');
+                $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
+                $str .= '<img src="'.$OUTPUT->pix_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
             } else {
                 if ($value) {
+                    if (in_array($key, array('hidenocredittime','startrange', 'endrange'))) {
+                        $mayhide = true;
+                    }
                     if (preg_match('/range$/', $key)) {
                         $title = get_string($key, 'report_learningtimecheck').': '.userdate($value);
                     } else {
@@ -523,7 +544,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         }
 
         $optionsbutton = $this->print_user_options_button($view, $id, $itemid);
-        $str = '<div id="learningtimecheck-user-options">'.get_string('useroptions', 'report_learningtimecheck').' '.$str.' '.$optionsbutton.'</div>';
+
+        $str = '<div id="learningtimecheck-user-options">'.get_string('useroptions', 'report_learningtimecheck').' '.$str.' </div>';
+        if ($mayhide) {
+            $str .= '<div class="report-learningtimecheck-dataloss-advice">'.get_string('possibledataloss', 'report_learningtimecheck').'</div>';
+        }
+        $str .= '<div>'.$optionsbutton.'</div>';
 
         return $str;
     }
