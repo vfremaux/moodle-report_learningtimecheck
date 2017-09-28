@@ -70,6 +70,7 @@ $string['earnedtime'] = 'Temps acquis';
 $string['enableworktimefilter'] = 'Activer les heures ouvrables';
 $string['endrange'] = 'Fin de période';
 $string['eventkey'] = 'Clef de marqueur de jour entreprise';
+$string['errordistribution'] = 'Ce format n\'est pas supporté par cette distribution.';
 $string['exportcsv'] = 'Exporter en CSV';
 $string['exportcsvdetail'] = 'Exporter le détail en CSV';
 $string['exportpdf'] = 'Exporter en PDF';
