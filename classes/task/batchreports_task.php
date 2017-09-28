@@ -18,6 +18,8 @@ namespace report_learningtimecheck\task;
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
+
 /**
  * A scheduled task for learningtimecheck reports cron.
  *
@@ -25,7 +27,7 @@ defined('MOODLE_INTERNAL') || die;
  *
  * @package    report_learningtimecheck
  * @category   report
- * @copyright  2014 Dan Poltawski <dan@moodle.com>
+ * @copyright  2014  Valery Fremaux (http://www.mylearningfactory.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -46,7 +48,9 @@ class batchreports_task extends \core\task\scheduled_task {
     public function execute() {
         global $CFG;
 
-        include_once($CFG->dirroot.'/report/learningtimecheck/cronlib.php');
-        \report_learningtimecheck_crontask();
+        if (\report_learningtimecheck_supports_feature('mode/batch')) {
+            include_once($CFG->dirroot.'/report/learningtimecheck/pro/cronlib.php');
+            \report_learningtimecheck_crontask();
+        }
     }
 }

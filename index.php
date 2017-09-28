@@ -67,6 +67,7 @@ if ($action) {
 $strreports = get_string('reports');
 $strcourseoverview = get_string('learningtimecheck', 'report_learningtimecheck');
 
+/*
 if ($output == 'csv') {
     if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report_csv.php")){
         include_once $CFG->dirroot."/report/trainingsessions/{$view}report_csv.php";
@@ -74,7 +75,7 @@ if ($output == 'csv') {
     } else {
         print_error('errorbadviewid', 'report_trainingsessions');
     }
-} elseif($output == 'pdf') {
+} else if ($output == 'pdf') {
     if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report_csv.php")){
         include_once $CFG->dirroot."/report/trainingsessions/{$view}report_csv.php";
         die;
@@ -82,6 +83,7 @@ if ($output == 'csv') {
         print_error('errorbadviewid', 'report_trainingsessions');
     }
 }
+*/
 
 $renderer = $PAGE->get_renderer('learningtimecheck');
 $reportrenderer = $PAGE->get_renderer('report_learningtimecheck');

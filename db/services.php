@@ -39,7 +39,16 @@ $functions = array(
             'classname'   => 'report_learningtimecheck_external',
             'methodname'  => 'get_user_data',
             'classpath'   => 'report/learningtimecheck/externallib.php',
-            'description' => 'Get the report document content for a user',
+            'description' => 'Get the checks data for a user in a single course',
+            'testclientpath' => '/report/learningtimecheck/externallib_forms.php',
+            'type'        => 'read'
+    ),
+
+    'report_learningtimecheck_get_users_data' => array(
+            'classname'   => 'report_learningtimecheck_external',
+            'methodname'  => 'get_users_data',
+            'classpath'   => 'report/learningtimecheck/externallib.php',
+            'description' => 'Get the checks data for a set of users',
             'testclientpath' => '/report/learningtimecheck/externallib_forms.php',
             'type'        => 'read'
     ),
@@ -47,15 +56,11 @@ $functions = array(
 
 $services = array(
     'learningtimecheck' => array(
-        'functions' => array ('report_learningtimecheck_get_user_report'), //web service function name
-        'requiredcapability' => 'report/learning',
+        'functions' => array ('report_learningtimecheck_get_user_report',
+                              'report_learningtimecheck_get_user_data',
+                              'report_learningtimecheck_get_users_data'), // Web service function names.
+        'requiredcapability' => 'report/learningtimecheck:export',
         'restrictedusers' => 1,
-        'enabled' => 0, //used only when installing the services
+        'enabled' => 0, // Used only when installing the services.
     ),
-    'learningtimecheck' => array(
-        'functions' => array ('report_learningtimecheck_get_user_data'), //web service function name
-        'requiredcapability' => '',
-        'restrictedusers' => 1,
-        'enabled' => 0, //used only when installing the services
-    )
 );
