@@ -50,6 +50,10 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     function print_export_pdf_button($origincourseid, $type = 'user', $itemid = 0, $detail = false, $options = null, $alternatelabel = false) {
         global $CFG;
 
+        if (!report_learningtimecheck_supports_feature('format/pdf')) {
+            return '';
+        }
+
         $context = context_course::instance($origincourseid);
         if (!has_capability('report/learningtimecheck:export', $context)) {
             return;
@@ -165,10 +169,10 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 }
                 $row[] = learningtimecheck_format_time($batch->repeatdelay, 'min');
 
-                $deleteurl = new moodle_url('/report/learningtimecheck/batch.php', array('view' => 'batchs', 'id' => $origincourseid, 'what' => 'delete', 'batchid' => $batch->id, 'sesskey' => sesskey()));
+                $deleteurl = new moodle_url('/report/learningtimecheck/pro/batch.php', array('view' => 'batchs', 'id' => $origincourseid, 'what' => 'delete', 'batchid' => $batch->id, 'sesskey' => sesskey()));
                 $cmd = '<a href="'.$deleteurl.'"><img src="'.$OUTPUT->pix_url('t/delete').'" /></a>';
 
-                $runnowurl = new moodle_url('/report/learningtimecheck/batch_worker.php', array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1));
+                $runnowurl = new moodle_url('/report/learningtimecheck/pro/batch_worker.php', array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1));
                 $cmd .= '<a href="'.$runnowurl.'" title="'.get_string('runnow', 'report_learningtimecheck').'" target="_blank"><img src="'.$OUTPUT->pix_url('t/reload').'" /></a>';
 
                 $row[] = $cmd;
@@ -235,10 +239,10 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 }
                 $row[] = learningtimecheck_format_time($batch->repeatdelay, 'min');
 
-                $deleteurl = new moodle_url('/report/learningtimecheck/batch.php', array('view' => 'batchs', 'id' => $origincourseid, 'what' => 'delete', 'batchid' => $batch->id, 'sesskey' => sesskey()));
+                $deleteurl = new moodle_url('/report/learningtimecheck/pro/batch.php', array('view' => 'batchs', 'id' => $origincourseid, 'what' => 'delete', 'batchid' => $batch->id, 'sesskey' => sesskey()));
                 $cmd = '<a href="'.$deleteurl.'"><img src="'.$OUTPUT->pix_url('t/delete').'" /></a>';
 
-                $runnowurl = new moodle_url('/report/learningtimecheck/batch_worker.php', array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1));
+                $runnowurl = new moodle_url('/report/learningtimecheck/pro/batch_worker.php', array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1));
                 $cmd .= '<a href="'.$runnowurl.'" title="'.get_string('runnow', 'report_learningtimecheck').'" target="_blank"><img src="'.$OUTPUT->pix_url('t/reload').'" /></a>';
 
                 $row[] = $cmd;
@@ -311,6 +315,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $str;
     }
 
+    /**
+     * @param string $type the view (type of report)
+     * @param int $courseid the ID of the course in the current context
+     * @param int $itemid the reportable item id (user id or courseid, or cohortid)
+     * @param string $return where to return (module or report)
+     */
     public function print_user_options_button($type, $courseid, $itemid, $return = '') {
         global $CFG;
 
@@ -344,7 +354,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $str = '';
 
-        $formurl = new moodle_url('/report/learningtimecheck/batch.php');
+        $formurl = new moodle_url('/report/learningtimecheck/pro/batch.php');
         $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
         $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         $str .= '<input type="hidden" name="view" value="'.$type.'" />';
@@ -397,7 +407,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $str = '';
 
-        $formurl = new moodle_url('/report/learningtimecheck/batch_controller.php');
+        $formurl = new moodle_url('/report/learningtimecheck/pro/batch_controller.php');
         $str .= '<form name="batch_commands" action="'.$formurl.'" id="report-learningtimecheck-batch-commands">';
         $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         $str .= '<input type="hidden" name="view" value="'.$view.'" />';
@@ -461,7 +471,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $str .= '</form>';
 
         if ($job->notifymails) {
-            $resulturl = new moodle_url('/report/learningtimecheck/batch_worker.php');
+            $resulturl = new moodle_url('/report/learningtimecheck/pro/batch_worker.php');
             $str .= '<form action="'.$resulturl.'" method="get" style="display:inline-block">';
             $str .= '<input type="hidden" name="interactive" value="1" />';
             $str .= '<input type="hidden" name="distribute" value="1" />';
@@ -492,13 +502,20 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             $cohorturl = new moodle_url('/report/learningtimecheck/index.php', array('id' => $fromcourse->id, 'view' => 'cohort'));
             $rows[0][] = new tabobject('cohort', $cohorturl, get_string('cohort', 'report_learningtimecheck'));
         }
-        if (has_capability('report/learningtimecheck:viewother', $context)) {
-            $batchurl = new moodle_url('/report/learningtimecheck/index.php', array('id' => $fromcourse->id, 'view' => 'batchs'));
-            $rows[0][] = new tabobject('batchs', $batchurl, get_string('batchs', 'report_learningtimecheck'));
+        if (report_learningtimecheck_supports_feature('mode/batch')) {
+            if (has_capability('report/learningtimecheck:viewother', $context)) {
+                $batchurl = new moodle_url('/report/learningtimecheck/index.php', array('id' => $fromcourse->id, 'view' => 'batchs'));
+                $rows[0][] = new tabobject('batchs', $batchurl, get_string('batchs', 'report_learningtimecheck'));
+            }
         }
         print_tabs($rows, $view);
     }
 
+    /**
+     * @param string $view
+     * @param int $id
+     * @param int $itemid
+     */
     function options($view, $id, $itemid) {
         global $OUTPUT;
 
@@ -513,7 +530,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 $sortby = ($value) ? $value : 'name';
                 $title = get_string($key.$sortby, 'report_learningtimecheck');
                 $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
-            } elseif ($key == 'progressbars') {
+            } else if ($key == 'progressbars') {
                 $ICONS = array('items', 'time', 'both');
                 $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
                 $str .= '<img src="'.$OUTPUT->pix_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
