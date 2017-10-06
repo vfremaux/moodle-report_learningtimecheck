@@ -263,6 +263,80 @@ class report_learningtimecheck_external extends external_api {
         );
     }
 
+    /* ******************************************* Get a set of users data ****************************************** */
+
+    public static function get_users_data($uidsource, $uids, $cidsource, $cid, $underratioscope = '', $underratio = 0) {
+        global $DB;
+
+        // First proceed to standard validation (param arity, param data type).
+        $parameters = array('uidsource' => $uidsource,
+                            'uids' => $uids,
+                            'cidsource' => $cidsource,
+                            'cid' => $cid,
+                            'underratioscope' => $underratioscope,
+                            'underratio' => $underratio);
+
+        $params = self::validate_parameters(self::get_users_data_parameters(), $parameters);
+
+        $bulkresults = array();
+        foreach ($uids as $uid) {
+            $results = self::get_user_data($uidsource, $uid, $cidsource, $cid, $underratioscope, $underratio);
+            if (!empty($results)) {
+                $bulkresults = array_merge($bulkresults, $results);
+            }
+        }
+
+
+        return $bulkresults;
+    }
+
+    public static function get_users_data_parameters() {
+        return new external_function_parameters(
+            array(
+                'uidsource' => new external_value(PARAM_TEXT, 'The source for user id'),
+                'uids' => new external_multiple_structure(
+                    new external_value(PARAM_TEXT, 'an array of user identifiers')
+                ),
+                'cidsource' => new external_value(PARAM_TEXT, 'The source for the course'),
+                'cid' => new external_value(PARAM_TEXT, 'The course identifier'),
+                'underratioscope' => new external_value(PARAM_TEXT, 'The scope of the ratio examined for filtering per ratio, either \'optional\' or \'mandatory\' or \'all\' ', VALUE_DEFAULT, ''),
+                'underratio' => new external_value(PARAM_INT, 'If score is over this ratio, will not be reported', VALUE_DEFAULT, 0),
+            )
+        );
+    }
+
+    public static function get_users_data_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'userid' => new external_value(PARAM_INT, 'User id'),
+                    'useridnumber' => new external_value(PARAM_TEXT, 'User idnumber'),
+                    'username' => new external_value(PARAM_TEXT, 'User username'),
+                    'courseid' => new external_value(PARAM_INT, 'Course id'),
+                    'courseidnumber' => new external_value(PARAM_TEXT, 'Course idnumber'),
+                    'courseshortname' => new external_value(PARAM_TEXT, 'Course shortname'),
+                    'coursefullname' => new external_value(PARAM_TEXT, 'Course fullname'),
+                    'ltcid' => new external_value(PARAM_INT, 'LTC instance id'),
+                    'ltcidnumber' => new external_value(PARAM_TEXT, 'LTC cm idnumber'),
+                    'ltcname' => new external_value(PARAM_TEXT, 'LTC full name'),
+                    'mandatoryitems' => new external_value(PARAM_INT, 'Number of mandatory items in this LTC'),
+                    'optionalitems' => new external_value(PARAM_INT, 'Number of optional items in this LTC'),
+                    'mandatorychecks' => new external_value(PARAM_INT, 'Number of mandatory items marked in this LTC'),
+                    'optionalchecks' => new external_value(PARAM_INT, 'Number of optional items marked in this LTC'),
+                    'mandatoryratio' => new external_value(PARAM_INT, 'Ratio of mandatory items in this LTC'),
+                    'optionalratio' => new external_value(PARAM_INT, 'Ratio of optional items in this LTC'),
+                    'overalratio' => new external_value(PARAM_INT, 'Ratio of marked items in LTC'),
+                    'mandatorycredittime' => new external_value(PARAM_INT, 'Available credit time on mandatory items in this LTC'),
+                    'optionalcredittime' => new external_value(PARAM_INT, 'Available credit time on optional items in this LTC'),
+                    'mandatoryacquiredtime' => new external_value(PARAM_INT, 'Acquired time in secs by mandatory items in this LTC'),
+                    'optionalacquiredtime' => new external_value(PARAM_INT, 'Acquired time in secs by optional items in this LTC'),
+                ),
+            "An array of results for a set of users in a course")
+        );
+    }
+
+    /* ******************************************* Validations ****************************************** */
+
     protected static function validate_course_parameters($parameters) {
         global $DB;
 
@@ -302,7 +376,7 @@ class report_learningtimecheck_external extends external_api {
     protected static function validate_user_parameters($parameters) {
         global $DB;
 
-        if (!in_array($parameters['uidsource'], array('', 'id', 'username', 'username', 'email'))) {
+        if (!in_array($parameters['uidsource'], array('', 'id', 'username', 'idnumber', 'email'))) {
             throw invalid_parameter_exception('user source not in expected range');
         }
 

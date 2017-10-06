@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/renderer.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/xlib.php');
-require_once($CFG->dirroot.'/report/learningtimecheck/multi_curl.php');
 
 // The max number of report build workers. This will depend on your processing capabilities (number of clusters/cores/threads).
 define('REPORT_LTC_MAX_WORKERS', 4);
@@ -826,7 +825,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
 
             if ($checks = $clobj->get_checks($user->id)) {
 
-				foreach ($checks as $ck => $check) {
+                foreach ($checks as $ck => $check) {
 
                     if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                         continue;
@@ -2155,11 +2154,13 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
 
         if (defined("DEBUG_LTC_CHECK") && DEBUG_LTC_CHECK) {
             if ($config->checkworkingdays) {
-                debug_trace('checking on by configuration');
-                mtrace('checking on by configuration<br/>');
+                if (function_exists('debug_trace')) {
+                    debug_trace('checking on by configuration');
+                }
             } else {
-                debug_trace('checking on by capability');
-                mtrace('checking on by capability<br/>');
+                if (function_exists('debug_trace')) {
+                    debug_trace('checking on by capability');
+                }
             }
         }
 
