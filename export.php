@@ -75,7 +75,14 @@ report_learningtimecheck_prepare_data($job, $data, $globals);
 
 $exportclassfile = $CFG->dirroot.'/report/learningtimecheck/export/'.$output.'.class.php';
 if (!file_exists($exportclassfile)) {
-    print_error('errornoexporterclass', 'report_learningtimecheck', $exportclassfile);
+    if (is_dir($CFG->dirroot.'/report/learningtimecheck/pro/export')) {
+        $exportclassfile = $CFG->dirroot.'/report/learningtimecheck/pro/export/'.$output.'.class.php';
+        if (!file_exists($exportclassfile)) {
+            print_error('errornoexporterclass', 'report_learningtimecheck', $exportclassfile);
+        }
+    } else {
+        print_error('errordistribution', 'report_learningtimecheck');
+    }
 }
 require_once($exportclassfile);
 
