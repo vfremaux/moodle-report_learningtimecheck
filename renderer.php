@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die;
+require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
 
 class report_learningtimecheck_renderer extends plugin_renderer_base {
 
@@ -502,7 +503,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             $cohorturl = new moodle_url('/report/learningtimecheck/index.php', array('id' => $fromcourse->id, 'view' => 'cohort'));
             $rows[0][] = new tabobject('cohort', $cohorturl, get_string('cohort', 'report_learningtimecheck'));
         }
-        if (report_learningtimecheck_supports_feature('mode/batch')) {
+        if (\report_learningtimecheck_supports_feature('mode/batch')) {
             if (has_capability('report/learningtimecheck:viewother', $context)) {
                 $batchurl = new moodle_url('/report/learningtimecheck/index.php', array('id' => $fromcourse->id, 'view' => 'batchs'));
                 $rows[0][] = new tabobject('batchs', $batchurl, get_string('batchs', 'report_learningtimecheck'));
@@ -530,7 +531,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 $sortby = ($value) ? $value : 'name';
                 $title = get_string($key.$sortby, 'report_learningtimecheck');
                 $str .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
-            } elseif ($key == 'progressbars') {
+            } else if ($key == 'progressbars') {
                 $ICONS = array('items', 'time', 'both');
                 $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
                 $str .= '<img src="'.$OUTPUT->pix_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';

@@ -46,14 +46,38 @@ $settings->add(new admin_setting_configselect('report_learningtimecheck/groupsep
 $settings->add(new admin_setting_configtext('report_learningtimecheck/recipient', get_string('recipient', 'report_learningtimecheck'),
                    get_string('recipient_desc', 'report_learningtimecheck'), ''));
 
+$key = 'report_learningtimecheck/pdfreportheader';
+$label = get_string('pdfreportheader', 'report_learningtimecheck');
+$desc = get_string('pdfreportheader_desc', 'report_learningtimecheck');
+$options = array('subdirs' => false, 'maxfiles' => 1);
+$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportheader', 0, $options));
+
+/*
 $settings->add(new admin_setting_configimage('pdfreportheader', get_string('pdfreportheader', 'report_learningtimecheck'),
                    get_string('pdfreportheader_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
+*/
 
+$key = 'report_learningtimecheck/pdfreportinnerheader';
+$label = get_string('pdfreportinnerheader', 'report_learningtimecheck');
+$desc = get_string('pdfreportinnerheader_desc', 'report_learningtimecheck');
+$options = array('subdirs' => false, 'maxfiles' => 1);
+$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
+
+/*
 $settings->add(new admin_setting_configimage('pdfreportinnerheader', get_string('pdfreportinnerheader', 'report_learningtimecheck'),
                    get_string('pdfreportinnerheader_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
+*/
 
+$key = 'report_learningtimecheck/pdfreportfooter';
+$label = get_string('pdfreportfooter', 'report_learningtimecheck');
+$desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
+$options = array('subdirs' => false, 'maxfiles' => 1);
+$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
+
+/*
 $settings->add(new admin_setting_configimage('pdfreportfooter', get_string('pdfreportfooter', 'report_learningtimecheck'),
                    get_string('pdfreportfooter_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
+*/
 
 $timeformatoptions = array('Ymd' => 'Ymd',
     'Y-m-d' => 'Y-m-d',

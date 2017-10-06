@@ -101,6 +101,9 @@ raise_memory_limit('250M');
 if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php')) {
     include($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php');
 } else {
+    if (file_exists($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php')) {
+        include($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php');
+    }
     print_error('errorbadviewid', 'report_learningtimecheck');
 }
 

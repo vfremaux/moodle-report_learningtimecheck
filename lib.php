@@ -2157,12 +2157,10 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
                 if (function_exists('debug_trace')) {
                     debug_trace('checking on by configuration');
                 }
-                if (function_exists('debug_trace')) {
-                    mtrace('checking on by configuration<br/>');
-                }
             } else {
-                debug_trace('checking on by capability');
-                mtrace('checking on by capability<br/>');
+                if (function_exists('debug_trace')) {
+                    debug_trace('checking on by capability');
+                }
             }
         }
 
