@@ -81,6 +81,7 @@ $string['exportxls'] = 'Export as Excel';
 $string['exportxlsdetail'] = 'Export detailed as Excel';
 $string['exportxml'] = 'Export as XML';
 $string['exportxmldetail'] = 'Export detailed as XML';
+$string['errordistribution'] = 'This format is not supported by this distribution.';
 $string['filters'] = 'User filters';
 $string['fromdate'] = 'From:';
 $string['fromnow'] = '{$a} from now';
