@@ -25,9 +25,6 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!class_exists('admin_setting_configimage')) {
-    require_once($CFG->dirroot.'/report/learningtimecheck/adminlib.php');
-}
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 $options = array(
@@ -36,15 +33,23 @@ $options = array(
     7 * DAYSECS => '1 '.get_string('week')
 );
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/pruneprocessdbatchsafter', get_string('pruneprocessedbatchsafter', 'report_learningtimecheck'),
-                   get_string('pruneprocessedbatchsafter_desc', 'report_learningtimecheck'), 48 * HOURSECS, $options));
+$key = 'report_learningtimecheck/pruneprocessdbatchsafter';
+$label = get_string('pruneprocessedbatchsafter', 'report_learningtimecheck');
+$desc = get_string('pruneprocessedbatchsafter_desc', 'report_learningtimecheck');
+$default = 48 * HOURSECS;
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options));
 
+$key = 'report_learningtimecheck/groupseparation';
+$label = get_string('groupseparation', 'report_learningtimecheck');
+$desc = get_string('groupseparation_desc', 'report_learningtimecheck');
+$default = 'groups';
 $separationoptions = array('groups' => get_string('groups'), 'groupings' => get_string('groupings', 'group'));
-$settings->add(new admin_setting_configselect('report_learningtimecheck/groupseparation', get_string('groupseparation', 'report_learningtimecheck'),
-                   get_string('groupseparation_desc', 'report_learningtimecheck'), 'groups', $separationoptions));
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $separationoptions));
 
-$settings->add(new admin_setting_configtext('report_learningtimecheck/recipient', get_string('recipient', 'report_learningtimecheck'),
-                   get_string('recipient_desc', 'report_learningtimecheck'), ''));
+$key = 'report_learningtimecheck/recipient';
+$label = get_string('recipient', 'report_learningtimecheck');
+$desc = get_string('recipient_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $key = 'report_learningtimecheck/pdfreportheader';
 $label = get_string('pdfreportheader', 'report_learningtimecheck');
@@ -52,32 +57,17 @@ $desc = get_string('pdfreportheader_desc', 'report_learningtimecheck');
 $options = array('subdirs' => false, 'maxfiles' => 1);
 $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportheader', 0, $options));
 
-/*
-$settings->add(new admin_setting_configimage('pdfreportheader', get_string('pdfreportheader', 'report_learningtimecheck'),
-                   get_string('pdfreportheader_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
-*/
-
 $key = 'report_learningtimecheck/pdfreportinnerheader';
 $label = get_string('pdfreportinnerheader', 'report_learningtimecheck');
 $desc = get_string('pdfreportinnerheader_desc', 'report_learningtimecheck');
 $options = array('subdirs' => false, 'maxfiles' => 1);
 $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
 
-/*
-$settings->add(new admin_setting_configimage('pdfreportinnerheader', get_string('pdfreportinnerheader', 'report_learningtimecheck'),
-                   get_string('pdfreportinnerheader_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
-*/
-
 $key = 'report_learningtimecheck/pdfreportfooter';
 $label = get_string('pdfreportfooter', 'report_learningtimecheck');
 $desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
 $options = array('subdirs' => false, 'maxfiles' => 1);
 $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
-
-/*
-$settings->add(new admin_setting_configimage('pdfreportfooter', get_string('pdfreportfooter', 'report_learningtimecheck'),
-                   get_string('pdfreportfooter_desc', 'report_learningtimecheck'), 'report_learningtimecheck'));
-*/
 
 $timeformatoptions = array('Ymd' => 'Ymd',
     'Y-m-d' => 'Y-m-d',
@@ -86,8 +76,11 @@ $timeformatoptions = array('Ymd' => 'Ymd',
     'd/m/Y H:i' => 'd/m/Y H:i',
 );
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/marktimeformat', get_string('marktimeformat', 'report_learningtimecheck'),
-                   '', 'd/m/Y', $timeformatoptions));
+$key = 'report_learningtimecheck/marktimeformat';
+$label = get_string('marktimeformat', 'report_learningtimecheck');
+$desc = '';
+$default = 'd/m/Y';
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $timeformatoptions));
 
 $coursefilenameoptions = array(
     REPORT_IDENTIFIER_ID => 'id',
@@ -95,8 +88,11 @@ $coursefilenameoptions = array(
     REPORT_IDENTIFIER_NAME => get_string('shortname')
 );
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/infilenamecourseidentifier', get_string('infilenamecourseidentifier', 'report_learningtimecheck'),
-                   get_string('infilenamecourseidentifier_desc', 'report_learningtimecheck'), 0, $coursefilenameoptions));
+$key = 'report_learningtimecheck/infilenamecourseidentifier';
+$label = get_string('infilenamecourseidentifier', 'report_learningtimecheck');
+$desc = get_string('infilenamecourseidentifier_desc', 'report_learningtimecheck');
+$default = 0;
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $coursefilenameoptions));
 
 $userfilenameoptions = array(
     REPORT_IDENTIFIER_ID => 'id',
@@ -104,8 +100,10 @@ $userfilenameoptions = array(
     REPORT_IDENTIFIER_NAME => get_string('username')
 );
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/infilenameuseridentifier', get_string('infilenameuseridentifier', 'report_learningtimecheck'),
-                   get_string('infilenameuseridentifier_desc', 'report_learningtimecheck'), 0, $userfilenameoptions));
+$key = 'report_learningtimecheck/infilenameuseridentifier';
+$label = get_string('infilenameuseridentifier', 'report_learningtimecheck');
+$desc = get_string('infilenameuseridentifier_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configselect($key, $label, $desc, 0, $userfilenameoptions));
 
 $cohortfilenameoptions = array(
     REPORT_IDENTIFIER_ID => 'id',
@@ -113,61 +111,100 @@ $cohortfilenameoptions = array(
     REPORT_IDENTIFIER_NAME => get_string('name')
 );
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/infilenamecohortidentifier', get_string('infilenamecohortidentifier', 'report_learningtimecheck'),
-                   get_string('infilenamecohortidentifier_desc', 'report_learningtimecheck'), 0, $cohortfilenameoptions));
+$key = 'report_learningtimecheck/infilenamecohortidentifier';
+$label = get_string('infilenamecohortidentifier', 'report_learningtimecheck');
+$desc = get_string('infilenamecohortidentifier_desc', 'report_learningtimecheck');
+$default = 0;
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $cohortfilenameoptions));
 
 $settings->add(new admin_setting_heading('workinghours', get_string('workinghours', 'report_learningtimecheck'),
                    get_string('workinghours_desc', 'report_learningtimecheck')));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/checkworkinghours', get_string('checkworkinghours', 'report_learningtimecheck'),
-                   get_string('checkworkinghours_desc', 'report_learningtimecheck'), 0));
+$key = 'report_learningtimecheck/checkworkinghours';
+$label = get_string('checkworkinghours', 'report_learningtimecheck');
+$desc = get_string('checkworkinghours_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configtime('report_learningtimecheck/workingtimestart_h', 'workingtimestart_m', get_string('workingstart', 'report_learningtimecheck'),
-                   get_string('workingstart_desc', 'report_learningtimecheck'), array('h' => 8, 'm' => 0)));
+$keyh = 'report_learningtimecheck/workingtimestart_h';
+$keym = 'report_learningtimecheck/workingtimestart_m';
+$label = get_string('workingstart', 'report_learningtimecheck');
+$desc = get_string('workingstart_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configtime($keyh, $keym, $label, $desc, array('h' => 8, 'm' => 0)));
 
-$settings->add(new admin_setting_configtime('report_learningtimecheck/workingtimeend_h', 'workingtimeend_m', get_string('workingend', 'report_learningtimecheck'),
-                   get_string('workingend_desc', 'report_learningtimecheck'), array('h' => 18, 'm' => 0)));
+$keyh = 'report_learningtimecheck/workingtimeend_h';
+$keym = 'report_learningtimecheck/workingtimeend_m';
+$label = get_string('workingend', 'report_learningtimecheck');
+$desc = get_string('workingend_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configtime($keyh, $keym, $label, $desc, array('h' => 18, 'm' => 0)));
 
 // Using ISO-8601 reference for weekdays
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday1', get_string('monday', 'calendar'),
-                   '', 1));
+$key = 'report_learningtimecheck/workday1';
+$label = get_string('monday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday2', get_string('tuesday', 'calendar'),
-                   '', 1));
+$key = 'report_learningtimecheck/workday2';
+$label = get_string('tuesday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday3', get_string('wednesday', 'calendar'),
-                   '', 1));
+$key = 'report_learningtimecheck/workday3';
+$label = get_string('wednesday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday4', get_string('thursday', 'calendar'),
-                   '', 1));
+$key = 'report_learningtimecheck/workday4';
+$label = get_string('thursday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday5', get_string('friday', 'calendar'),
-                   '', 1));
+$key = 'report_learningtimecheck/workday5';
+$label = get_string('friday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, '', 1));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday6', get_string('saturday', 'calendar'),
-                   '', 0));
+$key = 'report_learningtimecheck/workday6';
+$label = get_string('saturday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/workday7', get_string('sunday', 'calendar'),
-                   '', 0));
+$key = 'report_learningtimecheck/workday7';
+$label = get_string('sunday', 'calendar');
+$desc = '';
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configtext('report_learningtimecheck/vacationdays', get_string('vacationdays', 'report_learningtimecheck'),
-                   get_string('vacationdays_desc', 'report_learningtimecheck'), '1,365', PARAM_TEXT));
+$key = 'report_learningtimecheck/vacationdays';
+$label = get_string('vacationdays', 'report_learningtimecheck');
+$desc = get_string('vacationdays_desc', 'report_learningtimecheck');
+$default = '1,365';
+$settings->add(new admin_setting_configtext($key, $label, $desc, $default, PARAM_TEXT));
 
 $importurl = new moodle_url('/report/learningtimecheck/import/importwdmarks.php');
 $checkurl = new moodle_url('/report/learningtimecheck/checkwdmarks.php');
-$settings->add(new admin_setting_heading('workingdays', get_string('workingdays', 'report_learningtimecheck'),
-                   get_string('workingdays_desc', 'report_learningtimecheck').' <a href="'.$importurl.'">'.get_string('workingdays_link', 'report_learningtimecheck').'</a><br>'.get_string('alsoworkingdayscheck', 'report_learningtimecheck').' <a href="'.$checkurl.'">'.get_string('workingdayscheck_link', 'report_learningtimecheck').'</a>'));
+$label = get_string('workingdays', 'report_learningtimecheck');
+$html = get_string('workingdays_desc', 'report_learningtimecheck');
+$html .= ' <a href="'.$importurl.'">'.get_string('workingdays_link', 'report_learningtimecheck').'</a><br>';
+$html .= get_string('alsoworkingdayscheck', 'report_learningtimecheck');
+$html .= ' <a href="'.$checkurl.'">'.get_string('workingdayscheck_link', 'report_learningtimecheck').'</a>';
+$settings->add(new admin_setting_heading('workingdays', $label, $html));
 
-$settings->add(new admin_setting_configcheckbox('report_learningtimecheck/checkworkingdays', get_string('checkworkingdays', 'report_learningtimecheck'),
-                   get_string('checkworkingdays_desc', 'report_learningtimecheck'), 0));
+$key = 'report_learningtimecheck/checkworkingdays';
+$label = get_string('checkworkingdays', 'report_learningtimecheck');
+$desc = get_string('checkworkingdays_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-$settings->add(new admin_setting_configtext('report_learningtimecheck/wdsecret', get_string('wdsecret', 'report_learningtimecheck'),
-                   get_string('wdsecret_desc', 'report_learningtimecheck'), '', PARAM_TEXT));
+$key = 'report_learningtimecheck/wdsecret';
+$label = get_string('wdsecret', 'report_learningtimecheck');
+$desc = get_string('wdsecret_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configtext($key, $label, $desc, '', PARAM_TEXT));
 
 $useridoptions = array('id' => get_string('id', 'report_learningtimecheck'),
                        'idnumber' => get_string('idnumber'),
                        'username' => get_string('username'),
                        'email' => get_string('email'));
 
-$settings->add(new admin_setting_configselect('report_learningtimecheck/wdimportuseridentifier', get_string('wdimportuseridentifier', 'report_learningtimecheck'),
-                   get_string('wdimportuseridentifier_desc', 'report_learningtimecheck'), 'username', $useridoptions));
+$key = 'report_learningtimecheck/wdimportuseridentifier';
+$label = get_string('wdimportuseridentifier', 'report_learningtimecheck');
+$desc = get_string('wdimportuseridentifier_desc', 'report_learningtimecheck');
+$desfault = 'username';
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $useridoptions));
