@@ -29,16 +29,20 @@ require_once($CFG->libdir.'/externallib.php');
 class report_learningtimecheck_external extends external_api {
 
     public static function get_user_report($userid, $useridnumber = false, $courseid = false) {
-        // invoke in silent mode
+        global $CFG;
+        // Invoke in silent mode.
 
-        // Ensure the current user is allowed to run this function
+        // Ensure the current user is allowed to run this function.
         $context = context_system::instance();
         self::validate_context($context);
         require_capability('report/learningtimecheck:viewother', $context);
 
-        // Do basic automatic PARAM checks on incoming data, using params description
-        // If any problems are found then exceptions are thrown with helpful error messages
-        $params = self::validate_parameters(self::get_user_report_parameters(), array('userid' => $userid, 'useridnumber' => $useridnumber, 'courseid' => $courseid));
+        // Do basic automatic PARAM checks on incoming data, using params description.
+        // If any problems are found then exceptions are thrown with helpful error messages.
+        $input = array('userid' => $userid,
+                       'useridnumber' => $useridnumber,
+                       'courseid' => $courseid);
+        $params = self::validate_parameters(self::get_user_report_parameters(), $input);
 
         if (!empty($params['useridnumber'])) {
             $user = $DB->get_record('user', array('idnumber' => $params['useridnumber']));
@@ -77,9 +81,11 @@ class report_learningtimecheck_external extends external_api {
         // Output production.
         $filecontent = $exporter->output();
 
-        // TODO : Record the content obtained into a file into a temporary file area
-        // generate a token for accessing the file and give back a pluginfile.php url
-        // opened by the token.
+        /*
+         * TODO : Record the content obtained into a file into a temporary file area
+         * generate a token for accessing the file and give back a pluginfile.php url
+         * opened by the token.
+         */
 
         return array('', '');
     }
@@ -116,7 +122,7 @@ class report_learningtimecheck_external extends external_api {
                             'underratioscope' => $underratioscope,
                             'underratio' => $underratio);
 
-        $params = self::validate_parameters(self::get_user_data_parameters(), $parameters);
+        self::validate_parameters(self::get_user_data_parameters(), $parameters);
 
         // Fetch the course object.
         $parameters = array('cidsource' => $cidsource,
@@ -131,7 +137,7 @@ class report_learningtimecheck_external extends external_api {
         $results = array();
 
         if ($user && !$course) {
-            // Fetch all ltcs in all use courses
+            // Fetch all ltcs in all use courses.
             $usercourses = enrol_get_users_courses($user->id);
 
             foreach ($usercourses as $cid => $ucourse) {
@@ -159,16 +165,22 @@ class report_learningtimecheck_external extends external_api {
                 $filteredresults = array();
                 foreach ($results as $r) {
                     switch ($underratioscope) {
-                        case 'all':
+                        case 'all': {
                             $baseratio = $r['overalratio'];
                             break;
-                        case 'mandatory':
+                        }
+
+                        case 'mandatory': {
                             $baseratio = $r['mandatoryratio'];
                             break;
-                        case 'optional':
+                        }
+
+                        case 'optional': {
                             $baseratio = $r['optionalratio'];
                             break;
+                        }
                     }
+
                     if ($baseratio < $underratio) {
                         $filteredresults[] = $r;
                     }
@@ -266,7 +278,6 @@ class report_learningtimecheck_external extends external_api {
     /* ******************************************* Get a set of users data ****************************************** */
 
     public static function get_users_data($uidsource, $uids, $cidsource, $cid, $underratioscope = '', $underratio = 0) {
-        global $DB;
 
         // First proceed to standard validation (param arity, param data type).
         $parameters = array('uidsource' => $uidsource,
@@ -276,7 +287,7 @@ class report_learningtimecheck_external extends external_api {
                             'underratioscope' => $underratioscope,
                             'underratio' => $underratio);
 
-        $params = self::validate_parameters(self::get_users_data_parameters(), $parameters);
+        self::validate_parameters(self::get_users_data_parameters(), $parameters);
 
         $bulkresults = array();
         foreach ($uids as $uid) {
@@ -285,7 +296,6 @@ class report_learningtimecheck_external extends external_api {
                 $bulkresults = array_merge($bulkresults, $results);
             }
         }
-
 
         return $bulkresults;
     }

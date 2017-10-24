@@ -29,7 +29,6 @@ require_once $CFG->dirroot.'/lib/formslib.php';
 class GenerateMarksForm extends moodleform {
 
     function definition() {
-        global $COURSE;
 
         $mform = $this->_form;
 
