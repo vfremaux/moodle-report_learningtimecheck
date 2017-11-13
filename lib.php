@@ -179,7 +179,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
     $timedonestr = get_string('timedone', 'learningtimecheck');
     $timeleftstr = get_string('timeleft', 'learningtimecheck');
 
-    // For pdf output/
+    // For pdf output.
     $idnumberpdfstr = get_string('idnumberpdf', 'report_learningtimecheck');
     $progresspdfstr = get_string('progressbarpdf', 'report_learningtimecheck');
     $itemstodopdfstr = get_string('itemstodopdf', 'report_learningtimecheck');
@@ -1560,30 +1560,47 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     static $CMCACHE = array();
     static $modinfo;
 
+    $debug = optional_param('debug', false, PARAM_BOOL);
+
     if (empty($modinfo)) {
         $modinfo = get_fast_modinfo($COURSE->id, $user->id);
     }
 
     if (empty($reportsettings->showoptional) && ($check->itemoptional == LTC_OPTIONAL_YES)) {
+        if ($debug) {
+            mtrace("Report rejected as optional");
+        }
         return false;
     }
 
     if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
+        if ($debug) {
+            mtrace("Report rejected as heading");
+        }
         return false;
     }
 
     // Not credited and therefore hidden.
     if (!$check->credittime && !empty($useroptions['hidenocredittime'])) {
+        if ($debug) {
+            mtrace("Report rejected as not credited");
+        }
         return false;
     }
 
     // Not checked and therefore hidden. some reports f.e. course level summary need force unmarked to be considered.
     if ((!$check->usertimestamp) && (!empty($useroptions['hideunmarkedchecks']) && empty($reportsettings->forceshowunmarked))) {
+        if ($debug) {
+            mtrace("Report rejected as not unmarked");
+        }
         return false;
     }
 
     // Not in report's range requirements.
     if (!report_learningtimecheck_check_report_range($useroptions, $check)) {
+        if ($debug) {
+            mtrace("Report rejected as not in range");
+        }
         return false;
     }
 
@@ -1622,11 +1639,17 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
         if ($COURSE->format == 'page') {
             // If paged, check the module is on a visible page.
             if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
+                if ($debug) {
+                    mtrace("Report rejected as not visible (page)");
+                }
                 return false;
             }
         }
 
-        if (!$cm->uservisible) {
+        if (!$cm->visible) {
+            if ($debug) {
+                mtrace("Report rejected as not visible (standard)");
+            }
             return false;
         }
         $idnumber = $CMCACHE[$check->moduleid]->idnumber;
