@@ -103,8 +103,9 @@ if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php'))
 } else {
     if (file_exists($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php')) {
         include($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php');
+    } else {
+        print_error('errorbadviewid', 'report_learningtimecheck');
     }
-    print_error('errorbadviewid', 'report_learningtimecheck');
 }
 
 echo $OUTPUT->footer();
