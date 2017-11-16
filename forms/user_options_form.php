@@ -24,7 +24,8 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once $CFG->dirroot.'/lib/formslib.php';
+require_once($CFG->dirroot.'/lib/formslib.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 class UserOptionsForm extends moodleform {
 
@@ -72,9 +73,9 @@ class UserOptionsForm extends moodleform {
         $mform->setType('hidenocredittime', PARAM_BOOL);
         $mform->addHelpButton('hidenocredittime', 'hidenocredittime', 'report_learningtimecheck');
 
-        $progressbaroptions = array('0' => get_string('itemsprogress', 'report_learningtimecheck'),
-            '1' => get_string('timeprogress', 'report_learningtimecheck'),
-            '2' => get_string('both', 'report_learningtimecheck'));
+        $progressbaroptions = array(PROGRESSBAR_ITEMS => get_string('itemsprogress', 'report_learningtimecheck'),
+            PROGRESSBAR_TIME => get_string('timeprogress', 'report_learningtimecheck'),
+            PROGRESSBAR_BOTH => get_string('both', 'report_learningtimecheck'));
 
         $mform->addElement('select', 'progressbars', get_string('progressbars', 'report_learningtimecheck'), $progressbaroptions);
         $mform->setType('progressbars', PARAM_INT);
