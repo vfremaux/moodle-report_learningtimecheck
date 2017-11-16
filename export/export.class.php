@@ -90,7 +90,7 @@ abstract class learningtimecheck_exporter {
      *
      */
     function save_content($tempdirectory = null) {
-        global $CFG, $DB;
+        global $CFG;
 
         if ($this->data == null) {
             throw new coding_exception('Data not initialized');
