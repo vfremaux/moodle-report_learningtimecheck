@@ -210,3 +210,39 @@ $label = get_string('wdimportuseridentifier', 'report_learningtimecheck');
 $desc = get_string('wdimportuseridentifier_desc', 'report_learningtimecheck');
 $desfault = 'username';
 $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $useridoptions));
+
+$settings->add(new admin_setting_heading('pdfcolors', get_string('pdfcolors', 'report_learningtimecheck'), ''));
+
+// Background colors.
+$name = 'report_learningtimecheck/pdfbgcolor1';
+$label = get_string('backgroundcolor', 'report_learningtimecheck').' 1';
+$desc = '';
+$default = '#444';
+$previewconfig = null;
+$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+$setting->set_updatedcallback('theme_reset_all_caches');
+
+$name = 'report_learningtimecheck/pdfbgcolor2';
+$label = get_string('backgroundcolor', 'report_learningtimecheck').' 2';
+$desc = '';
+$default = '#888';
+$previewconfig = null;
+$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+$setting->set_updatedcallback('theme_reset_all_caches');
+
+// Text colors.
+$name = 'report_learningtimecheck/pdfcolor1';
+$label = get_string('textcolor', 'report_learningtimecheck').' 1';
+$desc = '';
+$default = '#eee';
+$previewconfig = null;
+$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+$setting->set_updatedcallback('theme_reset_all_caches');
+
+$name = 'report_learningtimecheck/pdfcolor2';
+$label = get_string('textcolor', 'report_learningtimecheck').' 2';
+$desc = '';
+$default = '#fff';
+$previewconfig = null;
+$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+$setting->set_updatedcallback('theme_reset_all_caches');
