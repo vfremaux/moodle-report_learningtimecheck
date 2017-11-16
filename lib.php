@@ -34,6 +34,10 @@ define('REPORT_IDENTIFIER_ID', 0);
 define('REPORT_IDENTIFIER_IDNUMBER', 1);
 define('REPORT_IDENTIFIER_NAME', 2);
 
+define('PROGRESSBAR_ITEMS', 0);
+define('PROGRESSBAR_TIME', 1);
+define('PROGRESSBAR_BOTH', 2);
+
 define('DEBUG_LTC_CHECK', 0);
 /**
  * This function extends the navigation with the report items
@@ -44,7 +48,6 @@ define('DEBUG_LTC_CHECK', 0);
  * @return void
  */
 function report_learningtimecheck_extend_navigation_course(&$navigation, $course, $context) {
-    global $CFG, $OUTPUT;
 
     if (has_capability('report/learningtimecheck:view', $context)) {
         $url = new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id));
@@ -119,7 +122,8 @@ function report_learningtimecheck_pluginfile($course, $cm, $context, $filearea, 
     $filename = array_pop($args);
     $filepath = $args ? '/'.implode('/', $args).'/' : '/';
 
-    if (!$file = $fs->get_file($context->id, 'report_learningtimecheck', $filearea, 0, $filepath, $filename) or $file->is_directory()) {
+    if (!$file = $fs->get_file($context->id, 'report_learningtimecheck', $filearea, 0,
+                               $filepath, $filename) or $file->is_directory()) {
         send_file_not_found();
     }
 
@@ -136,7 +140,7 @@ function report_learningtimecheck_pluginfile($course, $cm, $context, $filearea, 
  */
 function report_learningtimecheck_get_cohort_users($cohortid){
     global $DB;
-    
+
     $sql = "
         SELECT
             u.id,
@@ -170,6 +174,12 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
 
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
 
+    $config = get_config('report_learningtimecheck');
+    $bg1 = $config->pdfbgcolor1;
+    $bg2 = $config->pdfbgcolor2;
+    $f1 = $config->pdfcolor1;
+    $f2 = $config->pdfcolor2;
+
     $idnumberstr = get_string('idnumber');
     $fullnamestr = get_string('fullname');
     $progressstr = get_string('progressbar', 'learningtimecheck');
@@ -179,7 +189,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
     $timedonestr = get_string('timedone', 'learningtimecheck');
     $timeleftstr = get_string('timeleft', 'learningtimecheck');
 
-    // for pdf output
+    // For pdf output.
     $idnumberpdfstr = get_string('idnumberpdf', 'report_learningtimecheck');
     $progresspdfstr = get_string('progressbarpdf', 'report_learningtimecheck');
     $itemstodopdfstr = get_string('itemstodopdf', 'report_learningtimecheck');
@@ -193,37 +203,37 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
 
     $table = new html_table();
 
-    // Screen generation
+    // Screen generation.
     $table->head = array($idnumberstr, $fullnamestr, $progressstr, $itemstodostr, $itemsdonestr, $timetodostr, $timedonestr, $timeleftstr);
     $table->size = array('10%', '20%', '20%', '10%', '10%', '10%', '10%', '10%');
     $table->align = array('left', 'left', 'center', 'center', 'center', 'center', 'center', 'left');
     $table->colclasses = array('', '', '', '', '', 'highlighted', '', '');
-    $table->printinfo = array(true,true,true,true,true,true,true,true);
+    $table->printinfo = array(true, true, true, true, true, true, true, true);
 
-    // Reports generation
+    // Reports generation.
     $table->xlshead = array('idnumber', 'lastname', 'firstname', 'progress', 'itemstodo', 'itemsdone', 'timetodo', 'timedone', 'doneratio', 'timeleft', 'leftratio');
     $table->xlsprintctl = array('final', 'final', 'final', 'raw', 'final', 'final', 'final', 'final', 'final', 'raw', 'raw');
-    $table->xlsprintinfo = array(true,true,true,true,true,true,true,true,true,true,true);
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true);
 
-    // Pdf header 1
+    // Pdf header 1.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
     $table->pdfsize1 = array('10%', '10%', '20%', '30%', '30%');
     $table->pdfalign1 = array('L', 'L', 'L', 'C', 'C');
-    $table->pdfbgcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#000000', '#000000');
+    $table->pdfbgcolor1 = array($bg2, $bg2, $bg2, $bg1, $bg1);
+    $table->pdfcolor1 = array($f2, $f2, $f2, $f1, $f1);
 
-    // Pdf header 2
+    // Pdf header 2.
     $table->pdfhead2 = array($idnumberpdfstr, $fullnamestr, $progresspdfstr, $itemstodopdfstr, $itemsdonepdfstr, $timetodopdfstr, $timedonepdfstr, $timeleftpdfstr);
     $table->pdfsize2 = array('10%', '30%', '10%', '10%', '10%', '10%', '10%', '10%');
     $table->pdfalign2 = array('L', 'L', 'L', 'C', 'C', 'C', 'C', 'L');
 
-    // Pdf footer and summators
+    // Pdf footer and summators.
     $table->pdfalign3 = array('L', 'L', 'L', 'C', 'C');
-    $table->pdfbgcolor3 = array('#ffffff', '#ffffff', '#ffffff', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#ffffff', '#000000', '#000000');
+    $table->pdfbgcolor3 = array($bg2, $bg2, $bg2, $bg1, $bg1);
+    $table->pdfcolor3 = array($f2, $f2, $f2, $f1, $f1);
 
     $table->pdfprintctl = array('final', 'final', 'raw', 'final', 'final', 'final', 'final', 'final');
-    $table->pdfprintinfo = array(true,true,true,true,true,true,true,true);
+    $table->pdfprintinfo = array(true, true, true, true, true, true, true, true);
 
     $table->rawdata = array();
 
@@ -231,7 +241,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
     $globals->startrange = @$useroptions['startrange'];
     $globals->endrange = @$useroptions['endrange'];
 
-    // Encode user options for tuning the report columns
+    // Encode user options for tuning the report columns.
     if (!empty($useroptions['hideidnumber'])) {
         $table->printinfo[0] = false;
         $table->colclasses[0] = 'zerowidth';
@@ -264,7 +274,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
         $data[1] = '<a href="'.$thisurl.'?id='.$id.'&view=user&itemid='.$u->id.'">'.fullname($u).'</a>';
         $useraggregate = array('totalitems' => 0, 'totaltime' => 0, 'tickeditems' => 0, 'tickedtimes' => 0);
         foreach ($allchecklists as $checklist) {
-            // care that all checklists should manage a disjonctive set of items
+            // Care that all checklists should manage a disjonctive set of items.
             $itemstates = $checklist->get_items_for_user($u, $reportsettings, $useroptions);
             $userdata = $itemstates['mandatory'];
             $useraggregate['totalitems'] += $userdata['items'];
@@ -274,7 +284,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
         }
 
         if ($useraggregate['totalitems']) {
-            $percentcomplete = ($useraggregate['totalitems']) ? ($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems'] : 0 ;
+            $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0 ;
         } else {
             $percentcomplete = 0;
             $courseaggregate['tickeditems'] = 0;
@@ -303,18 +313,18 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
         $data[6] = learningtimecheck_format_time($useraggregate['tickedtimes']).' ('.sprintf('%0d', $timedoneratio).'&nbsp;%)';
         $data[7] = learningtimecheck_format_time($timeleft).' ('.sprintf('%0d', $timeleftratio).'&nbsp;%)';
 
-        // prepare raw data for export
+        // Prepare raw data for export.
         $rawdata[0] = $u->idnumber;
         $rawdata[1] = $u->lastname;
         $rawdata[2] = $u->firstname;
-        $rawdata[3] = sprintf('%0.2f', $percentcomplete).'&nbsp;%'; // change for row data 
+        $rawdata[3] = sprintf('%0d', $percentcomplete).'&nbsp;%'; // Change for row data.
         $rawdata[4] = $useraggregate['totalitems'];
         $rawdata[5] = $useraggregate['tickeditems'];
-        $rawdata[6] = $useraggregate['totaltime']; // change for row data for further export conversion
-        $rawdata[7] = $useraggregate['tickedtimes']; // change for row data for further export conversion
-        $rawdata[8] = $timedoneratio.'%'; // change for row data for further export conversion
-        $rawdata[9] = $timeleft; // change for row data for further export conversion
-        $rawdata[10] = $timeleftratio.'%'; // change for row data for further export conversion
+        $rawdata[6] = $useraggregate['totaltime']; // Change for row data for further export conversion.
+        $rawdata[7] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
+        $rawdata[8] = $timedoneratio.'%'; // Change for row data for further export conversion.
+        $rawdata[9] = $timeleft; // Change for row data for further export conversion.
+        $rawdata[10] = $timeleftratio.'%'; // Change for row data for further export conversion.
         $table->rawdata[] = $rawdata;
 
         $table->data[] = $data;
@@ -326,23 +336,23 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
         $table->pdfdata[] = $pdfdata;
     }
 
-    // make last row with average and sums.
+    // Make last row with average and sums.
 
     $row1 = new html_table_row();
 
-    // ID Number
+    // ID Number.
     $cell1 = new html_table_cell();
     $cell1->text = '';
     $cell1->align = 'right';
     $row1->cells[] = $cell1;
 
-    // Username
+    // Username.
     $cell2 = new html_table_cell();
     $cell2->text = '<b>'.get_string('summators', 'learningtimecheck').'</b>';
     $cell2->align = 'right';
     $row1->cells[] = $cell2;
 
-    // Progress indicator
+    // Progress indicator.
     $cell3 = new html_table_cell();
 
     if ($countusers) {
@@ -388,7 +398,7 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
 }
 
 /**
- * compile all results of a single course, per user, in a table object, that will be rendered
+ * Compile all results of a single course, per user, in a table object, that will be rendered
  * on line or dumped onto a report file format
  * @param int $id
  * @param array $courseusers
@@ -399,6 +409,13 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
  */
 function report_learningtimecheck_course_results($id, $courseusers, $courseid, &$globals, $useroptions) {
     global $CFG, $DB;
+
+    $config = get_config('report_learningtimecheck');
+    $bg1 = $config->pdfbgcolor1;
+    $bg2 = $config->pdfbgcolor2;
+
+    $f1 = $config->pdfcolor1;
+    $f2 = $config->pdfcolor2;
 
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
 
@@ -421,7 +438,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
     $timeleftstr = get_string('timeleft', 'learningtimecheck');
     $timeleftratiostr = get_string('timeleftratio', 'report_learningtimecheck');
 
-    // for pdf output
+    // For pdf output.
     $idnumberpdfstr = get_string('idnumberpdf', 'report_learningtimecheck');
     $progresspdfstr = get_string('progressbarpdf', 'report_learningtimecheck');
     $itemstodopdfstr = get_string('itemstodopdf', 'report_learningtimecheck');
@@ -437,38 +454,41 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
 
     $table = new html_table();
 
-    $table->head = array($idnumberstr, $fullnamestr, $groupsstr, $progressstr, $itemstodostr, $itemsdonestr, $timetodostr, $timedonestr, $timeleftstr);
-    $table->printinfo = array(true,true,true,true,true,true,true,true,true);
+    $table->head = array($idnumberstr, $fullnamestr, $groupsstr, $progressstr, $itemstodostr, $itemsdonestr, $timetodostr,
+                         $timedonestr, $timeleftstr);
+    $table->printinfo = array(true, true, true, true, true, true, true, true, true);
     $table->size = array('10%', '26%', '8%', '8%', '8%', '8%', '8%', '8%', '8%');
     $table->align = array('left', 'left', 'left', 'center', 'center', 'center', 'left', 'center', 'left');
     $table->colclasses = array('', '', '', '', '', '', '', 'highlighted', '');
 
-    // Xls output
-    $table->xlshead = array('shortname', 'lastname', 'firstname', 'groups', 'progress', 'itemstodo', 'doneitems', 'totaltime', 'donetime', 'doneratio', 'timeleft', 'leftratio');
-    $table->xlsprintinfo = array(true,true,true,true,true,true,true,true,true,true,true,true);
+    // Xls output.
+    $table->xlshead = array('shortname', 'lastname', 'firstname', 'groups', 'progress', 'itemstodo', 'doneitems', 'totaltime',
+                            'donetime', 'doneratio', 'timeleft', 'leftratio');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true);
 
     // The overline.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
     $table->pdfsize1 = array('10%', '20%', '10%', '30%', '30%');
     $table->pdfalign1 = array('L', 'L', 'L', 'C', 'C');
-    $table->pdfbgcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#000000', '#000000');
+    $table->pdfbgcolor1 = array($bg1, $bg1, $bg1, $bg2, $bg2);
+    $table->pdfcolor1 = array($f1, $f1, $f1, $f2, $f2);
 
-    $table->pdfhead2 = array($idnumberpdfstr, $fullnamestr, $groupsstr, $progresspdfstr, $itemstodopdfstr, $itemsdonepdfstr, $timetodopdfstr, $timedonepdfstr, $timeleftpdfstr);
+    $table->pdfhead2 = array($idnumberpdfstr, $fullnamestr, $groupsstr, $progresspdfstr, $itemstodopdfstr, $itemsdonepdfstr, $timetodopdfstr,
+                             $timedonepdfstr, $timeleftpdfstr);
     $table->pdfsize2 = array('10%', '20%', '10%', '10%', '10%', '10%', '10%', '10%', '10%');
     $table->pdfalign2 = array('L', 'L', 'L', 'C', 'C', 'C', 'C', 'C', 'C');
 
-    $table->pdfbgcolor3 = array('#000000', '#000000', '#000000', '#f0f0f0', '#f0f0f0', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#ffffff', '#000000', '#000000', '#000000', '#000000');
+    $table->pdfbgcolor3 = array($bg1, $bg1, $bg1, $bg2, $bg2, $bg2, $bg2);
+    $table->pdfcolor3 = array($f1, $f1, $f1, $f2, $f2, $f2, $f2);
     $table->pdfalign3 = array('L', 'L', 'L', 'C', 'C', 'C', 'C');
 
-    $table->pdfprintinfo = array(true,true,true,true,true,true,true,true,true);
+    $table->pdfprintinfo = array(true, true, true, true, true, true, true, true, true);
 
     $globals = new StdClass;
     $globals->startrange = @$useroptions['startrange'];
     $globals->endrange = @$useroptions['endrange'];
 
-    // Encode user options for tuning the report columns
+    // Encode user options for tuning the report columns.
     if (!empty($useroptions['hideidnumber'])) {
         $table->printinfo[0] = false;
         $table->colclasses[0] = 'zerowidth';
@@ -509,7 +529,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
 
         if (!empty($usergroups)) {
             foreach ($usergroups as $groupinggroups) {
-                foreach ($groupinggroups as $g) { // unduple groups
+                foreach ($groupinggroups as $g) { // Unduple groups.
                     if (!in_array($g, $gids)) {
                         $gnames[] = $DB->get_field('groups', 'name', array('id' => $g));
                         $gids[] = $g;
@@ -520,7 +540,8 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         $groupnames = implode(',', $gnames);
         unset($gids); /// free unused mem
 
-        $userreporturl = new moodle_url('/report/learningtimecheck/index.php', array('view' => 'user', 'itemid' => $u->id, 'id' => $courseid));
+        $params = array('view' => 'user', 'itemid' => $u->id, 'id' => $courseid);
+        $userreporturl = new moodle_url('/report/learningtimecheck/index.php', $params);
 
         $data = array();
         $data[0] = $u->idnumber;
@@ -539,7 +560,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         }
 
         if ($useraggregate['totalitems']) {
-            $percentcomplete = ($useraggregate['totalitems']) ? ($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems'] : 0 ;
+            $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0;
             if ($percentcomplete > 90) {
                 $globals->fullusers  = @$globals->fullusers + 1;
             }
@@ -556,10 +577,10 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         }
 
         $timeleft = $useraggregate['totaltime'] - $useraggregate['tickedtimes'];
-        $timedoneratio = ($useraggregate['totaltime']) ? floor(100 * (($useraggregate['tickedtimes'] /$useraggregate['totaltime']))) : 0;
-        $timeleftratio = 100 - floor($timedoneratio);
+        $timedoneratio = ($useraggregate['totaltime']) ? round(100 * (($useraggregate['tickedtimes'] / $useraggregate['totaltime']))) : 0;
+        $timeleftratio = 100 - $timedoneratio;
 
-        // summarizes over all users
+        // Summarizes over all users.
         $sumcomplete += $percentcomplete;
         $sumitems += $useraggregate['totalitems'];
         $sumticked += $useraggregate['tickeditems'];
@@ -582,37 +603,45 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         $rawdata[1] = $u->lastname;
         $rawdata[2] = $u->firstname;
         $rawdata[3] = $groupnames;
-        $rawdata[4] = sprintf('%0.2f', $percentcomplete).'%'; // change for row data 
+        $rawdata[4] = sprintf('%0.2f', $percentcomplete).'%'; // Change for row data.
         $rawdata[5] = $useraggregate['totalitems'];
         $rawdata[6] = $useraggregate['tickeditems'];
         $rawdata[7] = $useraggregate['totaltime'];
-        $rawdata[8] = $useraggregate['tickedtimes']; // change for row data for further export conversion
+        $rawdata[8] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
         $rawdata[9] = $timedoneratio.'%';
-        $rawdata[10] = $timeleft; // change for row data for further export conversion
+        $rawdata[10] = $timeleft; // Change for row data for further export conversion.
         $rawdata[12] = $timeleftratio.'%';
         $table->rawdata[] = $rawdata;
 
         $pdfdata = $data;
         $pdfdata[1] = fullname($u);
-        $pdfdata[3] = sprintf('%0.1f', $percentcomplete).' %';
+        $pdfdata[3] = sprintf('%0d', $percentcomplete).' %';
         $table->pdfdata[] = $pdfdata;
     }
 
     // Achievement is in fifth col (tickeditems);
     function sortbyachievementdesc($a, $b) {
-        if ($a[5] > $b[5]) return -1;
-        if ($a[5] < $b[5]) return 1;
+        if ($a[5] > $b[5]) {
+            return -1;
+        }
+        if ($a[5] < $b[5]) {
+            return 1;
+        }
         return sortbyname($a,$b);
     }
 
     // Achievement is in fifth col (tickeditems);
     function sortrawbyachievementdesc($a, $b) {
-        if ($a[6] > $b[6]) return -1;
-        if ($a[6] < $b[6]) return 1;
+        if ($a[6] > $b[6]) {
+            return -1;
+        }
+        if ($a[6] < $b[6]) {
+            return 1;
+        }
         return sortbyname($a,$b);
     }
 
-    // sort function
+    // Sort function.
     function sortbyname($a, $b) {
         if (strip_tags($a[1]) > strip_tags($b[1])) {
             return 1;
@@ -623,7 +652,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         return 0;
     }
 
-    // sort function
+    // Sort function.
     function sortrawbyname($a, $b) {
         if ($a[1] > $b[1]) {
             return 1;
@@ -653,25 +682,25 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
 
     $row1 = new html_table_row();
 
-    // ID number
+    // ID number.
     $cell1 = new html_table_cell();
     $cell1->text = '';
     $cell1->align = 'right';
     $row1->cells[] = $cell1;
 
-    // Name
+    // Name.
     $cell2 = new html_table_cell();
     $cell2->text = '<b>'.get_string('summators', 'learningtimecheck').'</b>';
     $cell2->align = 'right';
     $row1->cells[] = $cell2;
 
-    // Groups
+    // Groups.
     $cell3 = new html_table_cell();
     $cell3->text = '';
     $cell3->align = 'right';
     $row1->cells[] = $cell3;
 
-    // Progression
+    // Progression.
     $cell4 = new html_table_cell();
     if ($countusers) {
         $cell4->text = sprintf('%0.1f', $sumcomplete / $countusers).' % '.get_string('average', 'learningtimecheck');
@@ -680,29 +709,33 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
     }
     $row1->cells[] = $cell4;
 
-    // Items to do
+    // Items to do.
     $cell7 = new html_table_cell();
     $cell7->text = '<span class="totalizer"></span>';
     $row1->cells[] = $cell7;
 
-    // Items done
+    // Items done.
     $cell8 = new html_table_cell();
     $cell8->text = '<span class="totalizer"></span>';
     $row1->cells[] = $cell8;
 
-    // Total time
+    // Total time.
     $cell9 = new html_table_cell();
     $cell9->text = '<span class="totalizer"></span>';
     $row1->cells[] = $cell9;
 
-    // Ticked time
+    // Ticked time.
     $cell10 = new html_table_cell();
-    $cell10->text = '<span class="totalizer">'.learningtimecheck_format_time($sumtickedtime).' '.get_string('totalized', 'learningtimecheck').' ('.(($sumtimetodo) ? sprintf('%0.1f', $sumtickedtime / $sumtimetodo * 100) : '0.0' ).'&nbsp;%)</span>';
+    $str = learningtimecheck_format_time($sumtickedtime).' '.get_string('totalized', 'learningtimecheck');
+    $str .= ' ('.(($sumtimetodo) ? sprintf('%0d', round($sumtickedtime / $sumtimetodo * 100)) : '0.0' ).'&nbsp;%)';
+    $cell10->text = '<span class="totalizer">'.$str.'</span>';
     $cell10->attributes['class'] = 'learningtimecheck-result';
     $row1->cells[] = $cell10;
 
     $cell12 = new html_table_cell();
-    $cell12->text = '<span class="totalizer">'.learningtimecheck_format_time($sumtimeleft).' '.get_string('totalized', 'learningtimecheck').' ('.(($sumtimetodo) ? sprintf('%0.1f', $sumtimeleft / $sumtimetodo* 100) : '0.0' ).'&nbsp;%)</span>';
+    $str = learningtimecheck_format_time($sumtimeleft).' '.get_string('totalized', 'learningtimecheck');
+    $str .= ' ('.(($sumtimetodo) ? sprintf('%0d', round($sumtimeleft / $sumtimetodo* 100)) : '0.0' ).'&nbsp;%)';
+    $cell12->text = '<span class="totalizer">'.$str.'</span>';
     $cell12->attributes['class'] = 'learningtimecheck-remain-result';
     $row1->cells[] = $cell12;
 
@@ -725,6 +758,13 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     global $CFG, $DB, $OUTPUT;
     static $CUSER = array();
 
+    $config = get_config('report_learningtimecheck');
+    $bg1 = $config->pdfbgcolor1;
+    $bg2 = $config->pdfbgcolor2;
+
+    $f1 = $config->pdfcolor1;
+    $f2 = $config->pdfcolor2;
+
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
 
     $sumcomplete = 0;
@@ -741,7 +781,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $isvalidstr = get_string('isvalid', 'report_learningtimecheck');
     $validatedbystr = get_string('validatedby', 'report_learningtimecheck');
 
-    // for pdf output
+    // For pdf output.
     $idnumberpdfstr = get_string('idnumberpdf', 'report_learningtimecheck');
     $itemnamestr = get_string('itemnamepdf', 'report_learningtimecheck');
     $itemtimecreditpdfstr = get_string('itemtimecreditpdf', 'report_learningtimecheck');
@@ -755,31 +795,31 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
 
     $table = new html_table();
 
-    // Screen output
+    // Screen output.
     $table->head = array($idnumberstr, $itemnamestr, $itemtimecreditstr, $earnedtimestr, $marktimestr, $isvalidstr, $validatedbystr);
     $table->size = array('10%', '40%', '10%', '10%', '10%', '10%', '10%');
     $table->align = array('left', 'left', 'left', 'center', 'center', 'center', 'center');
     $table->colclasses = array('', '', '', 'highlighted', '', '', '');
 
-    // Xls output
+    // Xls output.
     $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby');
-    $table->xlsprintinfo = array(true,true,true,true,true,true,true);
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true);
 
-    // Pdf output
+    // Pdf output.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
     $table->pdfsize1 = array('10%', '10%', '20%', '30%', '30%');
 
     $table->pdfalign1 = array('L', 'L', 'L', 'C', 'C', 'L', 'L');
-    $table->pdfbgcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#000000', '#000000');
+    $table->pdfbgcolor1 = array($bg2, $bg2, $bg2, $bg1, $bg1);
+    $table->pdfcolor1 = array($f2, $f2, $f2, $f1, $f1);
 
     $table->pdfhead2 = array($idnumberpdfstr, $itemnamestr, $itemtimecreditpdfstr, $earnedtimepdfstr, $marktimepdfstr, $isvalidpdfstr, $validatedbypdfstr);
     $table->pdfsize2 = array('10%', '40%', '10%', '10%', '10%', '10%', '10%');
     $table->pdfalign2 = array('L', 'L', 'L', 'L', 'L', 'C', 'L');
-    $table->pdfprintinfo = array(true,true,true,true,true,true,true);
+    $table->pdfprintinfo = array(true, true, true, true, true, true, true);
 
-    $table->pdfbgcolor3 = array('#000000', '#000000', '#f0f0f0', '#f0f0f0', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#000000', '#000000', '#000000', '#000000');
+    $table->pdfbgcolor3 = array($bg1, $bg1, $bg1, $bg1, $bg1, $bg1);
+    $table->pdfcolor3 = array($f1, $f1, $f1, $f1, $f1, $f1);
     $table->pdfalign3 = array('L', 'L', 'L', 'L', 'C', 'L');
 
     $globals = new StdClass();
@@ -792,7 +832,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
         $table->xlsprintinfo[0] = false;
     }
 
-    // the raw data for exports
+    // The raw data for exports.
     $table->rawdata = array();
     $table->pdfdata = array();
 
@@ -806,7 +846,8 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $globals->totalvaliditems = 0;
 
     $tclmodule = $DB->get_record('modules', array('name' => 'learningtimecheck'));
-    $timechecklistmodules = $DB->get_records('course_modules', array('course' => $courseid, 'module' => $tclmodule->id), 'section', '*');
+    $params = array('course' => $courseid, 'module' => $tclmodule->id);
+    $timechecklistmodules = $DB->get_records('course_modules', $params, 'section', '*');
     if ($timechecklistmodules) {
         foreach ($timechecklistmodules as $clcm) {
             $clobj = new learningtimecheck_class($clcm->id);
@@ -837,7 +878,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                     $data[1] = $check->displaytext;
                     $data[2] = 0 + $check->credittime.' min';
 
-                    // earned time and check status
+                    // Earned time and check status.
                     $marked = report_learningtimecheck_is_marked($check, $clobj);
                     if ($marked > 1) {
                         // Has been marked either by student or teacher.
@@ -845,7 +886,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $earnedtime = '<span class="good">'.$check->credittime.'</span>';
                         $globals->courseearneditems++;
                         $globals->courseearnedtime += $check->credittime;
-                    } elseif($marked == -1) {
+                    } else if ($marked == -1) {
                         $pix = '<img src="'.$OUTPUT->pix_url('bad').'">';
                         $earnedtime = '';
                     } else {
@@ -879,7 +920,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $globals->totalvaliditems++;
                     }
 
-                    // This is  a check raw information array for exports
+                    // This is  a check raw information array for exports.
                     if ($check->itemoptional == LTC_OPTIONAL_HEADING) {
                         $rawdata = array();
                         $rawdata[0] = '';
@@ -894,9 +935,9 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $rawdata[0] = $idnumber;
                         $rawdata[1] = $check->displaytext;
                         $rawdata[2] = $check->credittime;
-                        $rawdata[3] = ($marked == 2) ? $check->credittime : '' ;
+                        $rawdata[3] = ($marked == 2) ? $check->credittime : '';
                         $rawdata[4] = $marktime;
-                        $rawdata[5] = ($isvalid) ? 'yes' : '' ;
+                        $rawdata[5] = ($isvalid) ? 'yes' : '';
                         $rawdata[6] = $marker;
                     }
                     $table->rawdata[] = $rawdata;
@@ -923,11 +964,13 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
         $row2->cells[] = $cell1;
 
         $cell2 = new html_table_cell();
-        $cell2->text = '<span class="totalizer">'.learningtimecheck_format_time(0 + $globals->totalcoursetime).' '.get_string('totalized', 'learningtimecheck').'</span>';
+        $str = learningtimecheck_format_time(0 + $globals->totalcoursetime).' '.get_string('totalized', 'learningtimecheck');
+        $cell2->text = '<span class="totalizer">'.$str.'</span>';
         $row2->cells[] = $cell2;
 
         $cell3 = new html_table_cell();
-        $cell3->text = '<span class="totalizer">'.learningtimecheck_format_time(0 + $globals->courseearnedtime).' '.get_string('totalized', 'learningtimecheck').'</span>';
+        $str = learningtimecheck_format_time(0 + $globals->courseearnedtime).' '.get_string('totalized', 'learningtimecheck');
+        $cell3->text = '<span class="totalizer">'.$str.'</span>';
         $cell3->attributes['class'] = 'learningtimecheck-result';
         $row2->cells[] = $cell3;
 
@@ -949,7 +992,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
         $table->lineincr = 4;
         $table->smalllineincr = 2;
 
-        $globals->courseprogressratio = sprintf('%0.1f', $globals->courseearneditems / $globals->totalcourseitems * 100). ' %';
+        $globals->courseprogressratio = sprintf('%0d', round($globals->courseearneditems / $globals->totalcourseitems * 100)). ' %';
     } else {
         $table->data = array();
         $globals->courseprogressratio = '0 %';
@@ -974,6 +1017,11 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
 
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
     $config = get_config('report_learningtimecheck');
+    $bg1 = $config->pdfbgcolor1;
+    $bg2 = $config->pdfbgcolor2;
+
+    $f1 = $config->pdfcolor1;
+    $f2 = $config->pdfcolor2;
 
     $sumcomplete = 0;
     $sumitems = 0;
@@ -989,7 +1037,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
     $isvalidstr = get_string('isvalid', 'report_learningtimecheck');
     $validatedbystr = get_string('validatedby', 'report_learningtimecheck');
 
-    // for pdf output
+    // For pdf output.
     $idnumberpdfstr = get_string('idnumberpdf', 'report_learningtimecheck');
     $itemnamestr = get_string('itemnamepdf', 'report_learningtimecheck');
     $itemtimecreditpdfstr = get_string('itemtimecreditpdf', 'report_learningtimecheck');
@@ -1006,26 +1054,27 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
 
     $table = new html_table();
 
-    // Screen output
+    // Screen output.
     $table->head = array($idnumberstr, $itemnamestr, $itemtimecreditstr, $earnedtimestr, $marktimestr, $isvalidstr, $validatedbystr);
     $table->size = array('10%', '40%', '10%', '10%', '10%', '10%', '10%');
     $table->align = array('left', 'left', 'left', 'center', 'center', 'center', 'center');
     $table->colclasses = array('', '', '', 'highlighted', '', '', '');
-    $table->printinfo = array(true,true,true,true,true,true,true);
+    $table->printinfo = array(true, true, true, true, true, true, true);
 
-    // Xls output
+    // Xls output.
     $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby');
-    $table->xlsprintinfo = array(true,true,true,true,true,true,true);
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true);
 
-    // Pdf output
+    // Pdf output.
 
-    $table->pdfhead2 = array($idnumberpdfstr, $itemnamestr, $itemtimecreditpdfstr, $earnedtimepdfstr, $marktimepdfstr, $isvalidpdfstr, $validatedbypdfstr);
+    $table->pdfhead2 = array($idnumberpdfstr, $itemnamestr, $itemtimecreditpdfstr, $earnedtimepdfstr, $marktimepdfstr,
+                             $isvalidpdfstr, $validatedbypdfstr);
     $table->pdfsize2 = array('10%', '40%', '10%', '10%', '10%', '10%', '10%');
     $table->pdfalign2 = array('L', 'L', 'L', 'L', 'L', 'C', 'L');
-    $table->pdfprintinfo = array(true,true,true,true,true,true,true);
+    $table->pdfprintinfo = array(true, true, true, true, true, true, true);
 
-    $table->pdfbgcolor3 = array('#808080', '#808080', '#f0f0f0', '#f0f0f0', '#f0f0f0', '#f0f0f0', '#808080');
-    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#000000', '#000000', '#000000', '#000000', '#ffffff');
+    $table->pdfbgcolor3 = array($bg1, $bg1, $bg2, $bg2, $bg2, $bg2, $bg1);
+    $table->pdfcolor3 = array($f1, $f1, $f2, $f2, $f2, $f2, $f1);
     $table->pdfalign3 = array('L', 'L', 'L', 'L', 'L', 'C', 'L');
 
     $globals = new StdClass();
@@ -1038,7 +1087,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
         $table->xlsprintinfo[0] = false;
     }
 
-    // the raw data for exports
+    // The raw data for exports.
     $table->rawdata = array();
 
     $reportsettings = new StdClass;
@@ -1062,7 +1111,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
     if ($timechecklistmodules) {
         foreach ($timechecklistmodules as $courseid => $coursechecks) {
             if (!array_key_exists($courseid, $CCACHE)) {
-                $CCACHE[$courseid] = $DB->get_record('course', array('id' => $courseid), 'id,shortname,fullname,idnumber');
+                $field = 'id,shortname,fullname,idnumber';
+                $CCACHE[$courseid] = $DB->get_record('course', array('id' => $courseid), $field);
             }
 
             // Course name.
@@ -1079,7 +1129,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
             $cell2->align = 'left';
             $row1->cells[] = $cell2;
 
-            // This is necessary to trigger the pdf row spanner
+            // This is necessary to trigger the pdf row spanner.
             for ($j = 0; $j < 4 ; $j++) {
                 $cell = new html_table_cell();
                 $cell->text = '';
@@ -1106,7 +1156,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                 if (count($coursechecks) > 1) {
                     // Learning time check list name.
                     $row2 = new html_table_row();
-    
+
                     $cell1 = new html_table_cell();
                     $cell1->text = '';
                     $cell1->align = 'left';
@@ -1137,7 +1187,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                         }
 
                         if ($check->itemoptional == LTC_OPTIONAL_NO) {
-                            // This is a real marking module
+                            // This is a real marking module.
                             $globals->totaluseritems++;
                             $globals->totalusertime += $check->credittime;
 
@@ -1151,7 +1201,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                         $data[1] = $check->displaytext;
                         $data[2] = 0 + $check->credittime.' min';
 
-                        // earned time and check status
+                        // Earned time and check status.
                         $marked = report_learningtimecheck_is_marked($check, $clobj);
                         if ($marked > 1) {
                             // Has been marked either by student or teacher.
@@ -1159,7 +1209,7 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             $earnedtime = '<span class="good">'.$check->credittime.'</span>';
                             $globals->userearneditems++;
                             $globals->userearnedtime += $check->credittime;
-                        } elseif($marked == -1) {
+                        } else if ($marked == -1) {
                             $pix = '<img src="'.$OUTPUT->pix_url('bad').'">';
                             $earnedtime = '';
                         } else {
@@ -1180,18 +1230,18 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             $data[4] = $marktime = report_learningtimecheck_get_marktime($check, $clobj, $reportsettings->marktimeformat);
                             $data[5] = $isvalid = report_learningtimecheck_is_valid($check, $config);
                             $data[6] = $marker = fullname($teacher);
-                        } elseif ($check->usertimestamp) {
+                        } else if ($check->usertimestamp) {
                             $data[4] = $marktime = report_learningtimecheck_get_marktime($check, $clobj, $reportsettings->marktimeformat);
                             $data[5] = $isvalid = report_learningtimecheck_is_valid($check, $config);
                             $data[6] = $marker = get_string('selfmarked', 'report_learningtimecheck');
                         }
                         $table->data[] = $data;
-    
+
                         if ($isvalid) {
                             $globals->totalvaliditems++;
                         }
-    
-                        // This is  a check raw information array for exports
+
+                        // This is  a check raw information array for exports.
                         if ($check->itemoptional == LTC_OPTIONAL_HEADING) {
                             $rawdata = array();
                             $rawdata[0] = '';
@@ -1208,11 +1258,11 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             $rawdata[2] = 0 + $check->credittime;
                             $rawdata[3] = ($marked == 2) ? 0 + $check->credittime : '';
                             $rawdata[4] = $marktime;
-                            $rawdata[5] = ($isvalid) ? $yesstr : $nostr ;
+                            $rawdata[5] = ($isvalid) ? $yesstr : $nostr;
                             $rawdata[6] = $marker;
                         }
                         $table->rawdata[] = $rawdata;
-    
+
                         $pdfdata = $rawdata;
                         if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
                             $pdfdata[2] .= ' min';
@@ -1237,11 +1287,13 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
         $row3->cells[] = $cell1;
 
         $cell2 = new html_table_cell();
-        $cell2->text = '<span class="totalizer">'.learningtimecheck_format_time(0 + $globals->totalusertime).' '.get_string('totalized', 'learningtimecheck').'</span>';
+        $str = learningtimecheck_format_time(0 + $globals->totalusertime).' '.get_string('totalized', 'learningtimecheck');
+        $cell2->text = '<span class="totalizer">'.$str.'</span>';
         $row3->cells[] = $cell2;
 
         $cell3 = new html_table_cell();
-        $cell3->text = '<span class="totalizer">'.learningtimecheck_format_time(0 + $globals->userearnedtime).' '.get_string('totalized', 'learningtimecheck').'</span>';
+        $str= learningtimecheck_format_time(0 + $globals->userearnedtime).' '.get_string('totalized', 'learningtimecheck');
+        $cell3->text = '<span class="totalizer">'.$str.'</span>';
         $cell3->attributes['class'] = 'learningtimecheck-result';
         $row3->cells[] = $cell3;
 
@@ -1263,8 +1315,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
         $table->lineincr = 4;
         $table->smalllineincr = 2;
 
-        $globals->userprogressratio = ($globals->totaluseritems) ? sprintf('%0.1f', $globals->userearneditems / $globals->totaluseritems * 100). '&nbsp;%' : '0 %';
-        $globals->userperiodprogressratio = ($globals->totalperioditems) ? sprintf('%0.1f', $globals->userearneditems / $globals->totalperioditems * 100). '&nbsp;%' : '0 %';
+        $globals->userprogressratio = ($globals->totaluseritems) ? sprintf('%0d', round($globals->userearneditems / $globals->totaluseritems * 100)). '&nbsp;%' : '0 %';
+        $globals->userperiodprogressratio = ($globals->totalperioditems) ? sprintf('%0.1f', round($globals->userearneditems / $globals->totalperioditems * 100)). '&nbsp;%' : '0 %';
     } else {
         $table->data = array();
         $table->pdfdata = array();
@@ -1291,6 +1343,12 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
     static $CCACHE = array();
 
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
+    $config = get_config('report_learningtimecheck');
+    $bg1 = $config->pdfbgcolor1;
+    $bg2 = $config->pdfbgcolor2;
+
+    $f1 = $config->pdfcolor1;
+    $f2 = $config->pdfcolor2;
 
     $reportlines = array();
 
@@ -1328,33 +1386,36 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 
     $table = new html_table();
 
-    // Screen output
-    $table->head = array($shortnamestr, $idnumberstr, $fullnamestr, $progressstr, $itemstodostr, $itemsdonestr, $timetodostr, $timedonestr, $timeleftstr);
+    // Screen output.
+    $table->head = array($shortnamestr, $idnumberstr, $fullnamestr, $progressstr, $itemstodostr, $itemsdonestr,
+                         $timetodostr, $timedonestr, $timeleftstr);
     $table->size = array('10%', '10%', '30%', '10%', '10%', '10%', '10%', '10%');
     $table->align = array('left', 'left', 'left', 'center', 'center', 'center', 'center', 'center', 'left');
     $table->colclasses = array('', '', '', '', '', '', 'highlighted', '');
-    $table->printinfo = array(true,true,true,true,true,true,true,true);
+    $table->printinfo = array(true, true, true, true, true, true, true, true);
 
-    // Xls output
-    $table->xlshead = array('shortname', 'idnumber', 'fullname', 'progress', 'itemstodo', 'itemsdone', 'donetime', 'timeleft', 'timeleftratio');
-    $table->xlsprintinfo = array(true,true,true,true,true,true,true,true,true);
+    // Xls output.
+    $table->xlshead = array('shortname', 'idnumber', 'fullname', 'progress', 'itemstodo', 'itemsdone', 'donetime',
+                            'timeleft', 'timeleftratio');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true);
 
-    // Pdf output
+    // Pdf output.
     $table->pdfhead1 = array('', '', '', '', $itemspdfstr, $timepdfstr);
     $table->pdfsize1 = array('10%', '10%', '30%', '10%', '20%', '20%');
     $table->pdfalign1 = array('L', 'L', 'L', 'L', 'C', 'C');
-    $table->pdfbgcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#ffffff', '#f0f0f0', '#f0f0f0');
-    $table->pdfcolor1 = array('#ffffff', '#ffffff', '#ffffff', '#ffffff', '#808080', '#808080');
+    $table->pdfbgcolor1 = array($bg2, $bg2, $bg2, $bg2, $bg1, $bg1);
+    $table->pdfcolor1 = array($f2, $f2, $f2, $f2, $f1, $f1);
 
-    $table->pdfhead2 = array($shortnamepdfstr, $idnumberpdfstr, $fullnamestr, $progresspdfstr, $itemstodopdfstr, $itemsdonepdfstr, $timetodopdfstr, $timedonepdfstr, $timeleftpdfstr);
+    $table->pdfhead2 = array($shortnamepdfstr, $idnumberpdfstr, $fullnamestr, $progresspdfstr, $itemstodopdfstr, $itemsdonepdfstr,
+                             $timetodopdfstr, $timedonepdfstr, $timeleftpdfstr);
     $table->pdfsize2 = array('10%', '10%', '30%', '10%', '5%', '5%', '10%', '10%', '10%');
     $table->pdfalign2 = array('L', 'L', 'L', 'L', 'C', 'C', 'L', 'L', 'L');
 
-    $table->pdfbgcolor3 = array('#808080', '#808080', '#808080', '#808080', '#f0f0f0', '#f0f0f0', '#808080', '#808080');
-    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#ffffff', '#ffffff', '#808080', '#808080', '#ffffff', '#ffffff');
+    $table->pdfbgcolor3 = array($bg2, $bg2, $bg2, $bg2, $bg1, $bg1, $bg2, $bg2);
+    $table->pdfcolor3 = array($f2, $f2, $f2, $f2, $f1, $f1, $f2, $f2);
     $table->pdfalign3 = array('L', 'L', 'L', 'L', 'C', 'C', 'L', 'L', 'L');
 
-    $table->pdfprintinfo = array(true,true,true,true,true,true,true,true,true);
+    $table->pdfprintinfo = array(true, true, true, true, true, true, true, true, true);
 
     $reportsettings = new StdClass;
     $reportsettings->showoptional = false;
@@ -1394,12 +1455,13 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 
         if (has_capability('moodle/course:view', $coursecontext) && $onscreen) {
             $courseurl = new moodle_url('/course/view', array('id' => $courseid));
-            $coursename .= ' <a href="'.$courseurl.'"><img src="'.$OUTPUT->pix_url('follow_link', 'report_learningtimecheck').'" /></a>';
+            $pixurl = $OUTPUT->pix_url('follow_link', 'report_learningtimecheck');
+            $coursename .= ' <a href="'.$courseurl.'"><img src="'.$pixurl.'" /></a>';
         }
 
         $data[2] = $coursename;
 
-        // care that all checklists should manage a disjonctive set of items
+        // Care that all checklists should manage a disjonctive set of items.
         $courseaggregate = array('totalitems' => 0, 'totaltime' => 0, 'tickeditems' => 0, 'tickedtimes' => 0);
 
         foreach ($coursechecklists as $checklist) {
@@ -1443,14 +1505,14 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $rawdata[0] = $CCACHE[$courseid]->shortname;
         $rawdata[1] = $CCACHE[$courseid]->idnumber;
         $rawdata[2] = format_string($CCACHE[$courseid]->fullname);
-        $rawdata[3] = sprintf('%0.2f', $percentcomplete).' %'; // change for row data 
-        $rawdata[4] = $courseaggregate['totalitems']; // change for row data for further export conversion
-        $rawdata[5] = $courseaggregate['tickeditems']; // change for row data for further export conversion
-        $rawdata[6] = $courseaggregate['totaltime']; // change for row data for further export conversion
-        $rawdata[7] = $courseaggregate['tickedtimes']; // change for row data for further export conversion
-        $rawdata[8] = $timedoneratio; // change for row data for further export conversion
-        $rawdata[9] = $timeleft; // change for row data for further export conversion
-        $rawdata[10] = $timeleftratio; // change for row data for further export conversion
+        $rawdata[3] = sprintf('%0d', $percentcomplete).' %'; // Change for row data.
+        $rawdata[4] = $courseaggregate['totalitems']; // Change for row data for further export conversion.
+        $rawdata[5] = $courseaggregate['tickeditems']; // Change for row data for further export conversion.
+        $rawdata[6] = $courseaggregate['totaltime']; // Change for row data for further export conversion.
+        $rawdata[7] = $courseaggregate['tickedtimes']; // Change for row data for further export conversion.
+        $rawdata[8] = $timedoneratio; // Change for row data for further export conversion.
+        $rawdata[9] = $timeleft; // Change for row data for further export conversion.
+        $rawdata[10] = $timeleftratio; // Change for row data for further export conversion.
 
         $table->rawdata[] = $rawdata;
 
@@ -1458,7 +1520,7 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $pdfdata[0] = $CCACHE[$courseid]->shortname;
         $pdfdata[1] = $CCACHE[$courseid]->idnumber;
         $pdfdata[2] = format_string($CCACHE[$courseid]->fullname);
-        $pdfdata[3] = sprintf('%0.2f', $percentcomplete);
+        $pdfdata[3] = sprintf('%0d', $percentcomplete);
 
         $table->pdfdata[] = $pdfdata;
     }
@@ -1484,7 +1546,7 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 
     $cell4 = new html_table_cell();
     if ($countcourses) {
-        $cell4->text = sprintf('%0.1f', $sumcomplete / $countcourses).' % '.get_string('average', 'learningtimecheck');
+        $cell4->text = sprintf('%0d', round($sumcomplete / $countcourses)).' % '.get_string('average', 'learningtimecheck');
     } else {
         $cell4->text = sprintf('%0d', 0).' % '.get_string('average', 'learningtimecheck');
     }
@@ -1504,7 +1566,8 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
     $row1->cells[] = $cell7;
 
     $cell8 = new html_table_cell();
-    $cell8->text = '<span class="totalizer">'.learningtimecheck_format_time($sumtickedtime).' '.get_string('totalized', 'learningtimecheck').'</span>';
+    $str = learningtimecheck_format_time($sumtickedtime).' '.get_string('totalized', 'learningtimecheck');
+    $cell8->text = '<span class="totalizer">'.$str.'</span>';
     $cell8->attributes['class'] = 'learningtimecheck-result';
     $row1->cells[] = $cell8;
 
@@ -1532,30 +1595,47 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     static $CMCACHE = array();
     static $modinfo;
 
+    $debug = optional_param('debug', false, PARAM_BOOL);
+
     if (empty($modinfo)) {
         $modinfo = get_fast_modinfo($COURSE->id, $user->id);
     }
 
     if (empty($reportsettings->showoptional) && ($check->itemoptional == LTC_OPTIONAL_YES)) {
+        if ($debug) {
+            mtrace("Report rejected as optional");
+        }
         return false;
     }
 
     if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
+        if ($debug) {
+            mtrace("Report rejected as heading");
+        }
         return false;
     }
 
-    // Not credited and therefore hidden
+    // Not credited and therefore hidden.
     if (!$check->credittime && !empty($useroptions['hidenocredittime'])) {
+        if ($debug) {
+            mtrace("Report rejected as not credited");
+        }
         return false;
     }
 
     // Not checked and therefore hidden. some reports f.e. course level summary need force unmarked to be considered.
     if ((!$check->usertimestamp) && (!empty($useroptions['hideunmarkedchecks']) && empty($reportsettings->forceshowunmarked))) {
+        if ($debug) {
+            mtrace("Report rejected as not unmarked");
+        }
         return false;
     }
 
     // Not in report's range requirements.
     if (!report_learningtimecheck_check_report_range($useroptions, $check)) {
+        if ($debug) {
+            mtrace("Report rejected as not in range");
+        }
         return false;
     }
 
@@ -1565,7 +1645,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
             try {
                 $cm = $modinfo->get_cm($check->moduleid);
                 $CMCACHE[$check->moduleid] = $cm;
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 rebuild_course_cache($COURSE->id);
             }
 
@@ -1573,7 +1653,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
             try {
                 $cm = $modinfo->get_cm($check->moduleid);
                 $CMCACHE[$check->moduleid] = $cm;
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 // Third try.
                 $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
                 if (empty($cm)) {
@@ -1594,11 +1674,17 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
         if ($COURSE->format == 'page') {
             // If paged, check the module is on a visible page.
             if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
+                if ($debug) {
+                    mtrace("Report rejected as not visible (page)");
+                }
                 return false;
             }
         }
 
-        if (!$cm->uservisible) {
+        if (!$cm->visible) {
+            if ($debug) {
+                mtrace("Report rejected as not visible (standard)");
+            }
             return false;
         }
         $idnumber = $CMCACHE[$check->moduleid]->idnumber;
@@ -1628,8 +1714,8 @@ function report_learningtimecheck_create_form_elements(&$mform, $type) {
 
     $elements = array();
 
-    switch($type) {
-        case 'user':
+    switch ($type) {
+        case 'user': {
             $users = $DB->get_records('user', array('deleted' => 0, 'confirmed' => 1), 'lastname,firstname', 'id,lastname,firstname');
             $useroptions = array();
             foreach ($users as $u) {
@@ -1637,17 +1723,20 @@ function report_learningtimecheck_create_form_elements(&$mform, $type) {
             }
             $elements[] = &$mform->createElement('select', 'itemids', get_string('user'), $useroptions);
             break;
+        }
 
-        case 'cohort':
+        case 'cohort': {
             $contextsystem = context_system::instance();
             $cohortoptions = $DB->get_records_menu('cohort', array('contextid' => $contextsystem->id), 'name', 'id, name');
             $elements[] = &$mform->createElement('select', 'itemids', get_string('cohort', 'report_learningtimecheck'), $cohortoptions);
             break;
+        }
 
-        case 'course':
+        case 'course': {
             $courseoptions = $DB->get_records_menu('course', array(), 'sortorder', 'id, fullname');
             $elements[] = &$mform->createElement('select', 'itemids', get_string('course'), $courseoptions);
             break;
+        }
     }
 
     return $elements;
@@ -1661,16 +1750,23 @@ function report_learningtimecheck_create_form_elements(&$mform, $type) {
 function report_learningtimecheck_get_user_options() {
     global $DB, $USER;
 
+    $defaultoptions = array('hideidnumber' => 0,
+                     'hidegroup' => 0,
+                     'hideheadings' => 0,
+                     'hideunmarkedchecks' => 0,
+                     'hidenocredittime' => 0,
+                     'progressbars' => 'items',
+                     'sortby' => 'name');
+
     if (!$optionrecs = $DB->get_records('report_learningtimecheck_opt', array('userid' => $USER->id))) {
-        return array();
+        return $defaultoptions;
     }
 
-    $options = array();
     foreach ($optionrecs as $recid => $option) {
-        $options[$option->name] = $option->value;
+        $defaultoptions[$option->name] = $option->value;
     }
 
-    return $options;
+    return $defaultoptions;
 }
 
 /**
@@ -1760,7 +1856,7 @@ function report_learningtimecheck_is_user_visible($user, $viewallgroups, &$mygro
     $cangroupsee = false;
 
     foreach ($mygroups as $g) {
-        // only one is enough
+        // Only one is enough.
         if (groups_is_member($g->id, $user->id)) {
             return true;
         }
@@ -1782,7 +1878,9 @@ function report_learningtimecheck_groupings_print_menu($course, $url, $view = 'c
 
     $groupings = groups_get_all_groupings($course->id);
 
-    if (!$groupings) return '';
+    if (!$groupings) {
+        return '';
+    }
 
     $currentgroupingid = optional_param('groupingid', 0, PARAM_INT);
     $currentgroupid = optional_param('groupid', 0, PARAM_INT);
@@ -1872,19 +1970,25 @@ function check_group_authorisation($courseid, $groupid = 0, $groupingid = 0) {
     $groupmode = groups_get_course_groupmode($course);
 
     if ($groupmode == SEPARATEGROUPS) {
-        if ($accessallgroups) return true;
+        if ($accessallgroups) {
+            return true;
+        }
 
         if ($groupingid) {
             // check if one of my groups matches the grouping.
             foreach ($mygroups as $gm) {
                 $groupgroupingid = $DB->get_field('groupings_groups', 'groupingid', array('groupid' => $gm->groupid));
-                if ($groupingid == $groupgroupingid) return true;
+                if ($groupingid == $groupgroupingid) {
+                    return true;
+                }
             }
         }
 
         if ($groupid) {
             foreach ($mygroups as $gm) {
-                if ($gm->groupid == $groupid) return true;
+                if ($gm->groupid == $groupid) {
+                    return true;
+                }
             }
         }
     } else {
@@ -1895,9 +1999,9 @@ function check_group_authorisation($courseid, $groupid = 0, $groupingid = 0) {
 }
 
 /**
-* this function publicizes retrieval of the physical path to 
-* a file stored for mail attachement or for PDF generation.
-*/
+ * this function publicizes retrieval of the physical path to 
+ * a file stored for mail attachement or for PDF generation.
+ */
 function report_learningtimecheck_get_path_from_hash($contenthash) {
     $l1 = $contenthash[0].$contenthash[1];
     $l2 = $contenthash[2].$contenthash[3];
@@ -1912,53 +2016,60 @@ function report_learningtimecheck_get_path_from_hash($contenthash) {
 function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
     global $DB;
 
-    $options = (array)json_decode(@$job->options);
+    $options = (array) json_decode(@$job->options);
 
     if (!$job->detail) {
         // Global reports print a single document with summarize lines
         switch ($job->type) {
-            case 'userdetail':
+            case 'userdetail': {
                 // Global user document prints a single document with course by course summary.
                 $fooid = 0;
                 $user = $DB->get_record('user', array('id' => $job->itemids));
                 $data = report_learningtimecheck_user_course_results($job->courseid, $user, $globals, $options);
                 break;
+            }
 
-            case 'usercursus':
+            case 'usercursus': {
                 // Global user document prints a single document with course by course detail.
                 $fooid = 0;
                 $user = $DB->get_record('user', array('id' => $job->itemids));
                 $data = report_learningtimecheck_user_results($user, $globals, $options);
                 break;
+            }
 
-            case 'user':
+            case 'user': {
                 // Global user document prints a single document with course by course summary.
                 $fooid = 0;
                 $user = $DB->get_record('user', array('id' => $job->itemids));
                 $data = report_learningtimecheck_user_results_by_course($fooid, $user, $globals, $options);
                 break;
+            }
 
-            case 'course':
-                // Global course document prints a single document with user by user summary
+            case 'course': {
+                // Global course document prints a single document with user by user summary.
                 $course = $DB->get_record('course', array('id' => $job->itemids));
                 $coursecontext = context_course::instance($course->id);
-                $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id, '.get_all_user_name_fields(true, 'u').', u.idnumber', 'lastname, firstname', 0, 0, 0 + @$job->groupid, '', false);
+                $fields = 'u.id, '.get_all_user_name_fields(true, 'u').', u.idnumber';
+                $sort = 'lastname, firstname';
+                $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $sort, 0, 0, 0 + @$job->groupid, '', false);
                 learningtimecheck_apply_rules($targetusers, $job->filters);
                 $data = report_learningtimecheck_course_results($job->itemids, $targetusers, $course->id, $globals, $options);
                 break;
+            }
 
-            case 'cohort':
-                // Global cohort document prints a single document with user by user summary
+            case 'cohort': {
+                // Global cohort document prints a single document with user by user summary.
                 $cohort = $DB->get_record('cohort', array('id' => $job->itemids));
                 $cohortmembers = report_learningtimecheck_get_cohort_users($cohort->id);
                 learningtimecheck_apply_rules($cohortmembers, $job->filters);
                 $data = report_learningtimecheck_cohort_results($job->itemids, $cohortmembers, $globals, $options);
                 break;
+            }
         }
     } else {
-        // Detail reports will prepare a composite array of report data for further outputing
+        // Detail reports will prepare a composite array of report data for further outputing.
         switch ($job->type) {
-            case 'user' :
+            case 'user' : {
                 // Detail user document prints a document per course with activity detail, then zips the document list.
                 $notusedid = 0;
                 $user = $DB->get_record('user', array('id' => $job->itemids));
@@ -1973,8 +2084,9 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                     $data[$courseid] = $reportdata;
                 }
                 break;
+            }
 
-            case 'course':
+            case 'course': {
                 // Detail course document prints a document per user with activity detail in the course, then zips the document list.
                 $course = $DB->get_record('course', array('id' => $job->itemids));
                 $coursecontext = context_course::instance($course->id);
@@ -1990,8 +2102,9 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                     $data[$uid] = $reportdata;
                 }
                 break;
+            }
 
-            case 'cohort':
+            case 'cohort': {
                 // Detail cohort document prints a document per user with user detail, then zips the document list.
                 $notusedid = 0;
 
@@ -2011,6 +2124,7 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                     }
                 }
                 break;
+            }
         }
     }
 }
@@ -2053,6 +2167,7 @@ function report_learningtimecheck_get_itemidentifier($type, $id) {
 
                 }
             break;
+
         case 'course':
                 switch ($config->infilenamecourseidentifier) {
 
@@ -2074,6 +2189,7 @@ function report_learningtimecheck_get_itemidentifier($type, $id) {
 
                 }
             break;
+
         case 'cohort':
                 switch ($config->infilenamecohortidentifier) {
 
@@ -2110,6 +2226,7 @@ function report_learningtimecheck_get_itemidentifier($type, $id) {
  * @param string $formatted a time format (function date) or false for a default time format.
  */
 function report_learningtimecheck_get_marktime($check, $learningtimecheck, $formatted = false) {
+
     if ($learningtimecheck->teacheredit >= LTC_MARKING_TEACHER) {
         $time = $check->teachertimestamp;
     } else {
@@ -2140,7 +2257,7 @@ function report_learningtimecheck_get_marktime($check, $learningtimecheck, $form
 function report_learningtimecheck_is_valid(&$check, &$config = null, $context = null) {
     global $DB;
 
-    // defaults to a global marking role being setup at site level for those users.
+    // Defaults to a global marking role being setup at site level for those users.
     if (is_null($context)) {
         $context = context_system::instance();
     }
@@ -2179,7 +2296,7 @@ function report_learningtimecheck_is_valid(&$check, &$config = null, $context = 
         }
         $possibleevents = $DB->get_records_select('event', $select, array($check->userid, $checkdate));
 
-        // get some identifying fields for user
+        // Get some identifying fields for user.
         $user = $DB->get_record('user', array('id' => $check->userid), 'id,username,email,idnumber');
 
         if ($possibleevents) {
@@ -2283,14 +2400,15 @@ function report_learningtimecheck_check_time(&$check, &$config) {
  * @return false if not in acceptable days, either true.
  */
 function report_learningtimecheck_check_day(&$check, &$config) {
-    // Check this is NOT a vacation day
+
+    // Check this is NOT a vacation day.
     $evdayofyear = date('z', $check->usertimestamp);
     $vacationdays = explode(',', $config->vacationdays);
     if (in_array($evdayofyear, $vacationdays)) {
         return false;
     }
 
-    // Check this is a natural working days as set in options
+    // Check this is a natural working days as set in options.
     $evworkday = date('N', $check->usertimestamp);
     $workdaykey = 'workday'.$evworkday;
     if (!$config->$workdaykey) {
@@ -2314,32 +2432,25 @@ function report_learningtimecheck_crop_session(&$session, &$config) {
     $rs = $config->workingtimestart_h * HOURSECS + $config->workingtimestart_m * MINSECS;
     $re = $config->workingtimeend_h * HOURSECS + $config->workingtimeend_m * MINSECS;
 
-    // echo " $ss $se | $rs $re <br/>";
-
     if ($se < $rs || $ss > $re) {
-        // all session is before range or after range
-        // invalidate session
-        // echo "match 1 ";
+        // All session is before range or after range.
+        // Invalidate session.
         $session->sessionstart = 0;
         $session->sessionend = 0;
     } else if ($ss < $rs && $se > $re) {
-        // session is containing range. Crop to range (shifting session boundaries)
-        // echo "match 2 ";
+        // Session is containing range. Crop to range (shifting session boundaries).
         $session->sessionstart += $rs - $ss;
         $session->sessionend -= $se - $re;
     } else if ($ss < $rs && $se > $rs) {
-        // Session match range start, Crop session start (shifting session start)
-        // echo "match 3 ";
+        // Session match range start, Crop session start (shifting session start).
         $session->sessionstart += $rs - $ss;
     } else if ($ss < $re && $se > $re) {
-        // Session match range end, Crop session end (shifting session end)
-        // echo "match 4 ";
+        // Session match range end, Crop session end (shifting session end).
         $session->sessionend -= $se - $re;
     } else {
-        // All session in valid range
-        // echo "match 5 ";
+        // All session in valid range.
+        assert(1);
     }
-
     $session->elapsed = $session->sessionend - $session->sessionstart;
 }
 
@@ -2359,13 +2470,13 @@ function report_learningtimecheck_splice_session($session) {
         $daysess->sessionstart = $startstamp;
         $daysess->sessionend = $startstamp + $daygap;
         $daysess->elapsed = $daygap;
-        $daytimestart = 0; // back to midnight;
+        $daytimestart = 0; // Back to midnight;
         $daygap = $endofday - $daytimestart;
         $startstamp = $daysess->sessionend;
         $sessions[] = $daysess;
     }
 
-    // We now need to keep the last segment
+    // We now need to keep the last segment.
     if ($startstamp < $session->sessionend) {
         $daysess = new stdClass();
         $daysess->sessionstart = $startstamp;
@@ -2453,8 +2564,6 @@ function report_learningtimecheck_generate_event($user, $day, $month, $year) {
  * @param boolean $resetfirst
  */
 function report_learningtimecheck_is_empty_line_or_format(&$text, $resetfirst = false) {
-    global $CFG;
-
     static $textlib;
     static $first = true;
 

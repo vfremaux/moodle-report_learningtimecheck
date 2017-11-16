@@ -31,7 +31,9 @@ class wdmarks_generator_user_selector extends user_selector_base {
     function find_users($search) {
         global $DB;
 
-        $users = $DB->get_records_select('user', " firstname LIKE '%$search%' OR lastname LIKE '%$search%' ", array(), 'lastname,firstname', $this->required_fields_sql(''));
+        $select = " firstname LIKE '%$search%' OR lastname LIKE '%$search%' ";
+        $fields = $this->required_fields_sql('');
+        $users = $DB->get_records_select('user', $select, array(), 'lastname,firstname', $fields);
         return array('' => $users);
     }
 }
@@ -55,6 +57,6 @@ function learningtimecheck_generate_wdmark_events_from_session(&$user, &$config)
         }
         $start += DAYSECS;
     }
-    
+
     return $result;
 }
