@@ -14,33 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Standard upgrade handler.
  * @param int $oldversion
  */
 function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
-    global $CFG, $THEME, $DB;
+    global $DB;
 
     $dbman = $DB->get_manager();
 
     $result = true;
-    //removed old upgrade stuff, as it now uses install.xml by default to install.
+    // Removed old upgrade stuff, as it now uses install.xml by default to install.
 
     if ($oldversion < 2014041600) {
 
-        // Define table report_learningtimecheck_btc to be created
+        // Define table report_learningtimecheck_btc to be created.
         $table = new xmldb_table('report_learningtimecheck_btc');
 
-        // Adding fields to table report_learningtimecheck_btc
+        // Adding fields to table report_learningtimecheck_btc.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('type', XMLDB_TYPE_CHAR, '32', null, null, null, null);
@@ -50,15 +49,15 @@ function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
         $table->add_field('repeatdelay', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
         $table->add_field('processed', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
 
-        // Adding keys to table report_learningtimecheck_btc
+        // Adding keys to table report_learningtimecheck_btc.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
-        // Conditionally launch create table for report_learningtimecheck_btc
+        // Conditionally launch create table for report_learningtimecheck_btc.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
-        // learningtimecheck savepoint reached
+        // Learningtimecheck savepoint reached.
         upgrade_plugin_savepoint(true, 2014041600, 'report', 'learningtimecheck');
     }
 
