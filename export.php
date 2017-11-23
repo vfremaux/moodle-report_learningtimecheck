@@ -92,7 +92,7 @@ $exportcontext->exportitem = $exportitem;
 $exportcontext->param = $courseid;
 $exportcontext->exportfilename = $exporttype.'_'.$exportitem.'_'.date('Ymd-Hi', time());
 
-// this is a temp hack
+// This is a temp hack.
 if ($exporttype == 'cohort' && $detail) {
     $exportcontext->exporttype = 'cohortdetail';
 }
