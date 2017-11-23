@@ -560,6 +560,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         }
 
         if ($useraggregate['totalitems']) {
+            $timecomplete = ($useraggregate['totaltime']) ? round(($useraggregate['tickedtimes'] * 100) / $useraggregate['totaltime']) : 0;
             $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0;
             if ($percentcomplete > 90) {
                 $globals->fullusers  = @$globals->fullusers + 1;
@@ -571,6 +572,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
                 $globals->activeusers  = @$globals->activeusers + 1;
             }
         } else {
+            $timecomplete = 0;
             $percentcomplete = 0;
             $courseaggregate['tickeditems'] = 0;
             $globals->nullusers = @$globals->nullusers + 1;
@@ -589,7 +591,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         $sumtimeleft += $timeleft;
 
         $data[2] = $groupnames;
-        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete);
+        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete, $timecomplete);
         $data[4] = $useraggregate['totalitems'];
         $data[5] = $useraggregate['tickeditems'];
         $data[6] = learningtimecheck_format_time($useraggregate['totaltime']);
@@ -993,6 +995,11 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
         $table->smalllineincr = 2;
 
         $globals->courseprogressratio = sprintf('%0d', round($globals->courseearneditems / $globals->totalcourseitems * 100)). ' %';
+        if (!empty($globals->totalcoursetime)) {
+            $globals->coursetimeratio = sprintf('%0d', round($globals->courseearnedtime / $globals->totalcoursetime * 100)). ' %';
+        } else {
+            $globals->coursetimeratio = '';
+        }
     } else {
         $table->data = array();
         $globals->courseprogressratio = '0 %';
@@ -1491,7 +1498,14 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $sumtickedtime += $courseaggregate['tickedtimes'];
         $sumtimeleft += $timeleft;
 
-        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete);
+        // Invalidate some displays depending on user options.
+        if (!in_array($useroptions['progressbars'], array(PROGRESSBAR_ITEMS, PROGRESSBAR_BOTH))) {
+            $percentcomplete = null;
+        }
+        if (!in_array($useroptions['progressbars'], array(PROGRESSBAR_TIME, PROGRESSBAR_BOTH))) {
+            $timedoneratio = null;
+        }
+        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete, $timedoneratio);
         $data[4] = $courseaggregate['totalitems'];
         $data[5] = $courseaggregate['tickeditems'];
         $data[6] = learningtimecheck_format_time($courseaggregate['totaltime']);
@@ -1595,7 +1609,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     static $CMCACHE = array();
     static $modinfo;
 
-    $debug = optional_param('debug', false, PARAM_BOOL);
+    $debug = optional_param('debug', false, PARAM_BOOL) && ($CFG->debug >= DEBUG_ALL);
 
     if (empty($modinfo)) {
         $modinfo = get_fast_modinfo($COURSE->id, $user->id);

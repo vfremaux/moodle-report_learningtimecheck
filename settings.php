@@ -69,7 +69,7 @@ $key = 'report_learningtimecheck/pdfreportfooter';
 $label = get_string('pdfreportfooter', 'report_learningtimecheck');
 $desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
 $options = array('subdirs' => false, 'maxfiles' => 1);
-$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
+$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportfooter', 0, $options));
 
 $timeformatoptions = array('Ymd' => 'Ymd',
     'Y-m-d' => 'Y-m-d',
