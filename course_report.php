@@ -25,14 +25,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_course_form.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
-$id = optional_param('id', null, PARAM_INT); // Course ID (origin context)
-$itemid = optional_param('itemid', $id, PARAM_INT); // Display context
+$id = optional_param('id', null, PARAM_INT); // Course ID (origin context).
+$itemid = optional_param('itemid', $id, PARAM_INT); // Display context.
 $searchmode = optional_param('search', false, PARAM_BOOL);
 $systemcontext = context_system::instance();
 $coursecontext = context_course::instance($itemid);
@@ -73,7 +73,7 @@ if ($searchmode) {
         if (!empty($data->searchpattern)) {
             $select = " fullname LIKE '%{$data->searchpattern}%' ";
             $results = $DB->get_records_select('course', $select, array(), 'sortorder', 'id,shortname,idnumber,fullname,summary');
-            if ($results){
+            if ($results) {
                 $mycourses = get_my_courses();
                 $mycourseids = array_keys($mycourses);
                 foreach ($results as $resid => $result) {
