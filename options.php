@@ -69,7 +69,9 @@ if ($data = $form->get_data()) {
     if (!isset($data->hidenocredittime)) {
         $data->hidenocredittime = 0;
     }
+
     $DB->delete_records('report_learningtimecheck_opt', array('userid' => $USER->id));
+
     foreach ($data as $key => $value) {
         if (in_array($key, array('submitbutton', 'view', 'id', 'itemid'))) {
             continue;
@@ -80,6 +82,7 @@ if ($data = $form->get_data()) {
         $rec->value = trim($value);
         $DB->insert_record('report_learningtimecheck_opt', $rec);
     }
+
     if ($data->return) {
         list($plugin, $cmid, $view) = explode('/', $data->return);
         if ($plugin == 'mod') {
@@ -87,6 +90,7 @@ if ($data = $form->get_data()) {
             redirect($url);
         }
     }
+
     redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => $view, 'id' => $id, 'itemid' => $itemid)));
 }
 

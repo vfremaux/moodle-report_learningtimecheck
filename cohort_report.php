@@ -24,9 +24,10 @@
  * @subpackage learningtimecheck
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_cohort_form.php'); 
-require_once($CFG->dirroot.'/report/learningtimecheck/lib.php'); 
+require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_cohort_form.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
 require_capability('report/learningtimecheck:viewother', $viewcontext);
@@ -35,12 +36,12 @@ if (empty($itemid)) {
 
      $form = new SearchCohortForm();
 
-     if ($data = $form->get_data()) {
+    if ($data = $form->get_data()) {
          $select = " name LIKE '%{$data->searchpattern}%' ";
          $results = $DB->get_records_select('cohort', $select, array('contextid' => $context->id), 'name', 'id,name,description');
-     } else {
-         $results = $DB->get_records('cohort', array('contextid' => $context->id), 'name', '*', 0,10);
-     }
+    } else {
+         $results = $DB->get_records('cohort', array('contextid' => $context->id), 'name', '*', 0, 10);
+    }
 
     $formdata = new Stdclass;
     $formdata->id = $id;
@@ -57,7 +58,7 @@ if (empty($itemid)) {
         foreach ($results as $cid => $cohort) {
             $countusers = $DB->count_records('cohort_members', array('cohortid' => $cohort->id));
             $linkurl = $thisurl->out_omit_querystring().'?id='.$id.'&view=cohort&itemid='.$cohort->id;
-            $link = '<a href="'.$linkurl.'">'.$cohort->name.'</a> ('.$countusers.' '.get_string('users').')<br>':
+            $link = '<a href="'.$linkurl.'">'.$cohort->name.'</a> ('.$countusers.' '.get_string('users').')<br>';
             $link .= $cohort->description;
             $table->data[] = array($link);
         }
