@@ -1605,26 +1605,25 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
  * @return boolean true if conditions are met, else false
  */
 function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettings, &$useroptions, &$user, &$idnumber) {
-    global $CFG, $COURSE, $DB;
+    global $CFG, $DB;
     static $CMCACHE = array();
-    static $modinfo;
 
     $debug = optional_param('debug', false, PARAM_BOOL) && ($CFG->debug >= DEBUG_ALL);
 
     if (empty($modinfo)) {
-        $modinfo = get_fast_modinfo($COURSE->id, $user->id);
+        $modinfo = get_fast_modinfo($check->course->id, $user->id);
     }
 
     if (empty($reportsettings->showoptional) && ($check->itemoptional == LTC_OPTIONAL_YES)) {
         if ($debug) {
-            mtrace("Report rejected as optional");
+            mtrace("Report rejects as unwanted optional");
         }
         return false;
     }
 
     if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
         if ($debug) {
-            mtrace("Report rejected as heading");
+            mtrace("Report rejected as unwanted heading");
         }
         return false;
     }
@@ -1632,7 +1631,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not credited and therefore hidden.
     if (!$check->credittime && !empty($useroptions['hidenocredittime'])) {
         if ($debug) {
-            mtrace("Report rejected as not credited");
+            mtrace("Report rejects as unwanted not credited");
         }
         return false;
     }
@@ -1640,7 +1639,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not checked and therefore hidden. some reports f.e. course level summary need force unmarked to be considered.
     if ((!$check->usertimestamp) && (!empty($useroptions['hideunmarkedchecks']) && empty($reportsettings->forceshowunmarked))) {
         if ($debug) {
-            mtrace("Report rejected as not unmarked");
+            mtrace("Report rejects as not unwanted unmarked");
         }
         return false;
     }
@@ -1648,7 +1647,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not in report's range requirements.
     if (!report_learningtimecheck_check_report_range($useroptions, $check)) {
         if ($debug) {
-            mtrace("Report rejected as not in range");
+            mtrace("Report rejects as not in range");
         }
         return false;
     }
@@ -1660,21 +1659,21 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
                 $cm = $modinfo->get_cm($check->moduleid);
                 $CMCACHE[$check->moduleid] = $cm;
             } catch (Exception $e) {
-                rebuild_course_cache($COURSE->id);
-            }
-
-            // Second try once course rebuilt.
-            try {
-                $cm = $modinfo->get_cm($check->moduleid);
-                $CMCACHE[$check->moduleid] = $cm;
-            } catch (Exception $e) {
-                // Third try.
-                $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
-                if (empty($cm)) {
-                    // Forget this module we tried everything.
-                    return false;
+                rebuild_course_cache($check->course->id);
+                // Second try once course rebuilt.
+                try {
+                    $modinfo = get_fast_modinfo($check->course->id, $user->id);
+                    $cm = $modinfo->get_cm($check->moduleid);
+                    $CMCACHE[$check->moduleid] = $cm;
+                } catch (Exception $e) {
+                    // Third try.
+                    $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
+                    if (empty($cm)) {
+                        // Forget this module we tried everything.
+                        return false;
+                    }
+                    $cm->uservisible = $cm->visible;
                 }
-                $cm->uservisible = $cm->visible;
             }
         } else {
             $cm = $CMCACHE[$check->moduleid];
@@ -1685,7 +1684,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
             return false;
         }
 
-        if ($COURSE->format == 'page') {
+        if ($check->course->format == 'page') {
             // If paged, check the module is on a visible page.
             if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
                 if ($debug) {

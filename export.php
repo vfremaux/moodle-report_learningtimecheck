@@ -48,6 +48,7 @@ $output = required_param('output', PARAM_TEXT);
 $detail = required_param('detail', PARAM_TEXT);
 $groupid = optional_param('groupid', 0, PARAM_INT);
 $groupingid = optional_param('groupingid', 0, PARAM_INT);
+$debug = optional_param('debug', 0, PARAM_INT);
 
 // Some page params.
 
@@ -71,7 +72,19 @@ $job->groupid = $groupid;
 $job->options = json_encode(report_learningtimecheck_get_user_options());
 $data = array();
 $globals = array();
+
+$syscontext = context_system::instance();
+
+if (!empty($debug) && has_capability('moodle/site:config', $syscontext)) {
+    print_object($job);
+}
+
 report_learningtimecheck_prepare_data($job, $data, $globals);
+
+if (!empty($debug) && has_capability('moodle/site:config', $syscontext)) {
+    // Do not render.
+    die;
+}
 
 $exportclassfile = $CFG->dirroot.'/report/learningtimecheck/export/'.$output.'.class.php';
 if (!file_exists($exportclassfile)) {
