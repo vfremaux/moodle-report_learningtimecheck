@@ -847,6 +847,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $globals->totalcoursetime = 0;
     $globals->totalvaliditems = 0;
 
+    $course = $DB->get_record('course', array('id' => $courseid));
     $tclmodule = $DB->get_record('modules', array('name' => 'learningtimecheck'));
     $params = array('course' => $courseid, 'module' => $tclmodule->id);
     $timechecklistmodules = $DB->get_records('course_modules', $params, 'section', '*');
@@ -869,6 +870,8 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
             if ($checks = $clobj->get_checks($user->id)) {
 
                 foreach ($checks as $ck => $check) {
+
+                    $check->course = $course;
 
                     if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                         continue;
@@ -1188,6 +1191,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
 
                 if ($checks = $clobj->get_checks($user->id)) {
                     foreach ($checks as $ck => $check) {
+
+                        $check->course = $CCACHE[$courseid];
 
                         if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                             continue;
@@ -1623,7 +1628,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
 
     if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
         if ($debug) {
-            mtrace("Report rejected as unwanted heading");
+            mtrace("Report rejects as unwanted heading");
         }
         return false;
     }
