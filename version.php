@@ -34,5 +34,5 @@ $plugin->release = '2.7.0 (build 2017070500) PRO';
 $plugin->dependencies = array('local_vflibs' => '2015122000');
 
 // Non moodle attributes.
-$plugin->codeincrement = '2.7.0001';
+$plugin->codeincrement = '2.7.0003';
 $plugin->privacy = 'dualrelease';
