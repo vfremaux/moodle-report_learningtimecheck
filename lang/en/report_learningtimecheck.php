@@ -69,6 +69,8 @@ $string['distribute'] = 'Send';
 $string['distributionlist'] = 'Distribution list (email)';
 $string['earnedtime'] = 'Earned time';
 $string['earnedtimepdf'] = 'Earned';
+$string['emulatecommunity'] = 'Emulate community version';
+$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. You are more compatible, but it will loose some features !';
 $string['enableworktimefilter'] = 'Enable worktime filter';
 $string['endrange'] = 'Time Range End';
 $string['eventkey'] = 'Workday event key';
@@ -141,6 +143,7 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If none given, the first page header will be used again.';
 $string['pendings'] = 'Pending';
+$string['plugindist'] = 'Plugin distribution';
 $string['possibledataloss'] = 'Some options may hide user\'s data';
 $string['progressbars'] = 'Progress bars';
 $string['progressbarsitems'] = 'Progress bars by items';
@@ -279,3 +282,10 @@ $string['thirtydays'] = 'Runs every 30 days';
 $string['sortby'] = 'Sort reports';
 $string['sortbyname'] = 'by name (asc)';
 $string['sortbyachievement'] = 'by achievement (desc)';
+
+$string['plugindist_desc'] = '<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
+core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
+and improvement effort.</p>
+<p>Please contact one of our distributors to get "Pro" version support.</p>
+<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
+<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>';

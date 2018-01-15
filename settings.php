@@ -53,23 +53,25 @@ $label = get_string('recipient', 'report_learningtimecheck');
 $desc = get_string('recipient_desc', 'report_learningtimecheck');
 $settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
-$key = 'report_learningtimecheck/pdfreportheader';
-$label = get_string('pdfreportheader', 'report_learningtimecheck');
-$desc = get_string('pdfreportheader_desc', 'report_learningtimecheck');
-$options = array('subdirs' => false, 'maxfiles' => 1);
-$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportheader', 0, $options));
+if (report_learningtimecheck_supports_feature('format/pdf')) {
+    $key = 'report_learningtimecheck/pdfreportheader';
+    $label = get_string('pdfreportheader', 'report_learningtimecheck');
+    $desc = get_string('pdfreportheader_desc', 'report_learningtimecheck');
+    $options = array('subdirs' => false, 'maxfiles' => 1);
+    $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportheader', 0, $options));
 
-$key = 'report_learningtimecheck/pdfreportinnerheader';
-$label = get_string('pdfreportinnerheader', 'report_learningtimecheck');
-$desc = get_string('pdfreportinnerheader_desc', 'report_learningtimecheck');
-$options = array('subdirs' => false, 'maxfiles' => 1);
-$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
+    $key = 'report_learningtimecheck/pdfreportinnerheader';
+    $label = get_string('pdfreportinnerheader', 'report_learningtimecheck');
+    $desc = get_string('pdfreportinnerheader_desc', 'report_learningtimecheck');
+    $options = array('subdirs' => false, 'maxfiles' => 1);
+    $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
 
-$key = 'report_learningtimecheck/pdfreportfooter';
-$label = get_string('pdfreportfooter', 'report_learningtimecheck');
-$desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
-$options = array('subdirs' => false, 'maxfiles' => 1);
-$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportfooter', 0, $options));
+    $key = 'report_learningtimecheck/pdfreportfooter';
+    $label = get_string('pdfreportfooter', 'report_learningtimecheck');
+    $desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
+    $options = array('subdirs' => false, 'maxfiles' => 1);
+    $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportfooter', 0, $options));
+}
 
 $timeformatoptions = array('Ymd' => 'Ymd',
     'Y-m-d' => 'Y-m-d',
@@ -213,36 +215,52 @@ $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $us
 
 $settings->add(new admin_setting_heading('pdfcolors', get_string('pdfcolors', 'report_learningtimecheck'), ''));
 
-// Background colors.
-$name = 'report_learningtimecheck/pdfbgcolor1';
-$label = get_string('backgroundcolor', 'report_learningtimecheck').' 1';
-$desc = '';
-$default = '#444444';
-$previewconfig = null;
-$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
-$setting->set_updatedcallback('theme_reset_all_caches');
+if (report_learningtimecheck_supports_feature('format/pdf')) {
+    // Background colors.
+    $name = 'report_learningtimecheck/pdfbgcolor1';
+    $label = get_string('backgroundcolor', 'report_learningtimecheck').' 1';
+    $desc = '';
+    $default = '#444444';
+    $previewconfig = null;
+    $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+    $setting->set_updatedcallback('theme_reset_all_caches');
 
-$name = 'report_learningtimecheck/pdfbgcolor2';
-$label = get_string('backgroundcolor', 'report_learningtimecheck').' 2';
-$desc = '';
-$default = '#888888';
-$previewconfig = null;
-$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
-$setting->set_updatedcallback('theme_reset_all_caches');
+    $name = 'report_learningtimecheck/pdfbgcolor2';
+    $label = get_string('backgroundcolor', 'report_learningtimecheck').' 2';
+    $desc = '';
+    $default = '#888888';
+    $previewconfig = null;
+    $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+    $setting->set_updatedcallback('theme_reset_all_caches');
 
-// Text colors.
-$name = 'report_learningtimecheck/pdfcolor1';
-$label = get_string('textcolor', 'report_learningtimecheck').' 1';
-$desc = '';
-$default = '#eeeeee';
-$previewconfig = null;
-$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
-$setting->set_updatedcallback('theme_reset_all_caches');
+    // Text colors.
+    $name = 'report_learningtimecheck/pdfcolor1';
+    $label = get_string('textcolor', 'report_learningtimecheck').' 1';
+    $desc = '';
+    $default = '#eeeeee';
+    $previewconfig = null;
+    $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+    $setting->set_updatedcallback('theme_reset_all_caches');
 
-$name = 'report_learningtimecheck/pdfcolor2';
-$label = get_string('textcolor', 'report_learningtimecheck').' 2';
-$desc = '';
-$default = '#ffffff';
-$previewconfig = null;
-$settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
-$setting->set_updatedcallback('theme_reset_all_caches');
+    $name = 'report_learningtimecheck/pdfcolor2';
+    $label = get_string('textcolor', 'report_learningtimecheck').' 2';
+    $desc = '';
+    $default = '#ffffff';
+    $previewconfig = null;
+    $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
+    $setting->set_updatedcallback('theme_reset_all_caches');
+}
+
+if (report_learningtimecheck_supports_feature('emulate/community')) {
+    // This will accept any
+    $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_learningtimecheck'), ''));
+
+    $key = 'report_learningtimecheck/emulatecommunity';
+    $label = get_string('emulatecommunity', 'report_learningtimecheck');
+    $desc = get_string('emulatecommunity_desc', 'report_learningtimecheck');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+} else {
+    $label = get_string('plugindist', 'report_learningtimecheck');
+    $desc = get_string('plugindist_desc', 'report_learningtimecheck');
+    $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
+}
