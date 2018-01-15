@@ -69,7 +69,7 @@ $key = 'report_learningtimecheck/pdfreportfooter';
 $label = get_string('pdfreportfooter', 'report_learningtimecheck');
 $desc = get_string('pdfreportfooter_desc', 'report_learningtimecheck');
 $options = array('subdirs' => false, 'maxfiles' => 1);
-$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0, $options));
+$settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportfooter', 0, $options));
 
 $timeformatoptions = array('Ymd' => 'Ymd',
     'Y-m-d' => 'Y-m-d',
@@ -217,7 +217,7 @@ $settings->add(new admin_setting_heading('pdfcolors', get_string('pdfcolors', 'r
 $name = 'report_learningtimecheck/pdfbgcolor1';
 $label = get_string('backgroundcolor', 'report_learningtimecheck').' 1';
 $desc = '';
-$default = '#444';
+$default = '#444444';
 $previewconfig = null;
 $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
 $setting->set_updatedcallback('theme_reset_all_caches');
@@ -225,7 +225,7 @@ $setting->set_updatedcallback('theme_reset_all_caches');
 $name = 'report_learningtimecheck/pdfbgcolor2';
 $label = get_string('backgroundcolor', 'report_learningtimecheck').' 2';
 $desc = '';
-$default = '#888';
+$default = '#888888';
 $previewconfig = null;
 $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
 $setting->set_updatedcallback('theme_reset_all_caches');
@@ -234,7 +234,7 @@ $setting->set_updatedcallback('theme_reset_all_caches');
 $name = 'report_learningtimecheck/pdfcolor1';
 $label = get_string('textcolor', 'report_learningtimecheck').' 1';
 $desc = '';
-$default = '#eee';
+$default = '#eeeeee';
 $previewconfig = null;
 $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
 $setting->set_updatedcallback('theme_reset_all_caches');
@@ -242,7 +242,7 @@ $setting->set_updatedcallback('theme_reset_all_caches');
 $name = 'report_learningtimecheck/pdfcolor2';
 $label = get_string('textcolor', 'report_learningtimecheck').' 2';
 $desc = '';
-$default = '#fff';
+$default = '#ffffff';
 $previewconfig = null;
 $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
 $setting->set_updatedcallback('theme_reset_all_caches');
