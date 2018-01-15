@@ -560,6 +560,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         }
 
         if ($useraggregate['totalitems']) {
+            $timecomplete = ($useraggregate['totaltime']) ? round(($useraggregate['tickedtimes'] * 100) / $useraggregate['totaltime']) : 0;
             $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0;
             if ($percentcomplete > 90) {
                 $globals->fullusers  = @$globals->fullusers + 1;
@@ -571,6 +572,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
                 $globals->activeusers  = @$globals->activeusers + 1;
             }
         } else {
+            $timecomplete = 0;
             $percentcomplete = 0;
             $courseaggregate['tickeditems'] = 0;
             $globals->nullusers = @$globals->nullusers + 1;
@@ -589,7 +591,7 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         $sumtimeleft += $timeleft;
 
         $data[2] = $groupnames;
-        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete);
+        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete, $timecomplete);
         $data[4] = $useraggregate['totalitems'];
         $data[5] = $useraggregate['tickeditems'];
         $data[6] = learningtimecheck_format_time($useraggregate['totaltime']);
@@ -845,6 +847,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $globals->totalcoursetime = 0;
     $globals->totalvaliditems = 0;
 
+    $course = $DB->get_record('course', array('id' => $courseid));
     $tclmodule = $DB->get_record('modules', array('name' => 'learningtimecheck'));
     $params = array('course' => $courseid, 'module' => $tclmodule->id);
     $timechecklistmodules = $DB->get_records('course_modules', $params, 'section', '*');
@@ -867,6 +870,8 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
             if ($checks = $clobj->get_checks($user->id)) {
 
                 foreach ($checks as $ck => $check) {
+
+                    $check->course = $course;
 
                     if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                         continue;
@@ -993,6 +998,11 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
         $table->smalllineincr = 2;
 
         $globals->courseprogressratio = sprintf('%0d', round($globals->courseearneditems / $globals->totalcourseitems * 100)). ' %';
+        if (!empty($globals->totalcoursetime)) {
+            $globals->coursetimeratio = sprintf('%0d', round($globals->courseearnedtime / $globals->totalcoursetime * 100)). ' %';
+        } else {
+            $globals->coursetimeratio = '';
+        }
     } else {
         $table->data = array();
         $globals->courseprogressratio = '0 %';
@@ -1181,6 +1191,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
 
                 if ($checks = $clobj->get_checks($user->id)) {
                     foreach ($checks as $ck => $check) {
+
+                        $check->course = $CCACHE[$courseid];
 
                         if (!report_learningtimecheck_meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                             continue;
@@ -1491,7 +1503,14 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $sumtickedtime += $courseaggregate['tickedtimes'];
         $sumtimeleft += $timeleft;
 
-        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete);
+        // Invalidate some displays depending on user options.
+        if (!in_array($useroptions['progressbars'], array(PROGRESSBAR_ITEMS, PROGRESSBAR_BOTH))) {
+            $percentcomplete = null;
+        }
+        if (!in_array($useroptions['progressbars'], array(PROGRESSBAR_TIME, PROGRESSBAR_BOTH))) {
+            $timedoneratio = null;
+        }
+        $data[3] = mod_learningtimecheck_renderer::progressbar_thin($percentcomplete, $timedoneratio);
         $data[4] = $courseaggregate['totalitems'];
         $data[5] = $courseaggregate['tickeditems'];
         $data[6] = learningtimecheck_format_time($courseaggregate['totaltime']);
@@ -1591,26 +1610,25 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
  * @return boolean true if conditions are met, else false
  */
 function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettings, &$useroptions, &$user, &$idnumber) {
-    global $CB, $COURSE, $DB;
+    global $CFG, $DB;
     static $CMCACHE = array();
-    static $modinfo;
 
-    $debug = optional_param('debug', false, PARAM_BOOL);
+    $debug = optional_param('debug', false, PARAM_BOOL) && ($CFG->debug >= DEBUG_ALL);
 
     if (empty($modinfo)) {
-        $modinfo = get_fast_modinfo($COURSE->id, $user->id);
+        $modinfo = get_fast_modinfo($check->course->id, $user->id);
     }
 
     if (empty($reportsettings->showoptional) && ($check->itemoptional == LTC_OPTIONAL_YES)) {
         if ($debug) {
-            mtrace("Report rejected as optional");
+            mtrace("Report rejects as unwanted optional");
         }
         return false;
     }
 
     if (!empty($useroptions['hideheadings']) && ($check->itemoptional == LTC_OPTIONAL_HEADING)) {
         if ($debug) {
-            mtrace("Report rejected as heading");
+            mtrace("Report rejects as unwanted heading");
         }
         return false;
     }
@@ -1618,7 +1636,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not credited and therefore hidden.
     if (!$check->credittime && !empty($useroptions['hidenocredittime'])) {
         if ($debug) {
-            mtrace("Report rejected as not credited");
+            mtrace("Report rejects as unwanted not credited");
         }
         return false;
     }
@@ -1626,7 +1644,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not checked and therefore hidden. some reports f.e. course level summary need force unmarked to be considered.
     if ((!$check->usertimestamp) && (!empty($useroptions['hideunmarkedchecks']) && empty($reportsettings->forceshowunmarked))) {
         if ($debug) {
-            mtrace("Report rejected as not unmarked");
+            mtrace("Report rejects as not unwanted unmarked");
         }
         return false;
     }
@@ -1634,7 +1652,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
     // Not in report's range requirements.
     if (!report_learningtimecheck_check_report_range($useroptions, $check)) {
         if ($debug) {
-            mtrace("Report rejected as not in range");
+            mtrace("Report rejects as not in range");
         }
         return false;
     }
@@ -1646,21 +1664,21 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
                 $cm = $modinfo->get_cm($check->moduleid);
                 $CMCACHE[$check->moduleid] = $cm;
             } catch (Exception $e) {
-                rebuild_course_cache($COURSE->id);
-            }
-
-            // Second try once course rebuilt.
-            try {
-                $cm = $modinfo->get_cm($check->moduleid);
-                $CMCACHE[$check->moduleid] = $cm;
-            } catch (Exception $e) {
-                // Third try.
-                $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
-                if (empty($cm)) {
-                    // Forget this module we tried everything.
-                    return false;
+                rebuild_course_cache($check->course->id);
+                // Second try once course rebuilt.
+                try {
+                    $modinfo = get_fast_modinfo($check->course->id, $user->id);
+                    $cm = $modinfo->get_cm($check->moduleid);
+                    $CMCACHE[$check->moduleid] = $cm;
+                } catch (Exception $e) {
+                    // Third try.
+                    $cm = $CMCACHE[$check->moduleid] = $DB->get_record('course_modules', array('id' => $check->moduleid));
+                    if (empty($cm)) {
+                        // Forget this module we tried everything.
+                        return false;
+                    }
+                    $cm->uservisible = $cm->visible;
                 }
-                $cm->uservisible = $cm->visible;
             }
         } else {
             $cm = $CMCACHE[$check->moduleid];
@@ -1671,7 +1689,7 @@ function report_learningtimecheck_meet_report_conditions(&$check, &$reportsettin
             return false;
         }
 
-        if ($COURSE->format == 'page') {
+        if ($check->course->format == 'page') {
             // If paged, check the module is on a visible page.
             if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
                 if ($debug) {
