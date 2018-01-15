@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die;
+
 require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
 
 class report_learningtimecheck_renderer extends plugin_renderer_base {
@@ -27,25 +28,21 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/export.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="exporttype" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="id" value="'.$origincourseid.'" />';
-        $str .= '<input type="hidden" name="itemid" value="'.$itemid.'" />';
-        $str .= '<input type="hidden" name="output" value="xls" />';
+        $template->formurl = new moodle_url('/report/learningtimecheck/export.php');
+        $template->sesskey = sesskey();
+        $template->type = $type;
+        $template->origincourseid = $origincourseid;
+        $template->itemid = $itemid;
+        $template->detail = $detail;
         if ($detail) {
-            $str .= '<input type="hidden" name="detail" value="1" />';
-            $str .= ' <input type="submit" name="export" value="'.get_string('exportxlsdetail', 'report_learningtimecheck').'" />';
+            $template->exportxlsdetailstr = get_string('exportxlsdetail', 'report_learningtimecheck');
         } else {
-            $str .= '<input type="hidden" name="detail" value="0" />';
-            $str .= ' <input type="submit" name="export" value="'.get_string('exportxls', 'report_learningtimecheck').'" />';
+            $template->exportxlsstr = get_string('exportxls', 'report_learningtimecheck');
         }
-        $str .= '</form>';
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/excel_button', $template);
     }
 
     function print_export_pdf_button($origincourseid, $type = 'user', $itemid = 0, $detail = false, $options = null, $alternatelabel = false) {
@@ -60,33 +57,30 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/export.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get" target="_blank">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="id" value="'.$origincourseid.'" />';
-        $str .= '<input type="hidden" name="exporttype" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="itemid" value="'.$itemid.'" />';
+        $template->formurl = new moodle_url('/report/learningtimecheck/export.php');
+        $template->sesskey = sesskey();
+        $template->origincourseid = $origincourseid;
+        $template->type = $type;
+        $template->itemid = $itemid;
         if (!empty($options)) {
-            foreach($options as $optname => $optvalue) {
-                $str .= '<input type="hidden" name="'.$optname.'" value="'.$optvalue.'" />';
+            foreach ($options as $optname => $optvalue) {
+                $optiontpl = new StdClass;
+                $optiontpl->optname = $optname;
+                $optiontpl->optvalue = $optvalue;
+                $template->options[] = $optiontpl;
             }
         }
-        $str .= '<input type="hidden" name="output" value="pdf" />';
 
+        $template->detail = $detail;
         if ($detail) {
-            $label = ($alternatelabel) ? $alternatelabel : get_string('exportpdfdetail', 'report_learningtimecheck') ;
-            $str .= '<input type="hidden" name="detail" value="1" />';
-            $str .= ' <input type="submit" name="export" value="'.$label.'" />';
+            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdfdetail', 'report_learningtimecheck') ;
         } else {
-            $label = ($alternatelabel) ? $alternatelabel : get_string('exportpdf', 'report_learningtimecheck') ;
-            $str .= '<input type="hidden" name="detail" value="0" />';
-            $str .= ' <input type="submit" name="export" value="'.$label.'" />';
+            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdf', 'report_learningtimecheck') ;
         }
-        $str .= '</form>';
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/pdf_button', $template);
     }
 
     function print_back_search_button($type, $id) {
@@ -97,18 +91,15 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/index.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="view" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="id" value="'.$id.'" />';
-        $str .= '<input type="hidden" name="search" value="1" />';
-        $str .= ' <input type="submit" name="back" value="'.get_string('backtoindex', 'report_learningtimecheck').'" />';
-        $str .= '</form>';
+        $template->formurl = new moodle_url('/report/learningtimecheck/index.php');
+        $template->sesskey = sesskey();
+        $template->type = $type;
+        $template->id = $id;
+        $template->backtoindexstr = get_string('backtoindex', 'report_learningtimecheck');
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/back_search_button', $template);
     }
 
     function batch_list($origincourseid) {
@@ -348,19 +339,17 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/options.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="view" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="id" value="'.$courseid.'" />';
-        $str .= '<input type="hidden" name="return" value="'.$return.'" />';
-        $str .= '<input type="hidden" name="itemid" value="'.$itemid.'" />';
-        $str .= ' <input type="submit" name="back" value="'.get_string('changeoptions', 'report_learningtimecheck').'" />';
-        $str .= '</form>';
+        $template->formurl = new moodle_url('/report/learningtimecheck/options.php');
+        $template->sesskey = sesskey();
+        $template->type = $type;
+        $template->courseid = $courseid;
+        $template->return = $return;
+        $template->itemid = $itemid;
+        $template->changeoptionsstr = get_string('changeoptions', 'report_learningtimecheck');
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/user_options_button', $template);
     }
 
     public function print_send_to_batch_button($type, $courseid, $itemid, $params) {
@@ -371,21 +360,17 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/pro/batch.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="view" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="type" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="id" value="'.$courseid.'" />';
-        $str .= '<input type="hidden" name="detail" value="0" />';
-        $str .= '<input type="hidden" name="itemid" value="'.$itemid.'" />';
-        $str .= '<input type="hidden" name="params" value="'.base64_encode(json_encode($params)).'" />';
-        $str .= ' <input type="submit" name="back" value="'.get_string('sendtobatch', 'report_learningtimecheck').'" />';
-        $str .= '</form>';
+        $template->formurl = new moodle_url('/report/learningtimecheck/pro/batch.php');
+        $template->sesskey = sesskey();
+        $template->type = $type;
+        $template->courseid = $courseid;
+        $template->itemid = $itemid;
+        $template->param = base64_encode(json_encode($params));
+        $template->sendtobatchstr = get_string('sendtobatch', 'report_learningtimecheck');
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/send_to_batch_button', $template);
     }
 
     public function print_send_detail_to_batch_button($type, $courseid, $itemid, $params) {
@@ -396,24 +381,19 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             return;
         }
 
-        $str = '';
+        $template = new StdClass;
 
-        $formurl = new moodle_url('/report/learningtimecheck/pro/batch.php');
-        $str .= '<form style="display: inline;" action="'.$formurl.'" method="get">';
-        $str .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $str .= '<input type="hidden" name="view" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="type" value="'.$type.'" />';
-        $str .= '<input type="hidden" name="id" value="'.$courseid.'" />';
-        $str .= '<input type="hidden" name="param" value="'.$courseid.'" />';
-        $str .= '<input type="hidden" name="itemid" value="'.$itemid.'" />';
-        $str .= '<input type="hidden" name="detail" value="1" />';
-        $str .= '<input type="hidden" name="params" value="'.base64_encode(json_encode($params)).'" />';
-        $str .= ' <input type="submit" name="back" value="'.get_string('senddetailtobatch', 'report_learningtimecheck').'" />';
-        $str .= '</form>';
+        $template->formurl = new moodle_url('/report/learningtimecheck/pro/batch.php');
+        $template->sesskey = sesskey();
+        $template->type = $type;
+        $template->courseid = $courseid;
+        $template->itemid = $itemid;
+        $template->params = base64_encode(json_encode($params));
+        $template->senddetailtobatchstr = get_string('senddetailtobatch', 'report_learningtimecheck');
 
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/send_detail_to_batch_button', $template);
     }
-    
+
     public function batch_commands($view, $id) {
 
         $clearallstr = get_string('clearall', 'report_learningtimecheck');
