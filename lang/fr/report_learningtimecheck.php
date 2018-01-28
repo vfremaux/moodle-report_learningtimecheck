@@ -67,8 +67,6 @@ $string['distributionlist'] = 'Liste de distribution';
 $string['doneratio'] = '% temps effectué';
 $string['earnedtime'] = 'Temps acquis';
 $string['earnedtime'] = 'Temps acquis';
-$string['emulatecommunity'] = 'Emuler la version communautaire';
-$string['emulatecommunity_desc'] = 'Si elle est activée, cette option force le composant à fonctionner en version communautaire. Vous êtes plus compatible, mais certaines fonctionnalités ne seront plus disponibles.';
 $string['enableworktimefilter'] = 'Activer les heures ouvrables';
 $string['endrange'] = 'Fin de période';
 $string['eventkey'] = 'Clef de marqueur de jour entreprise';
@@ -140,7 +138,6 @@ $string['pdfreportinnerheader_desc'] = 'Permet de fournir une image à utiliser 
 $string['pdfshowgroups'] = 'Afficher les groupes';
 $string['pdfshowidnumbers'] = 'Afficher les numéros d\'identification';
 $string['pendings'] = 'Programmation';
-$string['plugindist'] = 'Distribution du plugin';
 $string['possibledataloss'] = 'Certaines de vos options peuvent masquer des données';
 $string['progressbars'] = 'Barres de progression';
 $string['progressbarsitems'] = 'Progression en nombre d\'items';
@@ -275,10 +272,3 @@ $string['clearallmarks'] = 'Supprimer toutes les marques';
 $string['sortby'] = 'Trier les rapports';
 $string['sortbyname'] = 'par nom (asc)';
 $string['sortbyachievement'] = 'par achèvement (desc)';
-
-$string['plugindist_desc'] = '<p>Ce plugin est distribué dans la communauté Moodle pour l\'évaluation de ses fonctions centrales
-correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
-sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
-<p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
-<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
-<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>';

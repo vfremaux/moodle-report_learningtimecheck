@@ -1,0 +1,18 @@
+
+
+
+<form style="display: inline;" action="{{{formurl}}}" method="get">
+    <input type="hidden" name="sesskey" value="{{{sesskey}}}" />
+    <input type="hidden" name="exporttype" value="{{type}}" />
+    <input type="hidden" name="id" value="{{origincourseid}}" />
+    <input type="hidden" name="itemid" value="{{itemid}}" />
+    <input type="hidden" name="output" value="xls" />
+{{#detail}}
+    <input type="hidden" name="detail" value="1" />
+    <input type="submit" name="export" value="{{exportxlsdetailstr}}" />
+{{/detail}}
+{{^detail}}
+    <input type="hidden" name="detail" value="0" />
+    <input type="submit" name="export" value="{{exportxlsstr}}" />
+{{/detail}}
+</form>

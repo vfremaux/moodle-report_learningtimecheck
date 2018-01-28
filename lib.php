@@ -24,7 +24,6 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/renderer.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/xlib.php');
@@ -1122,8 +1121,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
     if ($timechecklistmodules) {
         foreach ($timechecklistmodules as $courseid => $coursechecks) {
             if (!array_key_exists($courseid, $CCACHE)) {
-                $fields = 'id,shortname,fullname,idnumber,format';
-                $CCACHE[$courseid] = $DB->get_record('course', array('id' => $courseid), $fields);
+                $field = 'id,shortname,fullname,idnumber';
+                $CCACHE[$courseid] = $DB->get_record('course', array('id' => $courseid), $field);
             }
 
             // Course name.

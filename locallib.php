@@ -41,7 +41,6 @@ function report_learningtimecheck_supports_feature($feature) {
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'xml'),
                 'mode' => array('batch'),
-                'emulate' => 'community',
             ),
             'community' => array(
                 'format' => array('xml', 'csv'),
