@@ -167,13 +167,13 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                                 'batchid' => $batch->id,
                                 'sesskey' => sesskey());
                 $deleteurl = new moodle_url('/report/learningtimecheck/pro/batch.php', $params);
-                $cmd = '<a href="'.$deleteurl.'"><img src="'.$OUTPUT->pix_url('t/delete').'" /></a>';
+                $cmd = '<a href="'.$deleteurl.'">'.$OUTPUT->pix_icon('t/delete', get_string('delete'), 'core').'</a>';
 
                 $params = array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1);
                 $runnowurl = new moodle_url('/report/learningtimecheck/pro/batch_worker.php', $params);
                 $runnowstr = get_string('runnow', 'report_learningtimecheck');
-                $pixurl = $OUTPUT->pix_url('t/reload');
-                $cmd .= '<a href="'.$runnowurl.'" title="'.$runnowstr.'" target="_blank"><img src="'.$pixurl.'" /></a>';
+                $pix = $OUTPUT->pix_icon('t/reload', $runnowstr, 'core');
+                $cmd .= '<a href="'.$runnowurl.'" title="'.$runnowstr.'" target="_blank">'.$pix.'</a>';
 
                 $row[] = $cmd;
                 $table->data[] = $row;
@@ -247,13 +247,13 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                                 'batchid' => $batch->id,
                                 'sesskey' => sesskey());
                 $deleteurl = new moodle_url('/report/learningtimecheck/pro/batch.php', $params);
-                $cmd = '<a href="'.$deleteurl.'"><img src="'.$OUTPUT->pix_url('t/delete').'" /></a>';
+                $cmd = '<a href="'.$deleteurl.'">'.$OUTPUT->pix_icon('t/delete', get_string('delete'), 'core').'</a>';
 
                 $params = array('id' => $origincourseid, 'joblist' => $batch->id, 'sesskey' => sesskey(), 'interactive' => 1);
                 $runnowurl = new moodle_url('/report/learningtimecheck/pro/batch_worker.php', $params);
-                $pixurl = $OUTPUT->pix_url('t/reload');
                 $runnowstr = get_string('runnow', 'report_learningtimecheck');
-                $cmd .= '<a href="'.$runnowurl.'" title="'.$runnowstr.'" target="_blank"><img src="'.$pixurl.'" /></a>';
+                $pix = $OUTPUT->pix_icon('t/reload', $runnowstr, 'core');
+                $cmd .= '<a href="'.$runnowurl.'" title="'.$runnowstr.'" target="_blank">'.$pix.'</a>';
 
                 $row[] = $cmd;
 
@@ -268,7 +268,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     /**
      * a batch result filearea is a file storage area that stores all production from
      * a single batch. the widget prints a list of available areas and the content of one selected area
-     * batch results are stored into a file area identified by : 
+     * batch results are stored into a file area identified by :
      *
      * Shared results :
      * context : systemcontext
@@ -532,12 +532,12 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
             if ($key == 'sortby') {
                 $sortby = ($value) ? $value : 'name';
                 $title = get_string($key.$sortby, 'report_learningtimecheck');
-                $optionsstr .= '<img src="'.$OUTPUT->pix_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
+                $optionsstr .= '<img src="'.$OUTPUT->image_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
             } else if ($key == 'progressbars') {
                 $ICONS = array('items', 'time', 'both');
-                $value = 0 + $value;
+                $value = 0 + (int)$value;
                 $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
-                $optionsstr .= '<img src="'.$OUTPUT->pix_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
+                $optionsstr .= '<img src="'.$OUTPUT->image_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
             } else {
                 if (in_array($key, array('hidenocredittime', 'startrange', 'endrange')) && $value) {
                     $mayhide = true;
@@ -551,7 +551,8 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 if (empty($value)) {
                     $class = 'report-learningtimecheck-shadow';
                 }
-                $optionsstr .= '<img src="'.$OUTPUT->pix_url($key, 'report_learningtimecheck').'" title="'.$title.'" class="'.$class.'" > ';
+                $attrs = array('class' => $class);
+                $optionsstr .= $OUTPUT->pix_icon($key, $title, 'report_learningtimecheck', $attrs);
             }
         }
 
