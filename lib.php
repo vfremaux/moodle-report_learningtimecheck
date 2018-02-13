@@ -887,12 +887,12 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                     $marked = report_learningtimecheck_is_marked($check, $clobj);
                     if ($marked > 1) {
                         // Has been marked either by student or teacher.
-                        $pix = '<img src="'.$OUTPUT->pix_url('good').'">';
+                        $pix = $OUTPUT->pix_icon('i/valid', '');
                         $earnedtime = '<span class="good">'.$check->credittime.'</span>';
                         $globals->courseearneditems++;
                         $globals->courseearnedtime += $check->credittime;
                     } else if ($marked == -1) {
-                        $pix = '<img src="'.$OUTPUT->pix_url('bad').'">';
+                        $pix = $OUTPUT->pix_icon('i/invalid', '');
                         $earnedtime = '';
                     } else {
                         $pix = '';
@@ -1217,12 +1217,12 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                         $marked = report_learningtimecheck_is_marked($check, $clobj);
                         if ($marked > 1) {
                             // Has been marked either by student or teacher.
-                            $pix = '<img src="'.$OUTPUT->pix_url('good').'">';
+                            $pix = $OUTPUT->pix_icon('i/valid', '');
                             $earnedtime = '<span class="good">'.$check->credittime.'</span>';
                             $globals->userearneditems++;
                             $globals->userearnedtime += $check->credittime;
                         } else if ($marked == -1) {
-                            $pix = '<img src="'.$OUTPUT->pix_url('bad').'">';
+                            $pix = $OUTPUT->pix_icon('i/invalid', '');
                             $earnedtime = '';
                         } else {
                             $pix = '';
@@ -1467,8 +1467,9 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 
         if (has_capability('moodle/course:view', $coursecontext) && $onscreen) {
             $courseurl = new moodle_url('/course/view', array('id' => $courseid));
-            $pixurl = $OUTPUT->pix_url('follow_link', 'report_learningtimecheck');
-            $coursename .= ' <a href="'.$courseurl.'"><img src="'.$pixurl.'" /></a>';
+            $alt = get_string('follow', 'report_learningtimecheck');
+            $pix = $OUTPUT->pix_icon('follow_link', $alt, 'report_learningtimecheck');
+            $coursename .= ' <a href="'.$courseurl.'">'.$pix.'</a>';
         }
 
         $data[2] = $coursename;
