@@ -21,9 +21,9 @@ define(['jquery', 'core/log', 'core/config'], function($, log, cfg) {
 
         init: function() {
 
-            $('#id_s_mod_learningtimecheck_licensekey').bind('change', this.check_product_key);
-            $('#id_s_mod_learningtimecheck_licensekey').trigger('change');
-            log.debug('AMD Pro js initialized for learningtimecheck module');
+            $('#id_s_report_learningtimecheck_licensekey').bind('change', this.check_product_key);
+            $('#id_s_report_learningtimecheck_licensekey').trigger('change');
+            log.debug('AMD Pro js initialized for learningtimecheck report');
         },
 
         check_product_key: function() {
@@ -42,27 +42,27 @@ define(['jquery', 'core/log', 'core/config'], function($, log, cfg) {
             var waiticon = ' <img src="' + cfg.wwwroot + '/pix/i/ajaxloader.gif' + '">';
 
             if (crc == calculated) {
-                var url = cfg.wwwroot + '/mod/learningtimecheck/pro/ajax/services.php?';
+                var url = cfg.wwwroot + '/report/learningtimecheck/pro/ajax/services.php?';
                 url += 'what=license';
                 url += '&service=check';
                 url += '&customerkey=' + that.val();
-                url += '&provider=' + $('#id_s_mod_learningtimecheck_licenseprovider').val();
+                url += '&provider=' + $('#id_s_report_learningtimecheck_licenseprovider').val();
 
-                $('#id_s_mod_learningtimecheck_licensekey + img').remove();
-                $('#id_s_mod_learningtimecheck_licensekey').after(waiticon);
+                $('#id_s_report_learningtimecheck_licensekey + img').remove();
+                $('#id_s_report_learningtimecheck_licensekey').after(waiticon);
 
                 $.get(url, function(data) {
                     if (data.match(/SET OK/)) {
-                        $('#id_s_mod_learningtimecheck_licensekey + img').remove();
-                        $('#id_s_mod_learningtimecheck_licensekey').after(validicon);
+                        $('#id_s_report_learningtimecheck_licensekey + img').remove();
+                        $('#id_s_report_learningtimecheck_licensekey').after(validicon);
                     } else {
-                        $('#id_s_mod_learningtimecheck_licensekey + img').remove();
-                        $('#id_s_mod_learningtimecheck_licensekey').after(invalidicon);
+                        $('#id_s_report_learningtimecheck_licensekey + img').remove();
+                        $('#id_s_report_learningtimecheck_licensekey').after(invalidicon);
                     }
                 }, 'html');
             } else {
-                $('#id_s_mod_learningtimecheck_licensekey + img').remove();
-                $('#id_s_mod_learningtimecheck_licensekey').after(cautionicon);
+                $('#id_s_report_learningtimecheck_licensekey + img').remove();
+                $('#id_s_report_learningtimecheck_licensekey').after(cautionicon);
             }
         },
 
