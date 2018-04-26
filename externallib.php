@@ -32,62 +32,12 @@ class report_learningtimecheck_external extends external_api {
         global $CFG;
         // Invoke in silent mode.
 
-        // Ensure the current user is allowed to run this function.
-        $context = context_system::instance();
-        self::validate_context($context);
-        require_capability('report/learningtimecheck:viewother', $context);
-
-        // Do basic automatic PARAM checks on incoming data, using params description.
-        // If any problems are found then exceptions are thrown with helpful error messages.
-        $input = array('userid' => $userid,
-                       'useridnumber' => $useridnumber,
-                       'courseid' => $courseid);
-        $params = self::validate_parameters(self::get_user_report_parameters(), $input);
-
-        if (!empty($params['useridnumber'])) {
-            $user = $DB->get_record('user', array('idnumber' => $params['useridnumber']));
-            $userid = $user->id;
+        if (report_learningtimecheck_supports_feature('export/ws')) {
+            include_once($CFG->dirroot.'/report/learningtimecheck/pro/externallib.php');
+            return report_learningtimecheck_external_pro::get_user_report($userid, $useridnumber, $courseid);
         } else {
-            $userid = $params['userid'];
+            throw new moodle_exception('WS only provided in "pro" versions. Please contact distributors (see global settings).');
         }
-
-        // Emulate a userdetail job on a given course.
-        $job = new StdClass;
-        $job->type = 'userdetail';
-        $job->itemids = $userid;
-        $job->filters = json_encode(array());
-        $job->detail = true;
-        $job->courseid = $params['courseid'];
-        $data = array();
-        $globals = array();
-        report_learningtimecheck_prepare_data($job, $data, $globals);
-
-        $exportclassfile = $CFG->dirroot.'/report/learningtimecheck/export/'.$output.'.class.php';
-        if (!file_exists($exportclassfile)) {
-            print_error('errornoexporterclass', 'report_learningtimecheck', $exportclassfile);
-        }
-        require_once($exportclassfile);
-
-        $exportcontext = new StdClass();
-        $exportcontext->exporttype = $exporttype;
-        $exportcontext->exportitem = $exportitem;
-        $exportcontext->param = $courseid;
-
-        $classname = $output.'_exporter';
-        $exporter = new $classname($exportcontext);
-
-        $exporter->set_data($data, $globals);
-
-        // Output production.
-        $filecontent = $exporter->output();
-
-        /*
-         * TODO : Record the content obtained into a file into a temporary file area
-         * generate a token for accessing the file and give back a pluginfile.php url
-         * opened by the token.
-         */
-
-        return array('', '');
     }
 
     public static function get_user_report_parameters() {
@@ -114,122 +64,12 @@ class report_learningtimecheck_external extends external_api {
     public static function get_user_data($uidsource, $uid, $cidsource, $cid, $underratioscope = '', $underratio = 0) {
         global $DB;
 
-        // First proceed to standard validation (param arity, param data type).
-        $parameters = array('uidsource' => $uidsource,
-                            'uid' => $uid,
-                            'cidsource' => $cidsource,
-                            'cid' => $cid,
-                            'underratioscope' => $underratioscope,
-                            'underratio' => $underratio);
-
-        self::validate_parameters(self::get_user_data_parameters(), $parameters);
-
-        // Fetch the course object.
-        $parameters = array('cidsource' => $cidsource,
-                            'cid' => $cid);
-        $course = self::validate_course_parameters($parameters);
-
-        // Fetch the user object.
-        $parameters = array('uidsource' => $uidsource,
-                            'uid' => $uid);
-        $user = self::validate_user_parameters($parameters);
-
-        $results = array();
-
-        if ($user && !$course) {
-            // Fetch all ltcs in all use courses.
-            $usercourses = enrol_get_users_courses($user->id);
-
-            foreach ($usercourses as $cid => $ucourse) {
-                $ltcs = $DB->get_records('learningtimecheck', array('course' => $ucourse->id));
-                if ($ltcs) {
-                    foreach ($ltcs as $ltcrec) {
-
-                        $results[] = self::get_ltc_data($ltcrec, $user, $ucourse);
-                    }
-                }
-            }
-
+        if (report_learningtimecheck_supports_feature('export/ws')) {
+            include_once($CFG->dirroot.'/report/learningtimecheck/pro/externallib.php');
+            return report_learningtimecheck_external_pro::get_user_data($uidsource, $uid, $cidsource, $cid, $underratioscope, $underratio);
         } else {
-            $ltcs = $DB->get_records('learningtimecheck', array('course' => $course->id));
-            if ($ltcs) {
-                foreach ($ltcs as $ltcrec) {
-
-                    $results[] = self::get_ltc_data($ltcrec, $user, $course);
-                }
-            }
+            throw new moodle_exception('WS only provided in "pro" versions. Please contact distributors (see global settings).');
         }
-
-        if (!empty($underratioscope)) {
-            if (!empty($results)) {
-                $filteredresults = array();
-                foreach ($results as $r) {
-                    switch ($underratioscope) {
-                        case 'all': {
-                            $baseratio = $r['overalratio'];
-                            break;
-                        }
-
-                        case 'mandatory': {
-                            $baseratio = $r['mandatoryratio'];
-                            break;
-                        }
-
-                        case 'optional': {
-                            $baseratio = $r['optionalratio'];
-                            break;
-                        }
-                    }
-
-                    if ($baseratio < $underratio) {
-                        $filteredresults[] = $r;
-                    }
-                }
-                return $filteredresults;
-            }
-        }
-
-        return $results;
-    }
-
-    protected static function get_ltc_data(&$ltcrec, &$user, &$ucourse) {
-
-        $cm = get_coursemodule_from_instance('learningtimecheck', $ltcrec->id);
-        $ltc = new learningtimecheck_class($cm->id, $user->id, $ltcrec, $cm);
-
-        $result = new StdClass;
-        $result->userid = $user->id;
-        $result->useridnumber = $user->idnumber;
-        $result->username = $user->username;
-        $result->courseid = $ucourse->id;
-        $result->courseidnumber = $ucourse->idnumber;
-        $result->courseshortname = $ucourse->shortname;
-        $result->coursefullname = $ucourse->fullname;
-        $result->ltcid = $ltc->id;
-        $result->ltcidnumber = $cm->idnumber;
-        $result->ltcname = format_string($ltc->name);
-        $mi = $ltc->counters['mandatories'];
-        $oi = $ltc->counters['optionals'];
-        $mc = $ltc->counters['mandatorieschecked'];
-        $oc = $ltc->counters['optionalschecked'];
-        $result->mandatoryitems = $mi;
-        $result->optionalitems = $oi;
-        $result->mandatorychecks = $mc;
-        $result->optionalchecks = $oc;
-        $result->mandatoryratio = ($mi) ? round(($mc / $mi) * 100) : 0;
-        $result->optionalratio = ($oi) ? round(($oc / $oi) * 100) : 0;
-        $result->overalratio = ($mi + $oi) ? round(($mc + $oc) / ($mi + $oi) * 100): 0;
-
-        $mct = $ltc->counters['mandatorycredittime'];
-        $oct = $ltc->counters['optionalcredittime'];
-        $mat = $ltc->counters['mandatoryacquiredtime'];
-        $oat = $ltc->counters['optionalacquiredtime'];
-        $result->mandatorycredittime = $mct;
-        $result->optionalcredittime = $oct;
-        $result->mandatoryacquiredtime = $mat;
-        $result->optionalacquiredtime = $oat;
-
-        return (array) $result;
     }
 
     public static function get_user_data_parameters() {
@@ -278,26 +118,14 @@ class report_learningtimecheck_external extends external_api {
     /* ******************************************* Get a set of users data ****************************************** */
 
     public static function get_users_data($uidsource, $uids, $cidsource, $cid, $underratioscope = '', $underratio = 0) {
+        global $CFG;
 
-        // First proceed to standard validation (param arity, param data type).
-        $parameters = array('uidsource' => $uidsource,
-                            'uids' => $uids,
-                            'cidsource' => $cidsource,
-                            'cid' => $cid,
-                            'underratioscope' => $underratioscope,
-                            'underratio' => $underratio);
-
-        self::validate_parameters(self::get_users_data_parameters(), $parameters);
-
-        $bulkresults = array();
-        foreach ($uids as $uid) {
-            $results = self::get_user_data($uidsource, $uid, $cidsource, $cid, $underratioscope, $underratio);
-            if (!empty($results)) {
-                $bulkresults = array_merge($bulkresults, $results);
-            }
+        if (report_learningtimecheck_supports_feature('export/ws')) {
+            include_once($CFG->dirroot.'/report/learningtimecheck/pro/externallib.php');
+            return report_learningtimecheck_external_pro::get_users_data($uidsource, $uids, $cidsource, $cid, $underratioscope, $underratio);
+        } else {
+            throw new moodle_exception('WS only provided in "pro" versions. Please contact distributors (see global settings).');
         }
-
-        return $bulkresults;
     }
 
     public static function get_users_data_parameters() {
