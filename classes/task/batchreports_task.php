@@ -18,7 +18,7 @@ namespace report_learningtimecheck\task;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 /**
  * A scheduled task for learningtimecheck reports cron.
