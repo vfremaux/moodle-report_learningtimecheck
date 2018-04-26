@@ -67,6 +67,8 @@ $string['distributionlist'] = 'Liste de distribution';
 $string['doneratio'] = '% temps effectué';
 $string['earnedtime'] = 'Temps acquis';
 $string['earnedtime'] = 'Temps acquis';
+$string['emulatecommunity'] = 'Emuler la version communautaire';
+$string['emulatecommunity_desc'] = 'Si elle est activée, cette option force le composant à fonctionner en version communautaire. Vous êtes plus compatible, mais certaines fonctionnalités ne seront plus disponibles.';
 $string['enableworktimefilter'] = 'Activer les heures ouvrables';
 $string['endrange'] = 'Fin de période';
 $string['eventkey'] = 'Clef de marqueur de jour entreprise';
@@ -113,6 +115,10 @@ $string['itemsprogress'] = 'Progressions par items';
 $string['itemtimecredit'] = 'Crédit temps';
 $string['itemtimecreditpdf'] = 'Crédit temps';
 $string['leftratio'] = 'Reste à faire (%)';
+$string['licenseprovider'] = 'Fournisseur version Pro';
+$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
+$string['licensekey'] = 'Clef de license pro';
+$string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
 $string['makebatch'] = 'Créer des batchs à partir des marques';
 $string['marktime'] = 'Heure de marque';
 $string['marktimeformat'] = 'Format des temps';
@@ -138,6 +144,7 @@ $string['pdfreportinnerheader_desc'] = 'Permet de fournir une image à utiliser 
 $string['pdfshowgroups'] = 'Afficher les groupes';
 $string['pdfshowidnumbers'] = 'Afficher les numéros d\'identification';
 $string['pendings'] = 'Programmation';
+$string['plugindist'] = 'Distribution du plugin';
 $string['possibledataloss'] = 'Certaines de vos options peuvent masquer des données';
 $string['progressbars'] = 'Barres de progression';
 $string['progressbarsitems'] = 'Progression en nombre d\'items';
@@ -272,3 +279,11 @@ $string['clearallmarks'] = 'Supprimer toutes les marques';
 $string['sortby'] = 'Trier les rapports';
 $string['sortbyname'] = 'par nom (asc)';
 $string['sortbyachievement'] = 'par achèvement (desc)';
+
+$string['plugindist_desc'] = '
+<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
+core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
+and improvement effort.</p>
+<p>Note that both components local_sharedresources and mod_sharedresource must work using the same distribution level.</p>
+<p>Please contact one of our distributors to get "Pro" version support.</p>
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
