@@ -268,7 +268,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     /**
      * a batch result filearea is a file storage area that stores all production from
      * a single batch. the widget prints a list of available areas and the content of one selected area
-     * batch results are stored into a file area identified by :
+     * batch results are stored into a file area identified by : 
      *
      * Shared results :
      * context : systemcontext
