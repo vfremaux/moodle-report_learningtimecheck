@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="report/leaningtimecheck/db" VERSION="20150428" COMMENT="XMLDB file for Moodle LearningTimeCheck reports"
+<XMLDB PATH="report/learningtimecheck/db" VERSION="20150428" COMMENT="XMLDB file for Moodle LearningTimeCheck reports"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
