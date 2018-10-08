@@ -62,7 +62,7 @@ class report_learningtimecheck_external extends external_api {
     /* ******************************************* Get user data ****************************************** */
 
     public static function get_user_data($uidsource, $uid, $cidsource, $cid, $underratioscope = '', $underratio = 0) {
-        global $DB;
+        global $CFG;
 
         if (report_learningtimecheck_supports_feature('export/ws')) {
             include_once($CFG->dirroot.'/report/learningtimecheck/pro/externallib.php');
