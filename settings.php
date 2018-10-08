@@ -213,9 +213,10 @@ $desc = get_string('wdimportuseridentifier_desc', 'report_learningtimecheck');
 $desfault = 'username';
 $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $useridoptions));
 
-$settings->add(new admin_setting_heading('pdfcolors', get_string('pdfcolors', 'report_learningtimecheck'), ''));
-
 if (report_learningtimecheck_supports_feature('format/pdf')) {
+
+    $settings->add(new admin_setting_heading('pdfcolors', get_string('pdfcolors', 'report_learningtimecheck'), ''));
+
     // Background colors.
     $name = 'report_learningtimecheck/pdfbgcolor1';
     $label = get_string('backgroundcolor', 'report_learningtimecheck').' 1';
@@ -249,6 +250,13 @@ if (report_learningtimecheck_supports_feature('format/pdf')) {
     $previewconfig = null;
     $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
     $setting->set_updatedcallback('theme_reset_all_caches');
+
+    $settings->add(new admin_setting_heading('mischdr', get_string('misc', 'report_learningtimecheck'), ''));
+
+    $key = 'report_learningtimecheck/allowdisabledenrols';
+    $label = get_string('allowdisabledenrols', 'report_learningtimecheck');
+    $desc = get_string('allowdisabledenrols_desc', 'report_learningtimecheck');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 }
 
 if (report_learningtimecheck_supports_feature('emulate/community') == 'pro') {

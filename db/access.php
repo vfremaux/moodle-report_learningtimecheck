@@ -74,4 +74,15 @@ $capabilities = array(
         'archetypes' => array(
         ),
     ),
+
+    // Ability to appear in reports.
+    'report/learningtimecheck:isreported' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+        )
+    ),
+
 );
