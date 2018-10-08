@@ -547,8 +547,8 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
 
     // Xls output.
     $table->xlshead = array('shortname', 'lastname', 'firstname', 'groups', 'progress', 'itemstodo', 'doneitems', 'totaltime',
-                            'donetime', 'doneratio', 'timeleft', 'leftratio');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true);
+                            'donetime', 'doneratio', 'timeleft', 'leftratio', 'firstaccess', 'lastaccess');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
     // The overline.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
@@ -697,12 +697,29 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         $rawdata[9] = $timedoneratio.'%';
         $rawdata[10] = $timeleft; // Change for row data for further export conversion.
         $rawdata[12] = $timeleftratio.'%';
-        $table->rawdata[] = $rawdata;
 
         $pdfdata = $data;
         $pdfdata[1] = fullname($u);
         $pdfdata[3] = sprintf('%0d', $percentcomplete).' %';
         $table->pdfdata[] = $pdfdata;
+
+        $formatdate = get_string('strfdatetimefmt', 'report_learningtimecheck');
+        // Add last access and first access in course for xls export.
+        $firstconn = learningtimecheck_get_first_course_log($u->id, $courseid);
+        if ($firstconn > 0) {
+            $rawdata[13] = strftime($formatdate, $firstconn);
+        } else {
+            $rawdata[13] = '-';
+        }
+        $params = array('userid' => $u->id, 'courseid' => $courseid);
+        $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
+        if ($lastconn > 0) {
+            $rawdata[14] = strftime($formatdate, $lastconn);
+        } else {
+            $rawdata[14] = '-';
+        }
+
+        $table->rawdata[] = $rawdata;
     }
 
     // Achievement is in fifth col (tickeditems);
@@ -852,6 +869,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $f2 = $config->pdfcolor2;
 
     $thisurl = new moodle_url('/report/learningtimecheck/index.php');
+    $formatdate = get_string('strfdatetime', 'report_learningtimecheck');
 
     $sumcomplete = 0;
     $sumitems = 0;
@@ -888,8 +906,8 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $table->colclasses = array('', '', '', 'highlighted', '', '', '');
 
     // Xls output.
-    $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true);
+    $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby', 'firstaccess', 'lastaccess');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true);
 
     // Pdf output.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
@@ -1029,7 +1047,6 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $rawdata[5] = ($isvalid) ? 'yes' : '';
                         $rawdata[6] = $marker;
                     }
-                    $table->rawdata[] = $rawdata;
 
                     $pdfdata = $rawdata;
                     if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
@@ -1037,6 +1054,22 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $pdfdata[3] .= ' min';
                     }
                     $table->pdfdata[] = $pdfdata;
+
+                    // Add last access and first access in course for xls export.
+                    $firstconn = learningtimecheck_get_first_course_log($user->id, $courseid);
+                    if ($firstconn > 0) {
+                        $rawdata[7] = strftime($formatdate, $firstconn);
+                    } else {
+                        $rawdata[7] = '-';
+                    }
+                    $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
+                    if ($lastconn > 0) {
+                        $rawdata[8] = strftime($formatdate, $lastconn);
+                    } else {
+                        $rawdata[8] = '-';
+                    }
+
+                    $table->rawdata[] = $rawdata;
                 }
             }
         }
@@ -1156,8 +1189,8 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
     $table->printinfo = array(true, true, true, true, true, true, true);
 
     // Xls output.
-    $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true);
+    $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby', 'firstaccess', 'lastaccess');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true);
 
     // Pdf output.
 
@@ -1357,7 +1390,6 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             $rawdata[5] = ($isvalid) ? $yesstr : $nostr;
                             $rawdata[6] = $marker;
                         }
-                        $table->rawdata[] = $rawdata;
 
                         $pdfdata = $rawdata;
                         if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
@@ -1366,6 +1398,24 @@ function report_learningtimecheck_user_results(&$user, &$globals, $useroptions) 
                             $pdfdata[5] = ($isvalid) ? $yesstr : $nostr;
                         }
                         $table->pdfdata[] = $pdfdata;
+
+                        // Add last access and first access in course for xls export.
+                        $formatdate = get_string('strfdatetimefmt', 'report_learningtimecheck');
+                        $firstconn = learningtimecheck_get_first_course_log($user->id, $courseid);
+                        if ($firstconn > 0) {
+                            $rawdata[7] = strftime($formatdate, $firstconn);
+                        } else {
+                            $rawdata[7] = '-';
+                        }
+                        $params = array('courseid' => $courseid, 'userid' => $user->id);
+                        $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
+                        if ($lastconn > 0) {
+                            $rawdata[8] = strftime($formatdate, $lastconn);
+                        } else {
+                            $rawdata[8] = '-';
+                        }
+
+                        $table->rawdata[] = $rawdata;
                     }
                 }
             }
@@ -1492,8 +1542,8 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
 
     // Xls output.
     $table->xlshead = array('shortname', 'idnumber', 'fullname', 'progress', 'itemstodo', 'itemsdone', 'donetime',
-                            'timeleft', 'timeleftratio');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true);
+                            'timeleft', 'timeleftratio', 'firstaccess', 'lastaccess');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true);
 
     // Pdf output.
     $table->pdfhead1 = array('', '', '', '', $itemspdfstr, $timepdfstr);
@@ -1618,8 +1668,6 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $rawdata[9] = $timeleft; // Change for row data for further export conversion.
         $rawdata[10] = $timeleftratio; // Change for row data for further export conversion.
 
-        $table->rawdata[] = $rawdata;
-
         $pdfdata = $data;
         $pdfdata[0] = $CCACHE[$courseid]->shortname;
         $pdfdata[1] = $CCACHE[$courseid]->idnumber;
@@ -1627,6 +1675,24 @@ function report_learningtimecheck_user_results_by_course($id, $user, &$globals, 
         $pdfdata[3] = sprintf('%0d', $percentcomplete);
 
         $table->pdfdata[] = $pdfdata;
+
+        // Add last access and first access in course for xls export.
+        $formatdate = get_string('strfdatetimefmt', 'report_learningtimecheck');
+        $firstconn = learningtimecheck_get_first_course_log($user->id, $courseid);
+        if ($firstconn > 0) {
+            $rawdata[11] = strftime($formatdate, $firstconn);
+        } else {
+            $rawdata[11] = '-';
+        }
+        $params = array('courseid' => $courseid, 'userid' => $user->id);
+        $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
+        if ($lastconn > 0) {
+            $rawdata[12] = strftime($formatdate, $lastconn);
+        } else {
+            $rawdata[12] = '-';
+        }
+
+        $table->rawdata[] = $rawdata;
     }
 
     // Make last row with average and sums.
@@ -2017,8 +2083,19 @@ function report_learningtimecheck_groupings_print_menu($course, $url, $view = 'c
 function report_learningtimecheck_get_users($courseid, $groupid = 0, $groupingid = 0, $from = 0, $pagesize = 0) {
     global $DB;
 
-    $role = $DB->get_record('role', array('shortname' => 'student'));
-    $sqlvars = array($courseid, $role->id);
+    $config = get_config('report_learningtimecheck');
+
+    $enrollimitsclause = '';
+
+    if (empty($config->allowdisabledenrols)) {
+        $enrollimitsclause = ' ue.status = 0 AND ';
+    }
+
+    $roles = get_roles_with_capability('report/learningtimecheck:isreported', CAP_ALLOW);
+    list($insql, $inparams) = $DB->get_in_or_equal(array_keys($roles));
+
+    $sqlvars = array_merge(array($courseid), $inparams);
+
     $selectjoin = '';
     $tablejoin = '';
     if ($groupid) {
@@ -2040,11 +2117,12 @@ function report_learningtimecheck_get_users($courseid, $groupid = 0, $groupingid
         WHERE
             u.id = ue.id AND
             e.id = ue.enrolid AND
+            $enrollimitsclause
             ctx.contextlevel = 50 AND
             ctx.instanceid = ? AND
             ra.contextid = ctx.id AND
             ra.userid = u.id AND
-            ra.roleid = ? AND
+            ra.roleid $insql AND
             $selectjoin
             u.deleted = 0
     ";
@@ -2154,7 +2232,7 @@ function report_learningtimecheck_prepare_data($job, &$data, &$globals) {
                 $coursecontext = context_course::instance($course->id);
                 $fields = 'u.id, '.get_all_user_name_fields(true, 'u').', u.idnumber';
                 $sort = 'lastname, firstname';
-                $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $sort, 0, 0, 0 + @$job->groupid, '', false);
+                $targetusers = get_users_by_capability($coursecontext, 'report/learningtimecheck:isreported', $fields, $sort, 0, 0, 0 + @$job->groupid, '', false);
                 learningtimecheck_apply_rules($targetusers, $job->filters);
                 $data = report_learningtimecheck_course_results($job->itemids, $targetusers, $course->id, $globals, $options);
                 break;
@@ -2720,4 +2798,40 @@ function report_learningtimecheck_get_user_workdays($userid) {
 
     $params = array('userid' => $userid, 'eventtype' => 'user', 'uuid' => 'learningtimecheck');
     return $DB->get_records('event', $params);
+}
+
+function report_learningtimecheck_get_reader() {
+    return '\core\log\sql_reader';
+}
+
+
+/**
+ * Get the first connexion mark to a course by the user.
+ *
+ */
+function learningtimecheck_get_first_course_log($userid, $courseid) {
+    global $DB;
+
+    $logmanager = get_log_manager();
+    $readers = $logmanager->get_readers(report_learningtimecheck_get_reader());
+    $reader = reset($readers);
+
+    if (empty($reader)) {
+        return false; // No log reader found.
+    }
+
+    if ($reader instanceof \logstore_standard\log\store) {
+        $courseparm = 'courseid';
+        $timeparm = 'timecreated';
+        $logtable = 'logstore_standard_log';
+    } else if ($reader instanceof \logstore_legacy\log\store) {
+        $courseparm = 'course';
+        $timeparm = 'time';
+        $logtable = 'log';
+    } else {
+        return false;
+    }
+
+    $params = array('userid' => $userid, $courseparm => $courseid, 'origin' => 'web');
+    return $DB->get_field($logtable, 'MIN('.$timeparm.')', $params);
 }

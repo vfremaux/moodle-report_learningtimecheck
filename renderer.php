@@ -16,7 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/learningtimecheck/locallib.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 class report_learningtimecheck_renderer extends plugin_renderer_base {
 

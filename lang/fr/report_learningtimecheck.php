@@ -23,15 +23,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Temps d\'apprentissage';
+$string['pluginname'] = 'Rapport de temps d\'apprentissage';
 $string['learningtimecheck:view'] = 'Voir les rapports de temps';
 $string['learningtimecheck:viewother'] = 'Voir les rapports de temps d\'autres utilisateurs';
 $string['learningtimecheck:export'] = 'Exporter des données de marquage';
 $string['learningtimecheck:iswdsensitive'] = 'Est sensible aux contraintes des "jours ouvrés"';
+$string['learningtimecheck:isreported'] = 'Apparait dans les rapports et les exports';
 
 $string['page-report-learningtimecheck-index'] = 'Sommaire des rapports de temps';
 $string['page-report-learningtimecheck-x'] = 'Rapport de temps';
 
+$string['misc'] = 'Divers';
+$string['allowdisabledenrols'] = 'Autoriser les méthodes d\'inscription inactives';
+$string['allowdisabledenrols_desc'] = 'Si coché, les utilisateurs inscrits sur des méthodes d\'inscription désactivées sortiront dans les rapports.';
 $string['activeusers'] = 'Utilisateurs actifs';
 $string['addbatch'] = 'Ajouter un batch';
 $string['allusers'] = 'Tous les utilisateurs';
@@ -177,6 +181,9 @@ $string['sortbyname'] = 'Tri par nom';
 $string['sortbyrank'] = 'Tri par résultat';
 $string['sharebatch'] = 'Partager ce batch';
 $string['startrange'] = 'Début de période';
+$string['strfdatefullfmt'] = '%d %B %Y';
+$string['strfdatefmt'] = '%d-%m-%Y';
+$string['strfdatetimefmt'] = '%d/%m/%Y %H:%M';
 $string['backgroundcolor'] = 'Couleur de fond';
 $string['textcolor'] = 'Couleur de texte';
 $string['pdfcolors'] = 'Couleurs pdf';
@@ -195,6 +202,8 @@ $string['userchooser'] = 'Selection';
 $string['usercourseprogress'] = 'Progression du cours (en items)';
 $string['usercoursetimeprogress'] = 'Progression du cours (en temps)';
 $string['usercursusprogress'] = 'Progression du cursus';
+$string['userfirstconn'] = 'Premier accès';
+$string['userlastconn'] = 'Dernier accès';
 $string['useroptions'] = 'Options utilisateur actives : ';
 $string['userreport'] = 'Etudiant : {$a->firstname} {$a->lastname} [{$a->idnumber}]';
 $string['usertimeearned'] = 'temps acquis ';
