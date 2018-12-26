@@ -295,9 +295,9 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
     $table->printinfo = array(true, true, true, true, true, true, true, true);
 
     // Reports generation.
-    $table->xlshead = array('idnumber', 'lastname', 'firstname', 'progress', 'itemstodo', 'itemsdone', 'timetodo', 'timedone', 'doneratio', 'timeleft', 'leftratio');
-    $table->xlsprintctl = array('final', 'final', 'final', 'raw', 'final', 'final', 'final', 'final', 'final', 'raw', 'raw');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true);
+    $table->xlshead = array('username', 'idnumber', 'lastname', 'firstname', 'email', 'progress', 'itemstodo', 'itemsdone', 'timetodo', 'timedone', 'doneratio', 'timeleft', 'leftratio', 'firstaccess', 'lastaccess');
+    $table->xlsprintctl = array('final', 'final', 'final', 'final', 'final', 'raw', 'final', 'final', 'final', 'final', 'final', 'raw', 'raw', 'final', 'final');
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
     // Pdf header 1.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
@@ -398,17 +398,35 @@ function report_learningtimecheck_cohort_results($id, $cohortmembers, &$globals,
         $data[7] = learningtimecheck_format_time($timeleft).' ('.sprintf('%0d', $timeleftratio).'&nbsp;%)';
 
         // Prepare raw data for export.
-        $rawdata[0] = $u->idnumber;
-        $rawdata[1] = $u->lastname;
-        $rawdata[2] = $u->firstname;
-        $rawdata[3] = sprintf('%0d', $percentcomplete).'&nbsp;%'; // Change for row data.
-        $rawdata[4] = $useraggregate['totalitems'];
-        $rawdata[5] = $useraggregate['tickeditems'];
-        $rawdata[6] = $useraggregate['totaltime']; // Change for row data for further export conversion.
-        $rawdata[7] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
-        $rawdata[8] = $timedoneratio.'%'; // Change for row data for further export conversion.
-        $rawdata[9] = $timeleft; // Change for row data for further export conversion.
-        $rawdata[10] = $timeleftratio.'%'; // Change for row data for further export conversion.
+        $rawdata[0] = $u->username;
+        $rawdata[1] = $u->idnumber;
+        $rawdata[2] = $u->lastname;
+        $rawdata[3] = $u->firstname;
+        $rawdata[4] = $u->email;
+        $rawdata[5] = sprintf('%0d', $percentcomplete).'&nbsp;%'; // Change for row data.
+        $rawdata[6] = $useraggregate['totalitems'];
+        $rawdata[7] = $useraggregate['tickeditems'];
+        $rawdata[8] = $useraggregate['totaltime']; // Change for row data for further export conversion.
+        $rawdata[9] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
+        $rawdata[10] = $timedoneratio.'%'; // Change for row data for further export conversion.
+        $rawdata[11] = $timeleft; // Change for row data for further export conversion.
+        $rawdata[12] = $timeleftratio.'%'; // Change for row data for further export conversion.
+
+        $formatdate = get_string('strfdatetimefmt', 'report_learningtimecheck');
+        // Add last access and first access in course for xls export.
+        $firstconn = learningtimecheck_get_first_course_log($u->id, $courseid);
+        if ($firstconn > 0) {
+            $rawdata[13] = strftime($formatdate, $firstconn);
+        } else {
+            $rawdata[13] = '-';
+        }
+        $params = array('userid' => $u->id, 'courseid' => $courseid);
+        $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
+        if ($lastconn > 0) {
+            $rawdata[14] = strftime($formatdate, $lastconn);
+        } else {
+            $rawdata[14] = '-';
+        }
         $table->rawdata[] = $rawdata;
 
         $table->data[] = $data;
@@ -546,9 +564,9 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
     $table->colclasses = array('', '', '', '', '', '', '', 'highlighted', '');
 
     // Xls output.
-    $table->xlshead = array('shortname', 'lastname', 'firstname', 'groups', 'progress', 'itemstodo', 'doneitems', 'totaltime',
+    $table->xlshead = array('username', 'idnumber', 'lastname', 'firstname', 'email', 'groups', 'progress', 'itemstodo', 'doneitems', 'totaltime',
                             'donetime', 'doneratio', 'timeleft', 'leftratio', 'firstaccess', 'lastaccess');
-    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+    $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
     // The overline.
     $table->pdfhead1 = array('', '', '', $itemspdfstr, $timepdfstr);
@@ -685,18 +703,20 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
 
         // Prepare row data for export.
         $rawdata = array();
-        $rawdata[0] = $u->idnumber;
-        $rawdata[1] = $u->lastname;
-        $rawdata[2] = $u->firstname;
-        $rawdata[3] = $groupnames;
-        $rawdata[4] = sprintf('%0.2f', $percentcomplete).'%'; // Change for row data.
-        $rawdata[5] = $useraggregate['totalitems'];
-        $rawdata[6] = $useraggregate['tickeditems'];
-        $rawdata[7] = $useraggregate['totaltime'];
-        $rawdata[8] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
-        $rawdata[9] = $timedoneratio.'%';
-        $rawdata[10] = $timeleft; // Change for row data for further export conversion.
-        $rawdata[12] = $timeleftratio.'%';
+        $rawdata[0] = $u->username;
+        $rawdata[1] = $u->idnumber;
+        $rawdata[2] = $u->lastname;
+        $rawdata[3] = $u->firstname;
+        $rawdata[4] = $u->email;
+        $rawdata[5] = $groupnames;
+        $rawdata[6] = sprintf('%0.2f', $percentcomplete).'%'; // Change for row data.
+        $rawdata[7] = $useraggregate['totalitems'];
+        $rawdata[8] = $useraggregate['tickeditems'];
+        $rawdata[9] = $useraggregate['totaltime'];
+        $rawdata[10] = $useraggregate['tickedtimes']; // Change for row data for further export conversion.
+        $rawdata[11] = $timedoneratio.'%';
+        $rawdata[12] = $timeleft; // Change for row data for further export conversion.
+        $rawdata[13] = $timeleftratio.'%';
 
         $pdfdata = $data;
         $pdfdata[1] = fullname($u);
@@ -707,16 +727,16 @@ function report_learningtimecheck_course_results($id, $courseusers, $courseid, &
         // Add last access and first access in course for xls export.
         $firstconn = learningtimecheck_get_first_course_log($u->id, $courseid);
         if ($firstconn > 0) {
-            $rawdata[13] = strftime($formatdate, $firstconn);
+            $rawdata[14] = strftime($formatdate, $firstconn);
         } else {
-            $rawdata[13] = '-';
+            $rawdata[14] = '-';
         }
         $params = array('userid' => $u->id, 'courseid' => $courseid);
         $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
         if ($lastconn > 0) {
-            $rawdata[14] = strftime($formatdate, $lastconn);
+            $rawdata[15] = strftime($formatdate, $lastconn);
         } else {
-            $rawdata[14] = '-';
+            $rawdata[15] = '-';
         }
 
         $table->rawdata[] = $rawdata;
@@ -906,7 +926,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
     $table->colclasses = array('', '', '', 'highlighted', '', '', '');
 
     // Xls output.
-    $table->xlshead = array('idnumber', 'name', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby', 'firstaccess', 'lastaccess');
+    $table->xlshead = array('idnumber', 'itemname', 'credittime', 'earnedtime', 'marktime', 'isvalid', 'markedby');
     $table->xlsprintinfo = array(true, true, true, true, true, true, true, true, true);
 
     // Pdf output.
@@ -1047,6 +1067,7 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                         $rawdata[5] = ($isvalid) ? 'yes' : '';
                         $rawdata[6] = $marker;
                     }
+                    $table->rawdata[] = $rawdata;
 
                     $pdfdata = $rawdata;
                     if ($check->itemoptional != LTC_OPTIONAL_HEADING) {
@@ -1055,21 +1076,6 @@ function report_learningtimecheck_user_course_results($courseid, $user, &$global
                     }
                     $table->pdfdata[] = $pdfdata;
 
-                    // Add last access and first access in course for xls export.
-                    $firstconn = learningtimecheck_get_first_course_log($user->id, $courseid);
-                    if ($firstconn > 0) {
-                        $rawdata[7] = strftime($formatdate, $firstconn);
-                    } else {
-                        $rawdata[7] = '-';
-                    }
-                    $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
-                    if ($lastconn > 0) {
-                        $rawdata[8] = strftime($formatdate, $lastconn);
-                    } else {
-                        $rawdata[8] = '-';
-                    }
-
-                    $table->rawdata[] = $rawdata;
                 }
             }
         }
@@ -2166,9 +2172,11 @@ function check_group_authorisation($courseid, $groupid = 0, $groupingid = 0) {
         }
 
         if ($groupid) {
-            foreach ($mygroups as $gm) {
-                if ($gm->groupid == $groupid) {
-                    return true;
+            foreach ($mygroups as $groupingid => $groupinggroups) {
+                foreach ($groupinggroups as $gid) {
+                    if ($gid == $groupid) {
+                        return true;
+                    }
                 }
             }
         }

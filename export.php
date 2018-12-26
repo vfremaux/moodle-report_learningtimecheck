@@ -53,7 +53,7 @@ $debug = optional_param('debug', 0, PARAM_INT);
 // Some page params.
 
 // Security.
-if (!check_group_authorisation($id, $groupid, $groupingid)) {
+if (!check_group_authorisation($courseid, $groupid, $groupingid)) {
     print_error('invalidgroupaccess', 'report_learningtimecheck');
 }
 
