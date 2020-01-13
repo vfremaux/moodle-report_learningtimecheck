@@ -52,7 +52,7 @@ if ($users = $userselector->get_selected_users()) {
         $DB->delete_records('event', array('userid' => $u->id, 'eventtype' => 'user', 'uuid' => 'learningtimecheck'));
     }
 
-    $marks = report_learningtimecheck_get_user_workdays($u->id);
+    $marks = report_learningtimecheck::get_user_workdays($u->id);
     $results = true;
 }
 
@@ -81,7 +81,7 @@ if ($results) {
         $table->width = '90%';
         $table->size = array('50%', '50%');
         foreach ($marks as $ev) {
-            $table->data[] = array(userdate($ev->timestart), report_learningtimecheck_extract_eventkey($ev));
+            $table->data[] = array(userdate($ev->timestart), report_learningtimecheck::extract_eventkey($ev));
         }
         echo html_writer::table($table);
     }
