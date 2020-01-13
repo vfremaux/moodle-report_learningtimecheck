@@ -69,6 +69,9 @@ if ($data = $form->get_data()) {
     if (!isset($data->hidenocredittime)) {
         $data->hidenocredittime = 0;
     }
+    if (!isset($data->showoptional)) {
+        $data->showoptional = 0;
+    }
 
     $DB->delete_records('report_learningtimecheck_opt', array('userid' => $USER->id));
 
@@ -81,6 +84,7 @@ if ($data = $form->get_data()) {
         $rec->name = $key;
         $rec->value = trim($value);
         $DB->insert_record('report_learningtimecheck_opt', $rec);
+        $SESSION->learningtimecheck_report->$key = trim($value);
     }
 
     if ($data->return) {
@@ -98,7 +102,7 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('myreportoptions', 'report_learningtimecheck'));
 
-$formdata = (object)report_learningtimecheck_get_user_options();
+$formdata = (object)report_learningtimecheck::get_user_options();
 if (array_key_exists('workdays', $formdata)) {
     $formdata->workday = explode(',', $formdata->workdays);
     unset($formdata->workdays);

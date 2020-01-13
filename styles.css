@@ -17,11 +17,15 @@
     background-color:white;
 }
 
-.report-learningtimecheck-siteadmin{
+.report-learningtimecheck-siteadmin {
     background-color:#fff0f0;
     border:1px solid #ffd0d0;
     padding:5px;
     margin-top:5px;
+}
+
+.report-learningtimecheck-batchcell {
+    justify-content: space-around;
 }
 
 .report-learningtimecheck-batchcell.commands {
@@ -38,25 +42,31 @@
     display:none;
 }
 
-#report-learningtimecheck-buttons{
+#report-learningtimecheck-buttons {
     line-height:24px;
 }
 
-#learningtimecheck-user-options > img {
+#report-ltc-user-options {
+    margin: 5px 0px;
+}
+
+#report-ltc-user-options > img {
     vertical-align: middle;
+    width: 32px;
+    height: 32px;
 }
 
 #report-learningtimecheck-batch-commands {
     margin-top:30px;
 }
 
-.report-learningtimecheck-dataloss-advice {
+.report-ltc-dataloss-advice {
     background-color: #FFCDC0; /* light red */
     padding: 2px;
     border-radius: 5px;
 }
 
-.report-learningtimecheck-shadow {
+.report-ltc-shadow {
     opacity: 0.3;
     -moz-opacity: 0.3;
 }
