@@ -73,6 +73,12 @@ class UserOptionsForm extends moodleform {
         $mform->setType('hidenocredittime', PARAM_BOOL);
         $mform->addHelpButton('hidenocredittime', 'hidenocredittime', 'report_learningtimecheck');
 
+        /*
+        $mform->addElement('checkbox', 'showoptional', get_string('showoptional', 'report_learningtimecheck'));
+        $mform->setType('showoptional', PARAM_BOOL);
+        $mform->addHelpButton('showoptional', 'showoptional', 'report_learningtimecheck');
+        */
+
         $progressbaroptions = array(PROGRESSBAR_ITEMS => get_string('itemsprogress', 'report_learningtimecheck'),
             PROGRESSBAR_TIME => get_string('timeprogress', 'report_learningtimecheck'),
             PROGRESSBAR_BOTH => get_string('both', 'report_learningtimecheck'));

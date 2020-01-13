@@ -96,7 +96,7 @@ if (!has_capability('report/learningtimecheck:viewother', $context)) {
 
 if ($candidates) {
     echo $OUTPUT->heading(get_string('profilefieldreport', 'report_learningtimecheck', $profilefield));
-    $table = report_learningtimecheck_cohort_results($id, $candidates);
+    $table = report_learningtimecheck::cohort_results($id, $candidates);
 
     $params = array('profilefield' => $profilefieldid, 'conditions' => $conditions);
 
@@ -106,7 +106,7 @@ if ($candidates) {
     echo report_learningtimecheck_renderer::print_export_pdf_button('profile', $params, true);
     echo report_learningtimecheck_renderer::print_back_search_button('profile', $id);
     echo report_learningtimecheck_renderer::print_user_options_button('profile', $id, $params);
-    $options = report_learningtimecheck_get_user_options();
+    $options = report_learningtimecheck::get_user_options();
     echo report_learningtimecheck_renderer::print_send_to_batch_button('profile', $id, $params, $options);
 
     echo $OUTPUT->box_start('learningtimecheck-progressbar');

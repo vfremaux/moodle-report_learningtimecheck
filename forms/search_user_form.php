@@ -38,6 +38,9 @@ class SearchUserForm extends moodleform {
         $mform->addElement('hidden', 'view', 'user');
         $mform->setType('view', PARAM_ALPHA);
 
+        $mform->addElement('hidden', 'page', 0);
+        $mform->setType('page', PARAM_INT);
+
         $mform->addElement('text', 'searchpattern');
         $mform->setType('searchpattern', PARAM_TEXT);
 

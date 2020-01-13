@@ -21,29 +21,29 @@ abstract class learningtimecheck_exporter {
     /**
      * The imput data that is used by the content formatter to produce file content
      */
-    var $data;
+    public $data;
 
     /**
      * Some potential additionnal data a content formatter may need
      */
-    var $globals;
+    public $globals;
 
     /**
      * The content that will be produced by the exporter
      */
-    var $content;
+    public $content;
 
     /**
      * An object giving export context such as ecxplicit output type and exported item information
      */
-    var $exportcontext;
-    
+    public $exportcontext;
+
     /**
      * the pathed filename
      */
-    var $filename;
+    public $filename;
 
-    function __construct($exportcontext = null) {
+    public function __construct($exportcontext = null) {
         $this->exportcontext = $exportcontext;
     }
 
@@ -61,7 +61,7 @@ abstract class learningtimecheck_exporter {
      * The generic output function. Can return a true document content, 
      * or an HTTP ready to send document if required.
      */
-    function output($return = false) {
+    public function output($return = false) {
         if ($this->data == null) {
             throw new coding_exception('Data not initialized');
         }
@@ -89,7 +89,7 @@ abstract class learningtimecheck_exporter {
     /**
      *
      */
-    function save_content($tempdirectory = null) {
+    public function save_content($tempdirectory = null) {
         global $CFG;
 
         if ($this->data == null) {
@@ -102,7 +102,7 @@ abstract class learningtimecheck_exporter {
 
         $fs = get_file_storage();
 
-        $itemidentifier = report_learningtimecheck_get_itemidentifier($this->exportcontext->exporttype, $this->exportcontext->exportitem);
+        $itemidentifier = report_learningtimecheck::get_itemidentifier($this->exportcontext->exporttype, $this->exportcontext->exportitem);
 
         if (is_string($this->content)) {
             if (empty($tempdirectory)) {
@@ -130,7 +130,68 @@ abstract class learningtimecheck_exporter {
         }
     }
 
-    function get_filename() {
+    public function get_filename() {
         return $this->filename;
+    }
+
+    /**
+     * Splits all details and render them in files, then pack the file and delivers its back as a storedfile.
+     */
+    public static function export_detail($job, $data, $contextid, $filearea) {
+        global $CFG;
+
+        // Make temp.
+        $gendate = date('Ymd_His', time());
+        $tempdirectory = 'ltc_report_'.$gendate;
+
+        make_temp_directory($tempdirectory);
+
+        switch ($job->type) {
+            case 'user':
+                $detailexporttype = 'userdetail';
+                break;
+
+            case 'course':
+                $detailexporttype = 'userdetail';
+                break;
+
+            case 'cohort':
+                $detailexporttype = 'usercursus';
+                break;
+        }
+
+        $reportidentifier = report_learningtimecheck::get_itemidentifier($job->type, $job->itemids);
+        $exportname = $job->type.'_'.$reportidentifier.'_'.date('YmdHi', time()).'.'.$job->output;
+
+        // Produce.
+        foreach ($data as $itemid => $reportdata) {
+            $exportcontext = new StdClass();
+            $exportcontext->exporttype = $detailexporttype;
+            $exportcontext->exportitem = $itemid;
+            $exportcontext->param = $job->param;
+            $exportcontext->contextid = $contextid;
+            $exportcontext->output = $job->output;
+            $exportcontext->exportfilename = $detailexporttype.'_'.$itemid.'_'.date('Ymd-Hi', time());
+
+            $classname = $job->output.'_exporter';
+            $exporter = new $classname($exportcontext);
+            $exporter->set_data($reportdata->data, $globals[$itemid]);
+            $exporter->output_content();
+            $exporter->save_content($tempdirectory);
+        }
+
+        $files['reports'] = $CFG->tempdir.'/'.$tempdirectory;
+
+        // Finally zip everything.
+
+        $packer = new zip_packer();
+        $exportname = preg_replace('/\\.'.$job->output.'$/', '.zip', $exportname);
+
+        if (!$storedfile = $packer->archive_to_storage($files, $contextid, 'report_learningtimecheck',
+                                                       $filearea, 0, '/', $exportname)) {
+            mtrace('Failure in archiving.');
+            die;
+        }
+        return $storedfile;
     }
 }

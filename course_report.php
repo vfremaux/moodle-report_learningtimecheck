@@ -74,10 +74,10 @@ if ($searchmode) {
             $select = " fullname LIKE '%{$data->searchpattern}%' ";
             $results = $DB->get_records_select('course', $select, array(), 'sortorder', 'id,shortname,idnumber,fullname,summary');
             if ($results) {
-                $mycourses = get_my_courses();
+                $mycourses = enrol_get_my_courses('id, shortname, fullname');
                 $mycourseids = array_keys($mycourses);
                 foreach ($results as $resid => $result) {
-                    if (!in_array($resid, $results) && !has_capability('moodle/site:config', $systemcontext)) {
+                    if (!in_array($resid, $mycourseids) && !has_capability('moodle/site:config', $systemcontext)) {
                         unset($results[$resid]);
                     }
                 }
@@ -147,7 +147,7 @@ if (!$allgroupsaccess) {
         if ($groupid) {
             $groupid = groups_get_course_group($course, true); // update currently registered active group
         }
-        $targetusers = report_learningtimecheck_get_users($course->id, $groupid);
+        $targetusers = report_learningtimecheck::get_users($course->id, $groupid);
     } else {
         echo $OUTPUT->notification(get_string('errornotingroups', 'report_trainingsessions'));
         echo $OUTPUT->footer($course);
@@ -159,7 +159,7 @@ if (!$allgroupsaccess) {
         $groupingid = optional_param('groupingid', 0, PARAM_INT);
         if (!empty($groupings)) {
             echo get_string('groupings', 'group').': ';
-            echo report_learningtimecheck_groupings_print_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')));
+            echo report_learningtimecheck::groupings_print_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')));
         }
         if ($groupingid) {
             $targetusers = array();
@@ -167,17 +167,17 @@ if (!$allgroupsaccess) {
                 $alluserscount;
                 foreach ($groupinggroups as $gpm) {
                     // Aggregate all groups in grouping.
-                    $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u'), $orderby, 0, 0, $gpm->groupid, '', false);
+                    $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email', $orderby, 0, 0, $gpm->groupid, '', false);
                     if ($allusers) {
                         $alluserscount = $alluserscount + count($allusers);
-                        $targetusers = $targetusers + get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u'), $orderby, $from, $pagesize, $gpm->groupid, '', false);
+                        $targetusers = $targetusers + get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email', $orderby, $from, $pagesize, $gpm->groupid, '', false);
                     }
                 }
             }
         } else {
             // This capability is usually given to students.
-            $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber', $orderby, 0, 0, 0, '', false);
-            $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber', $orderby, $from, $pagesize, 0, '', false);
+            $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber,u.username, u.email', $orderby, 0, 0, 0, '', false);
+            $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber,u.username, u.email', $orderby, $from, $pagesize, 0, '', false);
             $alluserscount = count($allusers);
         }
     } else {
@@ -185,8 +185,8 @@ if (!$allgroupsaccess) {
         echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')), true);
         $groupid = optional_param('group', 0, PARAM_INT);
         groups_get_course_group($course, true); // update currently registered active group
-        $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber', 'lastname, firstname', 0, 0, $groupid, '', false);
-        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber', 'lastname, firstname', $from, $pagesize, $groupid, '', false);
+        $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email,u.idnumber', 'lastname, firstname', 0, 0, $groupid, '', false);
+        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email,u.idnumber', 'lastname, firstname', $from, $pagesize, $groupid, '', false);
         $alluserscount = count($allusers);
     }
 }
@@ -198,16 +198,20 @@ $renderer = $PAGE->get_renderer('learningtimecheck');
 
 echo $renderer->print_event_filter($thisurl, $thisurl, 'report', $itemid);
 echo $reportrenderer->options($view, $id, $itemid);
-$useroptions = report_learningtimecheck_get_user_options();
+$useroptions = report_learningtimecheck::get_user_options();
 
 $userurl = new moodle_url('/course/view.php', array('id' => $course->id));
 $course->fullname = '<a href="'.$userurl.'">'.$course->fullname.'</a>';
 
 if (!empty($targetusers)) {
     $globals = array();
-    $coursetable = report_learningtimecheck_course_results($id, $targetusers, $course->id, $globals, $useroptions);
+    $coursetable = report_learningtimecheck::course_results($id, $targetusers, $course->id, $globals, $useroptions);
 
-    echo $OUTPUT->heading(get_string('coursereport', 'report_learningtimecheck', $course));
+    $e = new StdClass;
+    $e->fullname = $course->fullname;
+    $e->shortname = htmlentities($course->shortname);
+    $e->idnumber = htmlentities($course->idnumber);
+    echo $OUTPUT->heading(get_string('coursereport', 'report_learningtimecheck', $e));
 
     echo '<div id="report-learningtimecheck-buttons">';
     echo $reportrenderer->print_export_excel_button($id, 'course', $course->id);

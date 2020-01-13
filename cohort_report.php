@@ -36,11 +36,16 @@ if (empty($itemid)) {
 
      $form = new SearchCohortForm();
 
+    $contextsystem = context_system::instance();
+
     if ($data = $form->get_data()) {
-         $select = " name LIKE '%{$data->searchpattern}%' ";
-         $results = $DB->get_records_select('cohort', $select, array('contextid' => $context->id), 'name', 'id,name,description');
+        $select = " name LIKE ? AND (contextid = ? OR contextid = ?) ";
+        $params = ["%{$data->searchpattern}%", $context->id, $contextsystem->id];
+        $results = $DB->get_records_select('cohort', $select, $params, 'name', 'id,name,description');
+        $canhavemore = false;
     } else {
-         $results = $DB->get_records('cohort', array('contextid' => $context->id), 'name', '*', 0, 10);
+        $results = $DB->get_records_select('cohort', "contextid = ? OR contextid = ?", [$context->id, $contextsystem->id], 'name', '*', 0, 10);
+        $canhavemore = true;
     }
 
     $formdata = new Stdclass;
@@ -65,6 +70,10 @@ if (empty($itemid)) {
 
         echo html_writer::table($table);
 
+        if ($canhavemore) {
+            echo '...<br/>';
+        }
+
     } else {
         echo $OUTPUT->box(get_string('noresults', 'report_learningtimecheck'));
     }
@@ -75,16 +84,16 @@ if (empty($itemid)) {
 $cohort = $DB->get_record('cohort', array('id' => $itemid));
 
 $renderer = $PAGE->get_renderer('mod_learningtimecheck');
-$cohortmembers = report_learningtimecheck_get_cohort_users($itemid);
+$cohortmembers = report_learningtimecheck::get_cohort_users($itemid);
 echo $renderer->print_event_filter($thisurl, $thisurl, 'report', $view, $itemid);
 echo $reportrenderer->options($view, $id, $itemid);
-$useroptions = report_learningtimecheck_get_user_options();
+$useroptions = report_learningtimecheck::get_user_options();
 
 learningtimecheck_apply_rules($cohortmembers);
 
 if ($cohortmembers) {
 
-    $table = report_learningtimecheck_cohort_results($id, $cohortmembers, $globals, $useroptions);
+    $table = report_learningtimecheck::cohort_results($id, $cohortmembers, $globals, $useroptions);
 
     echo $OUTPUT->heading(get_string('cohortreport', 'report_learningtimecheck', $cohort));
 
