@@ -453,7 +453,7 @@ class report_learningtimecheck {
             } else {
                 $rawdata[13] = '-';
             }
-            $params = array('userid' => $u->id);
+            $params = array('userid' => $u->id, 'courseid' => $courseid);
             $lastconn = $DB->get_field('user_lastaccess', 'timeaccess', $params);
             if ($lastconn > 0) {
                 $rawdata[14] = strftime($formatdate, $lastconn);
@@ -1879,8 +1879,9 @@ class report_learningtimecheck {
             }
 
             if ($check->course->format == 'page') {
+                include_once($CFG->dirroot.'/course/format/page/classes/page.class.php');
                 // If paged, check the module is on a visible page.
-                if (!course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
+                if (!\format\page\course_page::is_module_visible($CMCACHE[$check->moduleid], false)) {
                     if ($debug) {
                         mtrace("Report rejected as not visible (page)");
                     }
