@@ -207,7 +207,11 @@ if (!empty($targetusers)) {
     $globals = array();
     $coursetable = report_learningtimecheck::course_results($id, $targetusers, $course->id, $globals, $useroptions);
 
-    echo $OUTPUT->heading(get_string('coursereport', 'report_learningtimecheck', $course));
+    $e = new StdClass;
+    $e->fullname = $course->fullname;
+    $e->shortname = htmlentities($course->shortname);
+    $e->idnumber = htmlentities($course->idnumber);
+    echo $OUTPUT->heading(get_string('coursereport', 'report_learningtimecheck', $e));
 
     echo '<div id="report-learningtimecheck-buttons">';
     echo $reportrenderer->print_export_excel_button($id, 'course', $course->id);

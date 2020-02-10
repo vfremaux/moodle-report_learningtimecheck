@@ -228,7 +228,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $course = $DB->get_record('course', array('id' => $batch->itemids));
                         if (!$course) {
                             // Course has gone away
-                            continue 2;
+                            continue;
                         }
                         $row[] = $batch->name.'<br/>['.$course->shortname.'] '.$course->fullname;
                         break;
@@ -237,7 +237,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name');
                         if (!$cohort) {
                             // Cohort has gone away.
-                            continue 2;
+                            continue;
                         }
                         $row[] = $batch->name.'<br/>'.$cohort->name;
                         break;
@@ -419,7 +419,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $str .= '<input type="submit" name="addbatch" value="'.$addbatchstr.'" />';
         // $str .= '<input type="submit" name="makebatchfrommarks" value="'.$makebatchstr.'" />';
         $str .= '<input type="submit" name="clearownedresults" value="'.$clearownedresultsstr.'"/>';
-        
+
         $systemcontext = context_system::instance();
         if (has_capability('moodle/site:config', $systemcontext)) {
             $str .= '<br/>';

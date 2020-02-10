@@ -59,10 +59,10 @@ $string['clearowned'] = 'Supprimer mes programmations';
 $string['clearownedresults'] = 'Supprimer mes résultats';
 $string['clearusermarks'] = 'Effacer les marques';
 $string['cohort'] = 'Cohorte';
-$string['cohortreport'] = 'Cohorte : {$a->name} [{$a->idnumber}]';
+$string['cohortreport'] = 'Cohorte : <span title="[{$a->idnumber}]">{$a->name}</span>';
 $string['columnoptions'] = 'Options des données de rapports';
 $string['course'] = 'Cours';
-$string['coursereport'] = 'Cours : {$a->shortname} {$a->fullname} [{$a->idnumber}]';
+$string['coursereport'] = 'Cours : <span title="({$a->shortname}) [{$a->idnumber}]">{$a->fullname}</span>';
 $string['days'] = 'Jour ';
 $string['detail'] = 'Batch de détail';
 $string['disabled'] = 'Inactif';
@@ -204,7 +204,7 @@ $string['usercoursetimeprogress'] = 'Progression du cours (en temps)';
 $string['usercursusprogress'] = 'Progression du cursus';
 $string['userfirstconn'] = 'Premier accès';
 $string['userlastconn'] = 'Dernier accès';
-$string['useroptions'] = 'Options utilisateur actives : ';
+$string['useroptions'] = 'Options d\'affichage :';
 $string['userreport'] = 'Etudiant : {$a->firstname} {$a->lastname} [{$a->idnumber}]';
 $string['usertimeearned'] = 'temps acquis ';
 $string['userreportlink'] = 'Temps d\'apprentissage';
@@ -222,7 +222,7 @@ $string['workinghours'] = 'Heures ouvrables';
 $string['workinghours_desc'] = 'La mesure des temps d\'apprentissage peut filtrer les périodes sur la base d\'une définition d\'heures ouvrables. Il est possible par ce mécanisme de discriminer les temps d\'apprentissage "en centre" des temps "personnels" hors heures ouvrables.';
 $string['workstarttime'] = 'Début heures ouvrables';
 $string['worktimefilter'] = 'Horaires hebdomadaires ';
-$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" : 
+$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" :
 <ul><li>format CSV UTF-8</li>
 <li>Lignes séparées par des retours chariot</li>
 <li>Champs séparés par des points-virgule</li>
@@ -308,8 +308,8 @@ $string['xlsfirstaccess'] = 'premier acces';
 $string['xlslastaccess'] = 'dernier acces';
 
 $string['sortby'] = 'Trier les rapports';
-$string['sortbyname'] = 'par nom (asc)';
-$string['sortbyachievement'] = 'par achèvement (desc)';
+$string['sortbyname'] = 'par nom';
+$string['sortbyachievement'] = 'par achèvement';
 
 $string['plugindist_desc'] = '
 <p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
