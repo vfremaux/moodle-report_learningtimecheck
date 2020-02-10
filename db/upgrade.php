@@ -174,5 +174,32 @@ function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
         upgrade_plugin_savepoint(true, 2015050200, 'report', 'learningtimecheck');
     }
 
+    if ($oldversion < 2019041300) {
+
+        // Define table report_learningtimecheck_btc to be created.
+        $table = new xmldb_table('report_learningtimecheck_ud');
+
+        // Adding fields to table report_learningtimecheck_btc.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('charvalue', XMLDB_TYPE_CHAR, '64', null, null, null, null);
+        $table->add_field('intvalue', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
+
+        // Adding keys to table report_learningtimecheck_btc.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        $table->add_index('ix_userid_contextid_name', XMLDB_INDEX_UNIQUE, array('userid','contextid', 'name'));
+
+        // Conditionally launch create table for report_learningtimecheck_btc.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Learningtimecheck savepoint reached.
+        upgrade_plugin_savepoint(true, 2019041300, 'report', 'learningtimecheck');
+    }
+
     return $result;
 }

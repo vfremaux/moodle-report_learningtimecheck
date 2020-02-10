@@ -46,7 +46,7 @@ require_capability('moodle/site:config', $systemcontext);
 
 echo $OUTPUT->header();
 
-echo '<h2>Test : report_learningtimecheck_crop_session</h2>';
+echo '<h2>Test : report_learningtimecheck::crop_session</h2>';
 
 echo "<p>session 1 : start 02/01/2015 6:00 end 02/01/2015 7:00<br/>";
 echo "<p>session 2 : start 02/01/2015 6:00 end 02/01/2015 10:00<br/>";
@@ -86,31 +86,31 @@ $session6->sessionstart = mktime(19, 0, 0, 1, 2, 2015);
 $session6->sessionend = mktime(21, 0, 0, 1, 2, 2015);
 $session6->elapsed = $session6->sessionend - $session6->sessionstart;
 
-report_learningtimecheck_crop_session($session1, $config);
+report_learningtimecheck::crop_session($session1, $config);
 print_object($session1);
 print_visible_dates($session1);
 
-report_learningtimecheck_crop_session($session2, $config);
+report_learningtimecheck::crop_session($session2, $config);
 print_object($session2);
 print_visible_dates($session2);
 
-report_learningtimecheck_crop_session($session3, $config);
+report_learningtimecheck::crop_session($session3, $config);
 print_object($session3);
 print_visible_dates($session3);
 
-report_learningtimecheck_crop_session($session4, $config);
+report_learningtimecheck::crop_session($session4, $config);
 print_object($session4);
 print_visible_dates($session4);
 
-report_learningtimecheck_crop_session($session5, $config);
+report_learningtimecheck::crop_session($session5, $config);
 print_object($session5);
 print_visible_dates($session5);
 
-report_learningtimecheck_crop_session($session6, $config);
+report_learningtimecheck::crop_session($session6, $config);
 print_object($session6);
 print_visible_dates($session6);
 
-echo '<h2>Test : report_learningtimecheck_splice_session</h2>';
+echo '<h2>Test : report_learningtimecheck::splice_session</h2>';
 
 echo "<p>session 1 : start 02/01/2015 6:00 end 02/01/2015 7:00<br/>";
 echo "<p>session 2 : start 02/01/2015 6:00 end 03/01/2015 6:00<br/>";
@@ -145,35 +145,35 @@ $session5->sessionend = mktime(10, 0, 0, 1, 7, 2015);
 $session5->elapsed = $session5->sessionend - $session5->sessionstart;
 
 echo '<h3>single day session</h3>';
-$sessions = report_learningtimecheck_splice_session($session1);
+$sessions = report_learningtimecheck::splice_session($session1);
 print_object($sessions);
 foreach($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>one day session</h3>';
-$sessions = report_learningtimecheck_splice_session($session2);
+$sessions = report_learningtimecheck::splice_session($session2);
 print_object($sessions);
 foreach($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>one day session later start</h3>';
-$sessions = report_learningtimecheck_splice_session($session3);
+$sessions = report_learningtimecheck::splice_session($session3);
 print_object($sessions);
 foreach($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>two days session</h3>';
-$sessions = report_learningtimecheck_splice_session($session4);
+$sessions = report_learningtimecheck::splice_session($session4);
 print_object($sessions);
 foreach($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>five days session</h3>';
-$sessions = report_learningtimecheck_splice_session($session5);
+$sessions = report_learningtimecheck::splice_session($session5);
 print_object($sessions);
 foreach($sessions as $s) {
     print_visible_dates($s);

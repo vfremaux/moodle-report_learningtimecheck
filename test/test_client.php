@@ -96,9 +96,9 @@ $client = new test_client();
 $ix = 1;
 
 echo "\n\nTest $ix ###########";
+$client->test_get_user_data('id', 2, 'id', 3); // Test a user a course.
 $client->test_get_user_data('id', 2); // Test one course all users.
 $client->test_get_user_data('', '', 'id', 3); // Test one user, all courses.
-$client->test_get_user_data('id', 2, 'id', 3); // Test a user a course.
 $client->test_get_user_data('', '', 'id', 3, 'all', 50); // Test all user having less or equal to 50%
 
 $ix++;

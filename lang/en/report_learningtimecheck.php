@@ -30,6 +30,13 @@ $string['learningtimecheck:export'] = 'Export data from checks';
 $string['learningtimecheck:iswdsensitive'] = 'Is sensible to "working days" filtering';
 $string['learningtimecheck:isreported'] = 'Appears in reports and exports';
 
+$string['privacy:metadata:report_learningtimecheck_ud'] = 'Metadata cached for the user';
+$string['privacy:metadata:report_learningtimecheck_ud:contextid'] = 'Moodle context id in which the metadata is stored';
+$string['privacy:metadata:report_learningtimecheck_ud:userid'] = 'User for which the metadata is stored';
+$string['privacy:metadata:report_learningtimecheck_ud:name'] = 'Name of the metadata';
+$string['privacy:metadata:report_learningtimecheck_ud:charvalue'] = 'Textual value of the metadata when textual';
+$string['privacy:metadata:report_learningtimecheck_ud:intvalue'] = 'Numeric value of the metadata when numeric';
+
 $string['page-report-learningtimecheck-x'] = 'Learning time report';
 $string['page-report-learningtimecheck-index'] = 'Learning time report index';
 
@@ -61,10 +68,10 @@ $string['clearowned'] = 'Clear owned tasks';
 $string['clearownedresults'] = 'Clear owned results';
 $string['clearusermarks'] = 'Clear marks for this user';
 $string['cohort'] = 'Cohort';
-$string['cohortreport'] = 'Cohort : {$a->name} [{$a->idnumber}]';
+$string['cohortreport'] = 'Cohort : <span title="[{$a->idnumber}]">{$a->name}</span>';
 $string['columnoptions'] = 'Report Layout Options';
 $string['course'] = 'Course';
-$string['coursereport'] = 'Course : {$a->shortname} {$a->fullname} [{$a->idnumber}]';
+$string['coursereport'] = 'Course : <span title="({$a->shortname}) [{$a->idnumber}]">{$a->fullname}</span>';
 $string['days'] = 'Days ';
 $string['detail'] = 'Detail batch';
 $string['detail'] = 'Detail';
@@ -81,7 +88,7 @@ $string['eventkey'] = 'Workday event key';
 $string['exportcsv'] = 'Export as CSV';
 $string['exportcsvdetail'] = 'Export detailed as CSV';
 $string['exportpdf'] = 'Export as PDF';
-$string['exportpdfcursus'] = 'Export full cursus as PDF';
+$string['exportpdfcursus'] = 'Export detailed cursus as PDF';
 $string['exportpdfdetail'] = 'Export detailed as PDF';
 $string['exportxls'] = 'Export as Excel';
 $string['exportxlsdetail'] = 'Export detailed as Excel';
@@ -181,6 +188,7 @@ $string['searchincategories'] = 'Search by categories';
 $string['selfmarked'] = 'Self';
 $string['senddetailtobatch'] = 'Send details to batchs';
 $string['sendtobatch'] = 'Send to batchs';
+$string['showoptional'] = 'Show optional items';
 $string['sortbyname'] = 'sort by name';
 $string['sortbyrank'] = 'sort by achievement';
 $string['sharebatch'] = 'Share this batch';
@@ -202,6 +210,7 @@ $string['torun'] = 'To be run';
 $string['type'] = 'Report type';
 $string['updatetype'] = '(Not shown)';
 $string['user'] = 'User';
+$string['userreportlink'] = 'User Learning Time Check report';
 $string['userchooser'] = 'Select applicable users';
 $string['usercourseprogress'] = 'User progress in course (items)';
 $string['usercoursetimeprogress'] = 'User progress in course (learningtime)';
@@ -229,7 +238,7 @@ $string['workingstart'] = 'Heure de début';
 $string['workingstart_desc'] = 'Heure de début de journée de travail';
 $string['workstarttime'] = 'Work start time';
 $string['worktimefilter'] = 'Worktime Filter';
-$string['wdfile_help'] = 'Working Day file format: 
+$string['wdfile_help'] = 'Working Day file format:
 <ul><li>File format: CSV UTF-8
 <li>New line line endings</li>
 <li>Semi-columns field separator (;)</li>
@@ -296,10 +305,29 @@ $string['sortby'] = 'Sort reports';
 $string['sortbyname'] = 'by name (asc)';
 $string['sortbyachievement'] = 'by achievement (desc)';
 
+$string['xlsshortname'] = 'shortname';
+$string['xlsidnumber'] ='idnumber';
+$string['xlscredittime'] ='credittime';
+$string['xlsearnedtime'] ='earnedtime';
+$string['xlsmarktime'] ='marktime';
+$string['xlsisvalid'] ='isvalid';
+$string['xlsmarkedby'] ='markedby';
+$string['xlsname'] ='name';
+$string['xlsfullname'] = 'fullname';
+$string['xlsprogress'] = 'progress';
+$string['xlsitemstodo'] = 'itemstodo';
+$string['xlsitemsdone'] = 'itemsdone';
+$string['xlstimetodo'] = 'timetodo';
+$string['xlsdonetime'] =  'donetime';
+$string['xlstimedoneratio'] = 'timedoneratio';
+$string['xlstimeleft'] = 'timeleft';
+$string['xlstimeleftratio'] = 'timeleftratio';
+$string['xlsfirstaccess'] = 'firstaccess';
+$string['xlslastaccess'] = 'lastaccess';
+
 $string['plugindist_desc'] = '
 <p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
-<p>Note that both components local_sharedresources and mod_sharedresource must work using the same distribution level.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
 <p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';

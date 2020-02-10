@@ -1,7 +1,7 @@
 
 
 
-<!-- pdf_button -->
+<!-- report_learningtimecheck/pdf_button -->
 <form style="display: inline;" action="{{{formurl}}}" method="get" target="_blank">
     <input type="hidden" name="sesskey" value="{{{sesskey}}}" />
     <input type="hidden" name="id" value="{{origincourseid}}" />
@@ -13,7 +13,7 @@
     <input type="hidden" name="output" value="pdf" />
 
 {{#detail}}
-    input type="hidden" name="detail" value="1" />
+    <input type="hidden" name="detail" value="1" />
     <input type="submit" name="export" value="{{label}}" />
 {{/detail}}
 {{^detail}}
@@ -21,4 +21,4 @@
     <input type="submit" name="export" value="{{label}}" />
 {{/detail}}
 </form>
-<!-- /pdf_button -->
+<!-- /report_learningtimecheck/pdf_button -->

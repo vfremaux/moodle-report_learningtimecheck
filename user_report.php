@@ -31,20 +31,27 @@ require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_user_form.php
 require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
 $itemid = optional_param('itemid', null, PARAM_INT); // Item is a user
-$page = optional_param('page', 0, PARAM_INT);
+$page = optional_param('page', false, PARAM_INT);
+$searchpattern = optional_param('searchpattern', '', PARAM_TEXT);
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
 $mygroups = groups_get_user_groups($fromcourse->id, $USER->id);
 $pagesize = 50;
 $alluserscount = 0;
 
+// echo "$itemid/$page/$searchpattern";
+
 if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $context)) {
 
     $form = new SearchUserForm();
+    $formdata = array('searchpattern' => $searchpattern);
+    $form->set_data($formdata);
 
     $pagerecnum = $page * $pagesize;
 
-    if ($data = $form->get_data()) {
-         $select = " firstname LIKE '%{$data->searchpattern}%' OR lastname LIKE '%{$data->searchpattern}%' ";
+    $searchpattern = core_text::strtoupper($searchpattern);
+
+    if (($page !== false) || !empty($searchattern) || !empty($itemid)) {
+         $select = "(UPPER(firstname) LIKE '%{$searchpattern}%' OR UPPER(lastname) LIKE '%{$searchpattern}%') AND deleted = 0";
          $alluserscount = $DB->count_records_select('user', $select, array());
          $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,'.get_all_user_name_fields(true, ''), $pagerecnum, $pagesize);
     }
@@ -57,22 +64,34 @@ if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $cont
     echo $OUTPUT->heading(get_string('results', 'report_learningtimecheck'));
 
     if (!empty($results)) {
+
+        foreach ($results as $uid => $user) {
+            if (!report_learningtimecheck::is_user_visible($user, $allgroupsaccess, $mygroups)) {
+                $alluserscount --;
+                unset($results[$uid]);
+                continue;
+            }
+        }
+    }
+
+    if (!empty($results)) {
         $table = new html_table();
         $table->head = array('');
         $table->width = '100%';
 
         foreach ($results as $uid => $user) {
-            if (!report_learningtimecheck_is_user_visible($user, $allgroupsaccess, $mygroups)) {
+            if (!report_learningtimecheck::is_user_visible($user, $allgroupsaccess, $mygroups)) {
+                $alluserscount --;
                 continue;
             }
             $table->data[] = array('<a href="'.$thisurl.'?id='.$id.'&view=user&itemid='.$user->id.'">'.fullname($user).'</a>');
         }
 
-        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl);
+        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl.'&searchpattern='.$searchpattern);
 
         echo html_writer::table($table);
 
-        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl);
+        echo $OUTPUT->paging_bar($alluserscount, $page, $pagesize, $thisurl.'&searchpattern='.$searchpattern);
 
     } else {
         echo $OUTPUT->box(get_string('noresults', 'report_learningtimecheck'));
@@ -90,9 +109,9 @@ $user = $DB->get_record('user', array('id' => $itemid));
 echo $OUTPUT->user_picture($user, array('size' => 45));
 echo $OUTPUT->heading(get_string('userreport', 'report_learningtimecheck', $user));
 echo $reportrenderer->options('user', $id, $itemid);
-$useroptions = report_learningtimecheck_get_user_options();
+$useroptions = report_learningtimecheck::get_user_options();
 
-$usertable = report_learningtimecheck_user_results_by_course($id, $user, $globals, $useroptions, true);
+$usertable = report_learningtimecheck::user_results_by_course($id, $user, $globals, $useroptions, true);
 
 echo '<div id="report-learningtimecheck-buttons">';
 echo $reportrenderer->print_export_excel_button($id, 'user', $itemid);
