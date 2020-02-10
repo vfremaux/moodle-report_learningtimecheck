@@ -28,6 +28,8 @@ require('../../config.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 require_once($CFG->dirroot.'/mod/learningtimecheck/rulefilterlib.php');
 
+ob_start();
+
 // Context.
 
 $id = optional_param('id', SITEID, PARAM_INT);
@@ -53,7 +55,7 @@ $debug = optional_param('debug', 0, PARAM_INT);
 // Some page params.
 
 // Security.
-if (!check_group_authorisation($id, $groupid, $groupingid)) {
+if (!report_learningtimecheck::check_group_authorisation($courseid, $groupid, $groupingid)) {
     print_error('invalidgroupaccess', 'report_learningtimecheck');
 }
 
@@ -67,9 +69,11 @@ $job->type = $exporttype;
 $job->itemids = $exportitem;
 $job->filters = json_encode(@$SESSION->learningtimecheck->rulefilters);
 $job->detail = $detail;
+$job->param = '';
+$job->output = $output;
 $job->courseid = $courseid;
 $job->groupid = $groupid;
-$job->options = json_encode(report_learningtimecheck_get_user_options());
+$job->options = json_encode(report_learningtimecheck::get_user_options());
 $data = array();
 $globals = array();
 
@@ -79,8 +83,7 @@ if (!empty($debug) && has_capability('moodle/site:config', $syscontext)) {
     print_object($job);
 }
 
-report_learningtimecheck_prepare_data($job, $data, $globals);
-
+report_learningtimecheck::prepare_data($job, $data, $globals);
 if (!empty($debug) && has_capability('moodle/site:config', $syscontext)) {
     // Do not render.
     die;
@@ -113,7 +116,24 @@ if ($exporttype == 'cohort' && $detail) {
 $classname = $output.'_exporter';
 $exporter = new $classname($exportcontext);
 
-$exporter->set_data($data, $globals);
+if (!$job->detail) {
+    $exporter->set_data($data, $globals);
+    // Output production.
+    ob_end_clean();
+    $exporter->output();
+} else {
+    $context = context_user::instance($USER->id);
 
-// Output production.
-$exporter->output();
+    // Clear previous interactive exports. Keep filearea clean.
+    $fs = get_file_storage();
+    $fs->delete_area_files($context->id, 'report_learningtimecheck', 'exportresults', 0);
+
+    $storedfile = learningtimecheck_exporter::export_detail($job, $data, $context->id, 'exportresults');
+
+    $forcedownload = true;
+
+    \core\session\manager::write_close();
+    ob_end_clean();
+
+    send_stored_file($storedfile, 60*60, 0, $forcedownload);
+}

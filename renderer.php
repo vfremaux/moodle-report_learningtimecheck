@@ -155,8 +155,11 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         break;
                     case 'cohort':
                         // Note we wont allow multiple cohort batch.
-                        $cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name');
-                        $row[] = $cohort->name;
+                        if ($cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name')) {
+                            $row[] = $cohort->name;
+                        } else {
+                            $row[] = '*DELETED*';
+                        }
                         break;
                 }
                 $row[] = learningtimecheck_format_time($batch->repeatdelay, 'min');
@@ -416,7 +419,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $str .= '<input type="submit" name="addbatch" value="'.$addbatchstr.'" />';
         // $str .= '<input type="submit" name="makebatchfrommarks" value="'.$makebatchstr.'" />';
         $str .= '<input type="submit" name="clearownedresults" value="'.$clearownedresultsstr.'"/>';
-        
+
         $systemcontext = context_system::instance();
         if (has_capability('moodle/site:config', $systemcontext)) {
             $str .= '<br/>';
@@ -519,28 +522,31 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
      * @param int $itemid
      */
     function options($view, $id, $itemid, $return = '') {
-        global $OUTPUT;
+        static $icons;
 
-        $useroptions = report_learningtimecheck_get_user_options();
+        if (is_null($icons)) {
+            $icons = array('items', 'time', 'both');
+        }
 
-        $str = '';
+        $useroptions = report_learningtimecheck::get_user_options();
 
-        $mayhide = false;
+        $template = new Stdclass;
+
+        $template->mayhide = false;
 
         $optionsstr = '';
         foreach ($useroptions as $key => $value) {
             if ($key == 'sortby') {
                 $sortby = ($value) ? $value : 'name';
                 $title = get_string($key.$sortby, 'report_learningtimecheck');
-                $optionsstr .= '<img src="'.$OUTPUT->image_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
+                $optionsstr .= '<img src="'.$this->output->image_url($key.$sortby, 'report_learningtimecheck').'" title="'.$title.'" ';
             } else if ($key == 'progressbars') {
-                $ICONS = array('items', 'time', 'both');
                 $value = 0 + (int)$value;
-                $title = get_string($key.$ICONS[$value], 'report_learningtimecheck');
-                $optionsstr .= '<img src="'.$OUTPUT->image_url($key.$ICONS[$value], 'report_learningtimecheck').'" title="'.$title.'"> ';
+                $title = get_string($key.$icons[$value], 'report_learningtimecheck');
+                $optionsstr .= $this->output->pix_icon($key.$icons[$value], $title, 'report_learningtimecheck');
             } else {
                 if (in_array($key, array('hidenocredittime', 'startrange', 'endrange')) && $value) {
-                    $mayhide = true;
+                    $template->mayhide = true;
                 }
                 if (preg_match('/range$/', $key)) {
                     $title = get_string($key, 'report_learningtimecheck').': '.userdate($value);
@@ -549,24 +555,16 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 }
                 $class = '';
                 if (empty($value)) {
-                    $class = 'report-learningtimecheck-shadow';
+                    $class = 'report-ltc-shadow';
                 }
                 $attrs = array('class' => $class);
-                $optionsstr .= $OUTPUT->pix_icon($key, $title, 'report_learningtimecheck', $attrs);
+                $optionsstr .= $this->output->pix_icon($key, $title, 'report_learningtimecheck', $attrs);
             }
         }
 
-        $optionsbutton = $this->print_user_options_button($view, $id, $itemid, $return);
+        $template->options = $optionsstr;
+        $template->optionsbutton = $this->print_user_options_button($view, $id, $itemid, $return);
 
-        $str = '<div id="learningtimecheck-user-options">';
-        $str .= get_string('useroptions', 'report_learningtimecheck');
-        $str .= ' '.$optionsstr;
-        if ($mayhide) {
-            $str .= '<span class="report-learningtimecheck-dataloss-advice">'.get_string('possibledataloss', 'report_learningtimecheck').'</span>';
-        }
-        $str .= '&nbsp;'.$optionsbutton;
-        $str .= '</div>';
-
-        return $str;
+        return $this->output->render_from_template('report_learningtimecheck/user_options', $template);
     }
 }

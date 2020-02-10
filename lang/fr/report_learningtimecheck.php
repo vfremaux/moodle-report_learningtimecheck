@@ -59,10 +59,10 @@ $string['clearowned'] = 'Supprimer mes programmations';
 $string['clearownedresults'] = 'Supprimer mes résultats';
 $string['clearusermarks'] = 'Effacer les marques';
 $string['cohort'] = 'Cohorte';
-$string['cohortreport'] = 'Cohorte : {$a->name} [{$a->idnumber}]';
+$string['cohortreport'] = 'Cohorte : <span title="[{$a->idnumber}]">{$a->name}</span>';
 $string['columnoptions'] = 'Options des données de rapports';
 $string['course'] = 'Cours';
-$string['coursereport'] = 'Cours : {$a->shortname} {$a->fullname} [{$a->idnumber}]';
+$string['coursereport'] = 'Cours : <span title="({$a->shortname}) [{$a->idnumber}]">{$a->fullname}</span>';
 $string['days'] = 'Jour ';
 $string['detail'] = 'Batch de détail';
 $string['disabled'] = 'Inactif';
@@ -80,7 +80,7 @@ $string['errordistribution'] = 'Ce format n\'est pas supporté par cette distrib
 $string['exportcsv'] = 'Exporter en CSV';
 $string['exportcsvdetail'] = 'Exporter le détail en CSV';
 $string['exportpdf'] = 'Exporter en PDF';
-$string['exportpdfcursus'] = 'Exporter le cursus en PDF';
+$string['exportpdfcursus'] = 'Exporter le cursus détaillé en PDF';
 $string['exportpdfdetail'] = 'Exporter le détail en PDF';
 $string['exportxls'] = 'Exporter en Excel';
 $string['exportxlsdetail'] = 'Exporter le détail en Excel';
@@ -204,9 +204,10 @@ $string['usercoursetimeprogress'] = 'Progression du cours (en temps)';
 $string['usercursusprogress'] = 'Progression du cursus';
 $string['userfirstconn'] = 'Premier accès';
 $string['userlastconn'] = 'Dernier accès';
-$string['useroptions'] = 'Options utilisateur actives : ';
+$string['useroptions'] = 'Options d\'affichage :';
 $string['userreport'] = 'Etudiant : {$a->firstname} {$a->lastname} [{$a->idnumber}]';
 $string['usertimeearned'] = 'temps acquis ';
+$string['userreportlink'] = 'Temps d\'apprentissage';
 $string['vacationdays'] = 'Jours chômés';
 $string['vacationdays_desc'] = 'Donner le liste des induces de jours (jour dans l\'année) des jours chômés à ne pas prendre en compte';
 $string['validatedby'] = 'Validé par';
@@ -221,7 +222,7 @@ $string['workinghours'] = 'Heures ouvrables';
 $string['workinghours_desc'] = 'La mesure des temps d\'apprentissage peut filtrer les périodes sur la base d\'une définition d\'heures ouvrables. Il est possible par ce mécanisme de discriminer les temps d\'apprentissage "en centre" des temps "personnels" hors heures ouvrables.';
 $string['workstarttime'] = 'Début heures ouvrables';
 $string['worktimefilter'] = 'Horaires hebdomadaires ';
-$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" : 
+$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" :
 <ul><li>format CSV UTF-8</li>
 <li>Lignes séparées par des retours chariot</li>
 <li>Champs séparés par des points-virgule</li>
@@ -249,6 +250,7 @@ $string['isvalidpdf'] = 'Marque valide';
 $string['marktimepdf'] = 'Heure de marque';
 
 $string['errornoexporterclass'] = 'Classe d\'exportation {$a} manquante';
+$string['showoptional'] = 'Montrer les items facultatifs';
 
 $string['sharebatch_help'] = 'En activant le partage, vous autorisez d\'autres utilisateurs ayant accès au service de batchs à voir cette programmation et à récupérer ses résultats.';
 $string['type_help'] = 'La nature du domaine de données qui sera exploré pour ptoduire les rapports (utilisateur, cours, cohorte). Notez que ce type peut être différent du format effectif du rapport (document) produit (Voir l\'aide sur le "détail").';
@@ -285,9 +287,29 @@ $string['wdimportuseridentifier_desc'] = 'Choisissez le champ d\'identification.
 $string['clearmarks'] = 'Nettoyage des marques';
 $string['clearallmarks'] = 'Supprimer toutes les marques';
 
+$string['xlsshortname'] = 'nom abrégé';
+$string['xlsidnumber'] = 'identification';
+$string['xlscredittime'] = 'credit temps';
+$string['xlsearnedtime'] = 'temps acquis';
+$string['xlsmarktime'] = 'date de marque';
+$string['xlsisvalid'] = 'est valide';
+$string['xlsmarkedby'] = 'marque par';
+$string['xlsname'] = 'nom';
+$string['xlsfullname'] = 'nom complet';
+$string['xlsprogress'] = 'avancement (items)';
+$string['xlsitemstodo'] = 'a faire (items)';
+$string['xlsitemsdone'] = 'fait (items)';
+$string['xlstimetodo'] = 'a faire (temps)';
+$string['xlsdonetime'] = 'fait (temps)';
+$string['xlstimedoneratio'] = 'pourcent fait (temps)';
+$string['xlstimeleft'] = 'reste a faire (temps)';
+$string['xlstimeleftratio'] = 'pourcent reste à faire (temps)';
+$string['xlsfirstaccess'] = 'premier acces';
+$string['xlslastaccess'] = 'dernier acces';
+
 $string['sortby'] = 'Trier les rapports';
-$string['sortbyname'] = 'par nom (asc)';
-$string['sortbyachievement'] = 'par achèvement (desc)';
+$string['sortbyname'] = 'par nom';
+$string['sortbyachievement'] = 'par achèvement';
 
 $string['plugindist_desc'] = '
 <p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s

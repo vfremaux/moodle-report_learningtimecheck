@@ -204,7 +204,7 @@ class report_learningtimecheck_external extends external_api {
             case 'shortname':
                 $course = $DB->get_record('course', array('shortname' => $parameters['cid']));
                 if (!$course) {
-                    throw new invalid_parameter_exception('Invalid course by idumber '.$parameters['cid']);
+                    throw new invalid_parameter_exception('Invalid course by shortname '.$parameters['cid']);
                 }
         }
 
@@ -247,7 +247,7 @@ class report_learningtimecheck_external extends external_api {
             case 'email':
                 $user = $DB->get_record('user', array('email' => $parameters['uid']));
                 if (!$user) {
-                    throw new invalid_parameter_exception('Invalid user by username '.$parameters['uid']);
+                    throw new invalid_parameter_exception('Invalid user by email '.$parameters['uid']);
                 }
         }
 
