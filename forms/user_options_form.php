@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
@@ -23,6 +21,8 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2013 Valery Fremaux
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');

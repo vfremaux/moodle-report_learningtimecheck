@@ -75,7 +75,7 @@ function report_learningtimecheck_pluginfile($course, $cm, $context, $filearea, 
     $forcedownload = true;
 
     \core\session\manager::write_close();
-    send_stored_file($file, 60*60, 0, $forcedownload);
+    send_stored_file($file, 60 * 60, 0, $forcedownload);
 }
 
 /**
@@ -400,7 +400,7 @@ class report_learningtimecheck {
 
             if ($useraggregate['totalitems']) {
                 $timecomplete = ($useraggregate['totaltime']) ? round(($useraggregate['tickedtimes'] * 100) / $useraggregate['totaltime']) : 0;
-                $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0 ;
+                $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0;
             } else {
                 $timecomplete = 0;
                 $percentcomplete = 0;
@@ -543,7 +543,7 @@ class report_learningtimecheck {
      * @return a table definition with all data for pdf, csv or html output
      */
     public static function course_results($id, $courseusers, $courseid, &$globals, $useroptions) {
-        global $CFG, $DB;
+        global $DB;
 
         $config = get_config('report_learningtimecheck');
         $bg1 = $config->pdfbgcolor1;
@@ -673,7 +673,7 @@ class report_learningtimecheck {
                 }
             }
             $groupnames = implode(',', $gnames);
-            unset($gids); /// free unused mem
+            unset($gids); // free unused mem
 
             $params = array('view' => 'user', 'itemid' => $u->id, 'id' => $courseid);
             $userreporturl = new moodle_url('/report/learningtimecheck/index.php', $params);
@@ -840,7 +840,7 @@ class report_learningtimecheck {
 
         $cell12 = new html_table_cell();
         $str = learningtimecheck_format_time($sumtimeleft).' '.get_string('totalized', 'learningtimecheck');
-        $str .= ' ('.(($sumtimetodo) ? sprintf('%0d', round($sumtimeleft / $sumtimetodo* 100)) : '0.0' ).'&nbsp;%)';
+        $str .= ' ('.(($sumtimetodo) ? sprintf('%0d', round($sumtimeleft / $sumtimetodo * 100)) : '0.0' ).'&nbsp;%)';
         $cell12->text = '<span class="totalizer">'.$str.'</span>';
         $cell12->attributes['class'] = 'learningtimecheck-remain-result';
         $row1->cells[] = $cell12;
@@ -861,7 +861,7 @@ class report_learningtimecheck {
      * @return a table definition with all data for pdf, csv or html output
      */
     public static function user_course_results($courseid, $user, &$globals, $useroptions) {
-        global $CFG, $DB, $OUTPUT;
+        global $DB, $OUTPUT;
         static $CUSER = array();
 
         $config = get_config('report_learningtimecheck');
@@ -983,12 +983,12 @@ class report_learningtimecheck {
                         if (!self::meet_report_conditions($check, $reportsettings, $useroptions, $user, $idnumber)) {
                             continue;
                         }
-                        
+
                         if ($check->hidden) {
                             continue;
                         }
 
-                        // TODO : might we use $mods to be a bit faster ? 
+                        // TODO : might we use $mods to be a bit faster ?
                         $data = array();
                         $data[0] = $idnumber;
                         $data[1] = $check->displaytext;
@@ -1136,7 +1136,7 @@ class report_learningtimecheck {
      * @return a table definition with all data for pdf, csv or html output
      */
     public static function user_results(&$user, &$globals, $useroptions) {
-        global $CFG, $DB, $OUTPUT;
+        global $DB, $OUTPUT;
         static $CMCACHE = array();
         static $CUSER = array();
         static $CCACHE = array();
@@ -1265,7 +1265,7 @@ class report_learningtimecheck {
                 $row1->cells[] = $cell2;
 
                 // This is necessary to trigger the pdf row spanner.
-                for ($j = 0; $j < 4 ; $j++) {
+                for ($j = 0; $j < 4; $j++) {
                     $cell = new html_table_cell();
                     $cell->text = '';
                     $cell->align = 'left';
@@ -1303,7 +1303,7 @@ class report_learningtimecheck {
                         $cell2->align = 'left';
                         $row2->cells[] = $cell2;
 
-                        for ($j = 0; $j < 4 ; $j++) {
+                        for ($j = 0; $j < 4; $j++) {
                             $cell = new html_table_cell();
                             $cell->text = '';
                             $cell->align = 'left';
@@ -1356,7 +1356,7 @@ class report_learningtimecheck {
                                 $earnedtime = '';
                             }
                             $data[3] = $earnedtime.' '.$pix;
-        
+
                             $marker = '';
                             $marktime = '';
                             $isvalid = '';
@@ -1448,7 +1448,7 @@ class report_learningtimecheck {
             $row3->cells[] = $cell2;
 
             $cell3 = new html_table_cell();
-            $str= learningtimecheck_format_time(0 + $globals->userearnedtime).' '.get_string('totalized', 'learningtimecheck');
+            $str = learningtimecheck_format_time(0 + $globals->userearnedtime).' '.get_string('totalized', 'learningtimecheck');
             $cell3->text = '<span class="totalizer">'.$str.'</span>';
             $cell3->attributes['class'] = 'learningtimecheck-result';
             $row3->cells[] = $cell3;
@@ -1495,7 +1495,7 @@ class report_learningtimecheck {
      * @return a table definition with all data for pdf, csv or html output
      */
     public static function user_results_by_course($id, $user, &$globals, $useroptions, $onscreen = false) {
-        global $CFG, $DB, $OUTPUT;
+        global $DB, $OUTPUT;
         static $CCACHE = array();
 
         $thisurl = new moodle_url('/report/learningtimecheck/index.php');
@@ -2030,7 +2030,6 @@ class report_learningtimecheck {
      * - I have no group visibility and user is in my groups
      */
     public static function is_user_visible($user, $viewallgroups, &$mygroups) {
-        global $USER;
 
         $cansee = false;
 
@@ -2219,7 +2218,7 @@ class report_learningtimecheck {
     }
 
     /**
-     * this function publicizes retrieval of the physical path to 
+     * this function publicizes retrieval of the physical path to
      * a file stored for mail attachement or for PDF generation.
      */
     public static function get_path_from_hash($contenthash) {
@@ -2359,7 +2358,7 @@ class report_learningtimecheck {
 
         if (!in_array($type, array('course', 'user', 'cohort', 'userdetail', 'usercursus'))) {
             throw new coding_exception("Invalid report type $type ");
-        } 
+        }
 
         $config = get_config('report_learningtimecheck');
 
@@ -2367,25 +2366,25 @@ class report_learningtimecheck {
             case 'userdetail':
             case 'usercursus':
             case 'user':
-                    switch ($config->infilenameuseridentifier) {
+                switch ($config->infilenameuseridentifier) {
 
-                        case REPORT_IDENTIFIER_IDNUMBER:
-                            $itemidentifier = $DB->get_field('user', 'idnumber', array('id' => $id));
-                            if (empty($itemidentifier)) {
-                                $itemidentifier = 'id$'.$id;
-                            }
-                            break;
+                    case REPORT_IDENTIFIER_IDNUMBER:
+                        $itemidentifier = $DB->get_field('user', 'idnumber', array('id' => $id));
+                        if (empty($itemidentifier)) {
+                            $itemidentifier = 'id$'.$id;
+                        }
+                        break;
 
-                        case REPORT_IDENTIFIER_NAME:
-                            $itemidentifier = $DB->get_field('user', 'username', array('id' => $id));
-                            break;
+                    case REPORT_IDENTIFIER_NAME:
+                        $itemidentifier = $DB->get_field('user', 'username', array('id' => $id));
+                        break;
 
-                        case REPORT_IDENTIFIER_ID:
-                        default:
-                            $itemidentifier = $id;
-                            break;
+                    case REPORT_IDENTIFIER_ID:
+                    default:
+                        $itemidentifier = $id;
+                        break;
 
-                    }
+                }
                 break;
 
             case 'course':
@@ -2468,10 +2467,10 @@ class report_learningtimecheck {
      * - A time criteria, when a working day is validated
      * - A working day, based on calendar events. A special user scope
      * - checking can be forced over some users depending on a capability marking
-     * event should be added to the user's calendar, marking the day that can be 
+     * event should be added to the user's calendar, marking the day that can be
      * validated as work time
      * @param objectref $check the checkrecord to validate
-     * @param objectref $config the global configuration of learningtimecheck reports 
+     * @param objectref $config the global configuration of learningtimecheck reports
      * @param object $context
      */
     public static function is_valid(&$check, &$config = null, $context = null) {
@@ -2504,7 +2503,7 @@ class report_learningtimecheck {
             $checkdate = date('j_n_Y', $check->usertimestamp);
 
             // Check if we have "working day" events for this check.
-            $select = " 
+            $select = "
                 userid = ? AND
                 CONCAT(DAY(FROM_UNIXTIME(timestart)), '_', MONTH(FROM_UNIXTIME(timestart)), '_', YEAR(FROM_UNIXTIME(timestart))) = ? AND
                 eventtype = 'user' AND
@@ -2557,7 +2556,7 @@ class report_learningtimecheck {
 
     /**
      * Extracts the keyed workday mark from the event message
-     * @param object $event an event with supposed workday crypto inside. 
+     * @param object $event an event with supposed workday crypto inside.
      */
     public static function extract_eventkey($event) {
         if (preg_match('/WD\\[([0-9a-zA-Z=]+)\\]/', $event->description, $matches)) {
@@ -2907,7 +2906,7 @@ function sortbyachievementdesc($a, $b) {
     if ($a[5] < $b[5]) {
         return 1;
     }
-    return sortbyname($a,$b);
+    return sortbyname($a, $b);
 }
 
 // Achievement is in fifth col (tickeditems);
@@ -2918,7 +2917,7 @@ function sortrawbyachievementdesc($a, $b) {
     if ($a[6] < $b[6]) {
         return 1;
     }
-    return sortbyname($a,$b);
+    return sortbyname($a, $b);
 }
 
 // Sort function.

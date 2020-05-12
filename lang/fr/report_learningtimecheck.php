@@ -280,7 +280,7 @@ $string['checkworkinghours_desc'] = 'si activé, les rapports effectueront une v
 $string['wdsecret'] = 'Secret WD';
 $string['wdsecret_desc'] = 'Ce code permet d\'encoder de manière sécurisée les marqueurs d\'entreptrise dans le calendrier des étudiants. Donnez une chaine de caractères aléatoire de 8 à 10 caractères. Ne changez pas cette clef après génération des marqueurs où ceux-ci ne pourront plus être reconnus.';
 $string['event'] = 'Journée "Entreprise"';
-$string['eventbody'] = '<p>Cet événement marque que cette journée est une journée Enterprise. Vos marques de travail à distance seront validées lorsqu\'elles sont enregistrées pendant une journée marquée. NE supprimez PAS cet événement de votre calendrier ou votre travail ne pourra pas être validé ces jours là. Vous ne POURREZ PAS ajouter vous même une marque. N\'essayez PAS 
+$string['eventbody'] = '<p>Cet événement marque que cette journée est une journée Enterprise. Vos marques de travail à distance seront validées lorsqu\'elles sont enregistrées pendant une journée marquée. NE supprimez PAS cet événement de votre calendrier ou votre travail ne pourra pas être validé ces jours là. Vous ne POURREZ PAS ajouter vous même une marque. N\'essayez PAS
 de copier une marque d\'une autre journée ou d\'un autre étudiant car cela NE marchera PAS. N\'altérez le code suivant pour aucune raison :</p><p>WD[{$a}]</p>';
 $string['wdimportuseridentifier'] = 'Identifiant d\'utilisateur pour le fichier des jours entreprise';
 $string['wdimportuseridentifier_desc'] = 'Choisissez le champ d\'identification..';

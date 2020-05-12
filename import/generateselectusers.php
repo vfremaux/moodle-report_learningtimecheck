@@ -8,7 +8,7 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
@@ -53,7 +53,7 @@ if ($previousdata) {
 }
 
 $options = array(
-    'extrafields' => array('lang','username','email'),
+    'extrafields' => array('lang', 'username', 'email'),
     'file' => 'report/learningtimecheck/import/lib.php'
 );
 $userselector = new wdmarks_generator_user_selector(get_string('userchooser', 'report_learningtimecheck'), $options);
@@ -71,11 +71,11 @@ if (optional_param('remove', false, PARAM_TEXT)) {
 if ($action) {
     if ($users = $userselector->get_selected_users()) {
         $result = '';
-        foreach($users as $u) {
+        foreach ($users as $u) {
             if ($action == 'remove') {
                 $count = $DB->delete_records('event', array('uuid' => 'learningtimecheck', 'userid' => $u->id));
                 $result = "$count events deleted for user {$u->username} ";
-            } elseif ($action == 'generate') {
+            } else if ($action == 'generate') {
                 $result .= learningtimecheck_generate_wdmark_events_from_session($u, $config);
             }
         }
@@ -102,7 +102,9 @@ $table->head = array('', '');
 $table->align = array('right', 'left');
 $table->data = array();
 foreach ($previousdata as $key => $value) {
-    if ($key == 'submitbutton') continue;
+    if ($key == 'submitbutton') {
+        continue;
+    }
     if (is_array($value)) {
         foreach ($value as $valkey => $scalar) {
             $table->data[] = array(get_string($key, 'report_learningtimecheck').' '.$valkey, $scalar);
@@ -114,7 +116,8 @@ foreach ($previousdata as $key => $value) {
 echo html_writer::table($table);
 
 $userselector->display();
-echo '<div><input type="submit" name="generate" value="'.get_string('generate', 'report_learningtimecheck').'" /> <input type="submit" name="remove" value="'.get_string('removemarks', 'report_learningtimecheck').'" /></div>';
+echo '<div><input type="submit" name="generate" value="'.get_string('generate', 'report_learningtimecheck').'" />';
+echo '<input type="submit" name="remove" value="'.get_string('removemarks', 'report_learningtimecheck').'" /></div>';
 echo '</form>';
 
 echo $OUTPUT->footer();
