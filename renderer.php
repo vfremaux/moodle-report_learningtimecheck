@@ -419,7 +419,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $str .= '<input type="submit" name="addbatch" value="'.$addbatchstr.'" />';
         // $str .= '<input type="submit" name="makebatchfrommarks" value="'.$makebatchstr.'" />';
         $str .= '<input type="submit" name="clearownedresults" value="'.$clearownedresultsstr.'"/>';
-        
+
         $systemcontext = context_system::instance();
         if (has_capability('moodle/site:config', $systemcontext)) {
             $str .= '<br/>';
