@@ -19,14 +19,21 @@ define(['jquery', 'core/log', 'core/config'], function($, log, cfg) {
 
     var reportltcpro = {
 
+        component: 'report_learningtimecheck',
+        shortcomponent: 'report_learningtimecheck',
+        componentpath: 'report/learningtimecheck',
+
         init: function() {
 
-            $('#id_s_report_learningtimecheck_licensekey').bind('change', this.check_product_key);
-            $('#id_s_report_learningtimecheck_licensekey').trigger('change');
-            log.debug('AMD Pro js initialized for learningtimecheck report');
+            var licensekeyid = '#id_s_' + reportltcpro.component + '_licensekey';
+            $(licensekeyid).bind('change', this.check_product_key);
+            $(licensekeyid).trigger('change');
+            log.debug('AMD Pro js initialized for ' + reportltcpro.component + ' system');
         },
 
         check_product_key: function() {
+
+            var licensekeyid = '#id_s_' + reportltcpro.component + '_licensekey';
 
             var that = $(this);
 
@@ -40,29 +47,35 @@ define(['jquery', 'core/log', 'core/config'], function($, log, cfg) {
             var cautionicon = ' <img src="' + cfg.wwwroot + '/pix/i/warning.png' + '">';
             var invalidicon = ' <img src="' + cfg.wwwroot + '/pix/i/invalid.png' + '">';
             var waiticon = ' <img src="' + cfg.wwwroot + '/pix/i/ajaxloader.gif' + '">';
+            var found;
 
-            if (crc == calculated) {
-                var url = cfg.wwwroot + '/report/learningtimecheck/pro/ajax/services.php?';
+            if (crc === calculated) {
+                var url = cfg.wwwroot + '/' + reportltcpro.componentpath + '/pro/ajax/services.php?';
                 url += 'what=license';
                 url += '&service=check';
                 url += '&customerkey=' + that.val();
-                url += '&provider=' + $('#id_s_report_learningtimecheck_licenseprovider').val();
+                url += '&provider=' + $('#id_s_' + reportltcpro.component + '_licenseprovider').val();
 
-                $('#id_s_report_learningtimecheck_licensekey + img').remove();
-                $('#id_s_report_learningtimecheck_licensekey').after(waiticon);
+                $(licensekeyid + ' + img').remove();
+                $(licensekeyid).after(waiticon);
 
                 $.get(url, function(data) {
                     if (data.match(/SET OK/)) {
-                        $('#id_s_report_learningtimecheck_licensekey + img').remove();
-                        $('#id_s_report_learningtimecheck_licensekey').after(validicon);
+                        if (found = data.match(/-\d+.*$/)) {
+                            $(licensekeyid + ' + img').remove();
+                            $(licensekeyid).after(cautionicon);
+                        } else {
+                            $(licensekeyid + ' + img').remove();
+                            $(licensekeyid).after(validicon);
+                        }
                     } else {
-                        $('#id_s_report_learningtimecheck_licensekey + img').remove();
-                        $('#id_s_report_learningtimecheck_licensekey').after(invalidicon);
+                        $(licensekeyid + ' + img').remove();
+                        $(licensekeyid).after(invalidicon);
                     }
                 }, 'html');
             } else {
-                $('#id_s_report_learningtimecheck_licensekey + img').remove();
-                $('#id_s_report_learningtimecheck_licensekey').after(cautionicon);
+                $(licensekeyid + ' + img').remove();
+                $(licensekeyid).after(cautionicon);
             }
         },
 

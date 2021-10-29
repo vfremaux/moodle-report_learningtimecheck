@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Settings and links
  *
@@ -24,8 +22,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2014 Valery Fremaux
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
@@ -261,7 +258,8 @@ if (report_learningtimecheck_supports_feature('format/pdf')) {
 
 if (report_learningtimecheck_supports_feature('emulate/community') == 'pro') {
     include_once($CFG->dirroot.'/report/learningtimecheck/pro/prolib.php');
-    \report_learningtimecheck\pro_manager::add_settings($ADMIN, $settings);
+        $promanager = \report_trainingsessions\pro_manager::instance();
+        $promanager->add_settings($ADMIN, $settings);
 } else {
     $label = get_string('plugindist', 'report_learningtimecheck');
     $desc = get_string('plugindist_desc', 'report_learningtimecheck');

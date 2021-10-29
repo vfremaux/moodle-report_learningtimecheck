@@ -95,7 +95,7 @@ echo $reportrenderer->tabs($fromcourse);
 
 $OUTPUT->container_end();
 
-@ini_set('max_execution_time','3000');
+@ini_set('max_execution_time', '3000');
 raise_memory_limit('250M');
 
 if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php')) {
