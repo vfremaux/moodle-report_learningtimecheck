@@ -93,7 +93,7 @@ if ($data = $mform->get_data()) {
                     continue;
                 }
 
-                // Process
+                // Process.
                 $data = explode(';', $text);
 
                 if (!in_array($config->wdimportuseridentifier, array('id', 'idnumber', 'username', 'email'))) {

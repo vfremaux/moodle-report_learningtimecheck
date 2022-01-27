@@ -126,11 +126,13 @@ function report_learningtimecheck_curl_callback($response, $info) {
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
-function report_learningtimecheck_supports_feature($feature) {
+function report_learningtimecheck_supports_feature($feature = null, $getsupported = null) {
     global $CFG;
     static $supports;
 
-    $config = get_config('report_learningtimecheck');
+    if (!during_initial_install()) {
+        $config = get_config('report_learningtimecheck');
+    }
 
     if (!isset($supports)) {
         $supports = array(
@@ -150,6 +152,10 @@ function report_learningtimecheck_supports_feature($feature) {
         ));
     }
 
+    if ($getsupported) {
+        return $supports;
+    }
+
     // Check existance of the 'pro' dir in plugin.
     if (is_dir(__DIR__.'/pro')) {
         if ($feature == 'emulate/community') {
@@ -162,6 +168,11 @@ function report_learningtimecheck_supports_feature($feature) {
         }
     } else {
         $versionkey = 'community';
+    }
+
+    if (empty($feature)) {
+        // Just return version.
+        return $versionkey;
     }
 
     list($feat, $subfeat) = explode('/', $feature);
@@ -673,7 +684,7 @@ class report_learningtimecheck {
                 }
             }
             $groupnames = implode(',', $gnames);
-            unset($gids); // free unused mem
+            unset($gids); // free unused mem.
 
             $params = array('view' => 'user', 'itemid' => $u->id, 'id' => $courseid);
             $userreporturl = new moodle_url('/report/learningtimecheck/index.php', $params);

@@ -80,8 +80,6 @@ $string['distribute'] = 'Send';
 $string['distributionlist'] = 'Distribution list (email)';
 $string['earnedtime'] = 'Earned time';
 $string['earnedtimepdf'] = 'Earned';
-$string['emulatecommunity'] = 'Emulate community version';
-$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. You are more compatible, but it will loose some features !';
 $string['enableworktimefilter'] = 'Enable worktime filter';
 $string['endrange'] = 'Time Range End';
 $string['eventkey'] = 'Workday event key';
@@ -130,10 +128,6 @@ $string['itemtimecredit'] = 'Credit time';
 $string['itemtimecreditpdf'] = 'Item time credit';
 $string['learningtimecheck'] = 'Learning times';
 $string['leftratio'] = 'Yet to do ratio';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
-$string['licensekey'] = 'Pro license key';
-$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
 $string['makebatch'] = 'Make batch from marks';
 $string['marktime'] = 'Mark time';
 $string['marktimeformat'] = 'Mark time format';
@@ -158,7 +152,6 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If none given, the first page header will be used again.';
 $string['pendings'] = 'Pending';
-$string['plugindist'] = 'Plugin distribution';
 $string['possibledataloss'] = 'Some options may hide user\'s data';
 $string['progressbars'] = 'Progress bars';
 $string['progressbarsitems'] = 'Progress bars by items';
@@ -325,9 +318,4 @@ $string['xlstimeleftratio'] = 'timeleftratio';
 $string['xlsfirstaccess'] = 'firstaccess';
 $string['xlslastaccess'] = 'lastaccess';
 
-$string['plugindist_desc'] = '
-<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
-core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
-and improvement effort.</p>
-<p>Please contact one of our distributors to get "Pro" version support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
+include(__DIR__.'/pro_additional_strings.php');
