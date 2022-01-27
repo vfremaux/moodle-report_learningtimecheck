@@ -52,13 +52,13 @@ abstract class learningtimecheck_exporter {
      * @param array $data source data
      * @param mixed $globals some additional globals that will feed header or common parts of the document
      */
-    function set_data(&$data, &$globals) {
+    public function set_data(&$data, &$globals) {
         $this->data = $data;
         $this->globals = (array)$globals;
     }
 
     /**
-     * The generic output function. Can return a true document content, 
+     * The generic output function. Can return a true document content,
      * or an HTTP ready to send document if required.
      */
     public function output($return = false) {
@@ -79,12 +79,12 @@ abstract class learningtimecheck_exporter {
     /**
      * Sends HTTP headers. this should be defined by each subclass
      */
-    abstract function output_http_headers();
+    public abstract function output_http_headers();
 
     /**
      * this builds the effective content and stores it in the $this->content var.
      */
-    abstract function output_content();
+    public abstract function output_content();
 
     /**
      *

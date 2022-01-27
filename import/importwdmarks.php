@@ -8,7 +8,7 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
@@ -93,7 +93,7 @@ if ($data = $mform->get_data()) {
                     continue;
                 }
 
-                // Process 
+                // Process.
                 $data = explode(';', $text);
 
                 if (!in_array($config->wdimportuseridentifier, array('id', 'idnumber', 'username', 'email'))) {
@@ -116,7 +116,7 @@ if ($data = $mform->get_data()) {
                     $day = $matches[3];
                     $month = $matches[2];
                     $year = $matches[1];
-                } elseif (preg_match('#(\\d{2})[/](\\d{2})[/](\\d{4})#', $data[1], $matches)) {
+                } else if (preg_match('#(\\d{2})[/](\\d{2})[/](\\d{4})#', $data[1], $matches)) {
                     $day = $matches[1];
                     $month = $matches[2];
                     $year = $matches[3];

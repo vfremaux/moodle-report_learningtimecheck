@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
@@ -24,11 +22,13 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 require_once($CFG->dirroot.'/user/selector/lib.php');
 
 class wdmarks_generator_user_selector extends user_selector_base {
 
-    function find_users($search) {
+    public function find_users($search) {
         global $DB;
 
         $select = " firstname LIKE '%$search%' OR lastname LIKE '%$search%' ";
