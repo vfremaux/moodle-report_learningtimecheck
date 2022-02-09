@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
@@ -23,15 +21,17 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 require_once($CFG->dirroot.'/report/learningtimecheck/export/export.class.php');
 
 class csv_exporter extends learningtimecheck_exporter {
 
-    var $csvfieldseparator;
-    var $csvlineseparator;
-    var $csvencoding;
+    public $csvfieldseparator;
+    public $csvlineseparator;
+    public $csvencoding;
 
-    function __construct($exportcontext) {
+    public function __construct($exportcontext) {
 
         $ENDLINES = array('CR' => "\r", 'LF' => "\n", 'CRLF' => "\r\n");
 
@@ -50,7 +50,7 @@ class csv_exporter extends learningtimecheck_exporter {
         parent::__construct($exportcontext);
     }
 
-    function output_http_headers() {
+    public function output_http_headers() {
         if ($this->csvencoding == 'HTML') {
             header("Content-Type: text/htm");
         } else {
@@ -59,14 +59,14 @@ class csv_exporter extends learningtimecheck_exporter {
         }
     }
 
-    function output_content() {
+    public function output_content() {
 
         if ($this->csvencoding == 'HTML') {
             $this->content = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head><body><pre>';
         }
 
         $headers = array();
-        foreach($this->data->xlsprintinfo as $print) {
+        foreach ($this->data->xlsprintinfo as $print) {
             $header = array_shift($this->data->xlshead);
             if ($print) {
                 $headers[] = $header;

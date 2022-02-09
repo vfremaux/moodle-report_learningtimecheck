@@ -80,7 +80,7 @@ $globals = array();
 $syscontext = context_system::instance();
 
 if (!empty($debug) && has_capability('moodle/site:config', $syscontext)) {
-    print_object($job);
+    // print_object($job);
 }
 
 report_learningtimecheck::prepare_data($job, $data, $globals);
@@ -135,5 +135,5 @@ if (!$job->detail) {
     \core\session\manager::write_close();
     ob_end_clean();
 
-    send_stored_file($storedfile, 60*60, 0, $forcedownload);
+    send_stored_file($storedfile, 60 * 60, 0, $forcedownload);
 }
