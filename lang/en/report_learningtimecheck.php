@@ -80,8 +80,6 @@ $string['distribute'] = 'Send';
 $string['distributionlist'] = 'Distribution list (email)';
 $string['earnedtime'] = 'Earned time';
 $string['earnedtimepdf'] = 'Earned';
-$string['emulatecommunity'] = 'Emulate community version';
-$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. You are more compatible, but it will loose some features !';
 $string['enableworktimefilter'] = 'Enable worktime filter';
 $string['endrange'] = 'Time Range End';
 $string['eventkey'] = 'Workday event key';
@@ -130,10 +128,6 @@ $string['itemtimecredit'] = 'Credit time';
 $string['itemtimecreditpdf'] = 'Item time credit';
 $string['learningtimecheck'] = 'Learning times';
 $string['leftratio'] = 'Yet to do ratio';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
-$string['licensekey'] = 'Pro license key';
-$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
 $string['makebatch'] = 'Make batch from marks';
 $string['marktime'] = 'Mark time';
 $string['marktimeformat'] = 'Mark time format';
@@ -158,7 +152,6 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If none given, the first page header will be used again.';
 $string['pendings'] = 'Pending';
-$string['plugindist'] = 'Plugin distribution';
 $string['possibledataloss'] = 'Some options may hide user\'s data';
 $string['progressbars'] = 'Progress bars';
 $string['progressbarsitems'] = 'Progress bars by items';
@@ -271,7 +264,7 @@ $string['checkworkinghours_desc'] = 'If enabled, checks will be checked for vali
 $string['wdsecret'] = 'WD Secret';
 $string['wdsecret_desc'] = 'This secret allows encoding securely the Working Days events that will be generated in the user\'s calendar. Set is to a 8 to 10 char random string. do not change the secret after events have been generated or all events will not be recognized any more.';
 $string['event'] = 'Working Day Marker';
-$string['eventbody'] = '<p>This event holds a marker that tells this day is an Enterprise Working day. Your Distance Learning checks will be validated if they are registered on such a day. Do NOT remove this event of your calendar or your work WILL NOT be valid. You will NOT be able to add your self a mark. Do NOT try to 
+$string['eventbody'] = '<p>This event holds a marker that tells this day is an Enterprise Working day. Your Distance Learning checks will be validated if they are registered on such a day. Do NOT remove this event of your calendar or your work WILL NOT be valid. You will NOT be able to add your self a mark. Do NOT try to
 copy a mark from another day or student here as it WONT work. do NOT alter the following code.</p><p>WD[{$a}]</p>';
 $string['wdimportuseridentifier'] = 'User identifier for Working Day import file';
 $string['wdimportuseridentifier_desc'] = 'Choose the user identification field to use.';
@@ -306,28 +299,23 @@ $string['sortbyname'] = 'by name (asc)';
 $string['sortbyachievement'] = 'by achievement (desc)';
 
 $string['xlsshortname'] = 'shortname';
-$string['xlsidnumber'] ='idnumber';
-$string['xlscredittime'] ='credittime';
-$string['xlsearnedtime'] ='earnedtime';
-$string['xlsmarktime'] ='marktime';
-$string['xlsisvalid'] ='isvalid';
-$string['xlsmarkedby'] ='markedby';
-$string['xlsname'] ='name';
+$string['xlsidnumber'] = 'idnumber';
+$string['xlscredittime'] = 'credittime';
+$string['xlsearnedtime'] = 'earnedtime';
+$string['xlsmarktime'] = 'marktime';
+$string['xlsisvalid'] = 'isvalid';
+$string['xlsmarkedby'] = 'markedby';
+$string['xlsname'] = 'name';
 $string['xlsfullname'] = 'fullname';
 $string['xlsprogress'] = 'progress';
 $string['xlsitemstodo'] = 'itemstodo';
 $string['xlsitemsdone'] = 'itemsdone';
 $string['xlstimetodo'] = 'timetodo';
-$string['xlsdonetime'] =  'donetime';
+$string['xlsdonetime'] = 'donetime';
 $string['xlstimedoneratio'] = 'timedoneratio';
 $string['xlstimeleft'] = 'timeleft';
 $string['xlstimeleftratio'] = 'timeleftratio';
 $string['xlsfirstaccess'] = 'firstaccess';
 $string['xlslastaccess'] = 'lastaccess';
 
-$string['plugindist_desc'] = '
-<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
-core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
-and improvement effort.</p>
-<p>Please contact one of our distributors to get "Pro" version support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
+include(__DIR__.'/pro_additional_strings.php');

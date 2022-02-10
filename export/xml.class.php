@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/report/learningtimecheck/export/export.class.php');
 require_once($CFG->dirroot.'/backup/util/xml/output/memory_xml_output.class.php');
@@ -32,7 +32,7 @@ class xml_exporter extends learningtimecheck_exporter {
     protected $xml_writer;
     protected $xml_buffer;
 
-    function __construct($exportcontext) {
+    public function __construct($exportcontext) {
 
         $xml_buffer = new memory_xml_output();
         $xml_writer = new xml_writer($xml_buffer);
@@ -55,7 +55,7 @@ class xml_exporter extends learningtimecheck_exporter {
 
         foreach ($this->data->rawdata as $dataline) {
             $this->xml_writer->open_tag('check');
-            for ($i = 0 ; $i < count($dataline) ; $i++) {
+            for ($i = 0; $i < count($dataline); $i++) {
                 $this->xml_writer->full_tag($this->data->headcodes[$i], $dataline[$i]);
             }
             $this->xml_writer->close_tag('check');

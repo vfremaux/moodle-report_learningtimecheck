@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Course learningtimecheck user report view
  *
@@ -27,12 +25,14 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 $thisurl = new moodle_url('/report/learningtimecheck/index.php');
-require_once $CFG->dirroot.'/report/learningtimecheck/forms/search_profilefield_form.php'; 
-require_once $CFG->dirroot.'/report/learningtimecheck/lib.php'; 
-require_once $CFG->dirroot.'/mod/learningtimecheck/renderer.php';
-require_once $CFG->dirroot.'/report/learningtimecheck/renderers.php';
-require_once $CFG->dirroot.'/mod/learningtimecheck/locallib.php';
+require_once($CFG->dirroot.'/report/learningtimecheck/forms/search_profilefield_form.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
+require_once($CFG->dirroot.'/mod/learningtimecheck/renderer.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/renderers.php');
+require_once($CFG->dirroot.'/mod/learningtimecheck/locallib.php');
 
 $profilefieldid = optional_param('profilefield', null, PARAM_INT);
 $conditions = optional_param('conditions', null, PARAM_TEXT);
@@ -61,9 +61,9 @@ if ($data = $form->get_data()) {
 
     if (preg_match('/^[><=]+\s/', $conditions)) {
         $valueconditionclause = ' ua.data '.$conditions;
-    } elseif (preg_match('/^%(.*)%$/', $conditions, $matches)) {
+    } else if (preg_match('/^%(.*)%$/', $conditions, $matches)) {
         $valueconditionclause = ' ua.data REGEXP \''.$matches[1].'\'';
-    } elseif (is_numeric($conditions)) {
+    } else if (is_numeric($conditions)) {
         $valueconditionclause = ' ua.data = '.$conditions;
     } else {
         $valueconditionclause = ' ua.data = \''.$conditions.'\'';
@@ -74,7 +74,7 @@ if ($data = $form->get_data()) {
     $sql = "
         SELECT
             u.*
-        FROM 
+        FROM
             {user} u,
             {user_info_data} ua
         WHERE

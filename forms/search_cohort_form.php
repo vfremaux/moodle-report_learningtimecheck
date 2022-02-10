@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
@@ -24,14 +22,16 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once $CFG->dirroot.'/lib/formslib.php';
+defined('MOODLE_INTERNAL') || die;
+
+require_once($CFG->dirroot.'/lib/formslib.php');
 
 class SearchCohortForm extends moodleform{
 
-    function definition(){
-        
+    public function definition() {
+
         $mform = $this->_form;
-        
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 

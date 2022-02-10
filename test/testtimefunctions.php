@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * @package    report_learningtimecheck
  * @category   report
@@ -23,6 +21,8 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2013 Valery Fremaux
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die;
 
 require('../../../config.php');
 require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
@@ -147,35 +147,35 @@ $session5->elapsed = $session5->sessionend - $session5->sessionstart;
 echo '<h3>single day session</h3>';
 $sessions = report_learningtimecheck::splice_session($session1);
 print_object($sessions);
-foreach($sessions as $s) {
+foreach ($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>one day session</h3>';
 $sessions = report_learningtimecheck::splice_session($session2);
 print_object($sessions);
-foreach($sessions as $s) {
+foreach ($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>one day session later start</h3>';
 $sessions = report_learningtimecheck::splice_session($session3);
 print_object($sessions);
-foreach($sessions as $s) {
+foreach ($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>two days session</h3>';
 $sessions = report_learningtimecheck::splice_session($session4);
 print_object($sessions);
-foreach($sessions as $s) {
+foreach ($sessions as $s) {
     print_visible_dates($s);
 }
 
 echo '<h3>five days session</h3>';
 $sessions = report_learningtimecheck::splice_session($session5);
 print_object($sessions);
-foreach($sessions as $s) {
+foreach ($sessions as $s) {
     print_visible_dates($s);
 }
 

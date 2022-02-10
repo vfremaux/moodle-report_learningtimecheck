@@ -24,7 +24,7 @@ use \core_privacy\local\request\approved_userlist;
 
 defined('MOODLE_INTERNAL') || die();
 
-class provider implements 
+class provider implements
     // This plugin has data.
     \core_privacy\local\metadata\provider,
 

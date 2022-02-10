@@ -150,7 +150,7 @@ function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
     if ($oldversion < 2015042302) {
         $table = new xmldb_table('report_learningtimecheck_btc');
         $field = new xmldb_field('itemid', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        
+
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'itemids');
             $field = new xmldb_field('itemids', XMLDB_TYPE_CHAR, '255', null, null, null, null);
@@ -190,7 +190,7 @@ function xmldb_report_learningtimecheck_upgrade($oldversion = 0) {
         // Adding keys to table report_learningtimecheck_btc.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
-        $table->add_index('ix_userid_contextid_name', XMLDB_INDEX_UNIQUE, array('userid','contextid', 'name'));
+        $table->add_index('ix_userid_contextid_name', XMLDB_INDEX_UNIQUE, array('userid', 'contextid', 'name'));
 
         // Conditionally launch create table for report_learningtimecheck_btc.
         if (!$dbman->table_exists($table)) {
