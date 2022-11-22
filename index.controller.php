@@ -36,7 +36,7 @@ switch($action) {
             if (empty($rule->logop)) {
                 redirect($thisurl.'&view='.$view.'&filtererror=errornologop');
             }
-            
+
             $rule->id = count($rules) + 1;
         } else {
             $rule->id = 1;

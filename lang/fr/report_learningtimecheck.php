@@ -59,10 +59,10 @@ $string['clearowned'] = 'Supprimer mes programmations';
 $string['clearownedresults'] = 'Supprimer mes résultats';
 $string['clearusermarks'] = 'Effacer les marques';
 $string['cohort'] = 'Cohorte';
-$string['cohortreport'] = 'Cohorte : {$a->name} [{$a->idnumber}]';
+$string['cohortreport'] = 'Cohorte : <span title="[{$a->idnumber}]">{$a->name}</span>';
 $string['columnoptions'] = 'Options des données de rapports';
 $string['course'] = 'Cours';
-$string['coursereport'] = 'Cours : {$a->shortname} {$a->fullname} [{$a->idnumber}]';
+$string['coursereport'] = 'Cours : <span title="({$a->shortname}) [{$a->idnumber}]">{$a->fullname}</span>';
 $string['days'] = 'Jour ';
 $string['detail'] = 'Batch de détail';
 $string['disabled'] = 'Inactif';
@@ -71,8 +71,6 @@ $string['distributionlist'] = 'Liste de distribution';
 $string['doneratio'] = '% temps effectué';
 $string['earnedtime'] = 'Temps acquis';
 $string['earnedtime'] = 'Temps acquis';
-$string['emulatecommunity'] = 'Emuler la version communautaire';
-$string['emulatecommunity_desc'] = 'Si elle est activée, cette option force le composant à fonctionner en version communautaire. Vous êtes plus compatible, mais certaines fonctionnalités ne seront plus disponibles.';
 $string['enableworktimefilter'] = 'Activer les heures ouvrables';
 $string['endrange'] = 'Fin de période';
 $string['eventkey'] = 'Clef de marqueur de jour entreprise';
@@ -119,10 +117,6 @@ $string['itemsprogress'] = 'Progressions par items';
 $string['itemtimecredit'] = 'Crédit temps';
 $string['itemtimecreditpdf'] = 'Crédit temps';
 $string['leftratio'] = 'Reste à faire (%)';
-$string['licenseprovider'] = 'Fournisseur version Pro';
-$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
-$string['licensekey'] = 'Clef de license pro';
-$string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
 $string['makebatch'] = 'Créer des batchs à partir des marques';
 $string['marktime'] = 'Heure de marque';
 $string['marktimeformat'] = 'Format des temps';
@@ -148,7 +142,6 @@ $string['pdfreportinnerheader_desc'] = 'Permet de fournir une image à utiliser 
 $string['pdfshowgroups'] = 'Afficher les groupes';
 $string['pdfshowidnumbers'] = 'Afficher les numéros d\'identification';
 $string['pendings'] = 'Programmation';
-$string['plugindist'] = 'Distribution du plugin';
 $string['possibledataloss'] = 'Certaines de vos options peuvent masquer des données';
 $string['progressbars'] = 'Barres de progression';
 $string['progressbarsitems'] = 'Progression en nombre d\'items';
@@ -204,7 +197,7 @@ $string['usercoursetimeprogress'] = 'Progression du cours (en temps)';
 $string['usercursusprogress'] = 'Progression du cursus';
 $string['userfirstconn'] = 'Premier accès';
 $string['userlastconn'] = 'Dernier accès';
-$string['useroptions'] = 'Options utilisateur actives : ';
+$string['useroptions'] = 'Options d\'affichage :';
 $string['userreport'] = 'Etudiant : {$a->firstname} {$a->lastname} [{$a->idnumber}]';
 $string['usertimeearned'] = 'temps acquis ';
 $string['userreportlink'] = 'Temps d\'apprentissage';
@@ -222,7 +215,7 @@ $string['workinghours'] = 'Heures ouvrables';
 $string['workinghours_desc'] = 'La mesure des temps d\'apprentissage peut filtrer les périodes sur la base d\'une définition d\'heures ouvrables. Il est possible par ce mécanisme de discriminer les temps d\'apprentissage "en centre" des temps "personnels" hors heures ouvrables.';
 $string['workstarttime'] = 'Début heures ouvrables';
 $string['worktimefilter'] = 'Horaires hebdomadaires ';
-$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" : 
+$string['wdfile_help'] = 'Format du fichier de jours "Entreprises" :
 <ul><li>format CSV UTF-8</li>
 <li>Lignes séparées par des retours chariot</li>
 <li>Champs séparés par des points-virgule</li>
@@ -280,7 +273,7 @@ $string['checkworkinghours_desc'] = 'si activé, les rapports effectueront une v
 $string['wdsecret'] = 'Secret WD';
 $string['wdsecret_desc'] = 'Ce code permet d\'encoder de manière sécurisée les marqueurs d\'entreptrise dans le calendrier des étudiants. Donnez une chaine de caractères aléatoire de 8 à 10 caractères. Ne changez pas cette clef après génération des marqueurs où ceux-ci ne pourront plus être reconnus.';
 $string['event'] = 'Journée "Entreprise"';
-$string['eventbody'] = '<p>Cet événement marque que cette journée est une journée Enterprise. Vos marques de travail à distance seront validées lorsqu\'elles sont enregistrées pendant une journée marquée. NE supprimez PAS cet événement de votre calendrier ou votre travail ne pourra pas être validé ces jours là. Vous ne POURREZ PAS ajouter vous même une marque. N\'essayez PAS 
+$string['eventbody'] = '<p>Cet événement marque que cette journée est une journée Enterprise. Vos marques de travail à distance seront validées lorsqu\'elles sont enregistrées pendant une journée marquée. NE supprimez PAS cet événement de votre calendrier ou votre travail ne pourra pas être validé ces jours là. Vous ne POURREZ PAS ajouter vous même une marque. N\'essayez PAS
 de copier une marque d\'une autre journée ou d\'un autre étudiant car cela NE marchera PAS. N\'altérez le code suivant pour aucune raison :</p><p>WD[{$a}]</p>';
 $string['wdimportuseridentifier'] = 'Identifiant d\'utilisateur pour le fichier des jours entreprise';
 $string['wdimportuseridentifier_desc'] = 'Choisissez le champ d\'identification..';
@@ -308,13 +301,7 @@ $string['xlsfirstaccess'] = 'premier acces';
 $string['xlslastaccess'] = 'dernier acces';
 
 $string['sortby'] = 'Trier les rapports';
-$string['sortbyname'] = 'par nom (asc)';
-$string['sortbyachievement'] = 'par achèvement (desc)';
+$string['sortbyname'] = 'par nom';
+$string['sortbyachievement'] = 'par achèvement';
 
-$string['plugindist_desc'] = '
-<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
-core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
-and improvement effort.</p>
-<p>Note that both components local_sharedresources and mod_sharedresource must work using the same distribution level.</p>
-<p>Please contact one of our distributors to get "Pro" version support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
+include(__DIR__.'/pro_additional_strings.php');

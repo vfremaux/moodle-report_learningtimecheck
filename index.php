@@ -46,7 +46,7 @@ $PAGE->requires->js('/mod/learningtimecheck/js/jquery.easyui.min.js');
 $PAGE->requires->js('/mod/learningtimecheck/js/locale/easyui-lang-'.current_language().'.js');
 $PAGE->requires->css('/mod/learningtimecheck/css/default/easyui.css');
 $PAGE->requires->css('/mod/learningtimecheck/css/icons.css');
-$PAGE->requires->js('/mod/learningtimecheck/js/jquery.report.js');
+$PAGE->requires->js_call_amd('mod_learningtimecheck/report', 'init');
 
 // Security : we yet are controlled against our originating course.
 
@@ -95,7 +95,7 @@ echo $reportrenderer->tabs($fromcourse);
 
 $OUTPUT->container_end();
 
-@ini_set('max_execution_time','3000');
+@ini_set('max_execution_time', '3000');
 raise_memory_limit('250M');
 
 if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php')) {

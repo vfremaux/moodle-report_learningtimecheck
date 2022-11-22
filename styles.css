@@ -1,27 +1,27 @@
 
 #batchtable {
-    border-collapse:separate;
+    border-collapse: separate;
 }
 
 #batchtable > tr > th,
 #batchtable > tr > td {
-    padding:10px;
+    padding: 10px;
 }
 
 .learningtimecheck-fromnow {
-    font-size:0.8em;
-    color:#7068A4;
+    font-size: 0.8em;
+    color: #7068a4;
 }
 
 .learningtimecheck-report .generaltable {
-    background-color:white;
+    background-color: white;
 }
 
 .report-learningtimecheck-siteadmin {
     background-color:#fff0f0;
-    border:1px solid #ffd0d0;
-    padding:5px;
-    margin-top:5px;
+    border: 1px solid #ffd0d0;
+    padding: 5px;
+    margin-top: 5px;
 }
 
 .report-learningtimecheck-batchcell {
@@ -29,25 +29,25 @@
 }
 
 .report-learningtimecheck-batchcell.commands {
-    padding-top:20px;
+    padding-top: 20px;
 }
 
 #report-learningtimecheck-form-buttons {
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
 .zerowidth {
-    width:0px;
-    max-width:0px;
-    display:none;
+    width: 0;
+    max-width: 0;
+    display: none;
 }
 
 #report-learningtimecheck-buttons {
-    line-height:24px;
+    line-height: 24px;
 }
 
 #report-ltc-user-options {
-    margin: 5px 0px;
+    margin: 5px 0;
 }
 
 #report-ltc-user-options > img {
@@ -61,7 +61,7 @@
 }
 
 .report-ltc-dataloss-advice {
-    background-color: #FFCDC0; /* light red */
+    background-color: #ffcdc0; /* light red */
     padding: 2px;
     border-radius: 5px;
 }

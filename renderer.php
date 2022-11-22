@@ -20,8 +20,7 @@ require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 class report_learningtimecheck_renderer extends plugin_renderer_base {
 
-    function print_export_excel_button($origincourseid, $type = 'user', $itemid = 0, $detail = false) {
-        global $CFG;
+    public function print_export_excel_button($origincourseid, $type = 'user', $itemid = 0, $detail = false) {
 
         $context = context_course::instance($origincourseid);
         if (!has_capability('report/learningtimecheck:export', $context)) {
@@ -45,8 +44,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $this->output->render_from_template('report_learningtimecheck/excel_button', $template);
     }
 
-    function print_export_pdf_button($origincourseid, $type = 'user', $itemid = 0, $detail = false, $options = null, $alternatelabel = false) {
-        global $CFG;
+    public function print_export_pdf_button($origincourseid, $type = 'user', $itemid = 0, $detail = false, $options = null, $alternatelabel = false) {
 
         if (!report_learningtimecheck_supports_feature('format/pdf')) {
             return '';
@@ -75,16 +73,15 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
 
         $template->detail = $detail;
         if ($detail) {
-            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdfdetail', 'report_learningtimecheck') ;
+            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdfdetail', 'report_learningtimecheck');
         } else {
-            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdf', 'report_learningtimecheck') ;
+            $template->label = ($alternatelabel) ? $alternatelabel : get_string('exportpdf', 'report_learningtimecheck');
         }
 
         return $this->output->render_from_template('report_learningtimecheck/pdf_button', $template);
     }
 
-    function print_back_search_button($type, $id) {
-        global $CFG;
+    public function print_back_search_button($type, $id) {
 
         $context = context_course::instance($id);
         if (!has_capability('report/learningtimecheck:viewother', $context)) {
@@ -102,7 +99,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $this->output->render_from_template('report_learningtimecheck/back_search_button', $template);
     }
 
-    function batch_list($origincourseid) {
+    public function batch_list($origincourseid) {
         global $OUTPUT, $DB, $USER;
 
         $typestr = get_string('type', 'report_learningtimecheck');
@@ -129,7 +126,9 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 $fromnow = $batch->runtime - time();
                 $row[] = userdate($batch->runtime).'<br/><span class="learningtimecheck-fromnow">'.get_string('fromnow', 'report_learningtimecheck', format_time($fromnow)).'</span>';
                 $type = get_string($batch->type, 'report_learningtimecheck');
-                if ($batch->detail) $type .= '<br/>('.get_string('detail', 'report_learningtimecheck').')';
+                if ($batch->detail) {
+                    $type .= '<br/>('.get_string('detail', 'report_learningtimecheck').')';
+                }
                 $row[] = $type;
                 $row[] = $batch->output;
                 switch ($batch->type) {
@@ -228,7 +227,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $course = $DB->get_record('course', array('id' => $batch->itemids));
                         if (!$course) {
                             // Course has gone away
-                            continue;
+                            continue 2;
                         }
                         $row[] = $batch->name.'<br/>['.$course->shortname.'] '.$course->fullname;
                         break;
@@ -237,7 +236,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name');
                         if (!$cohort) {
                             // Cohort has gone away.
-                            continue;
+                            continue 2;
                         }
                         $row[] = $batch->name.'<br/>'.$cohort->name;
                         break;
@@ -271,7 +270,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     /**
      * a batch result filearea is a file storage area that stores all production from
      * a single batch. the widget prints a list of available areas and the content of one selected area
-     * batch results are stored into a file area identified by : 
+     * batch results are stored into a file area identified by :
      *
      * Shared results :
      * context : systemcontext
@@ -286,7 +285,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
      * item : <batchstart timestamp>
      */
     public function batch_result_area() {
-        global $DB, $USER, $OUTPUT;
+        global $USER, $OUTPUT;
 
         $str = '';
 
@@ -335,7 +334,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
      * @param string $return where to return (module or report)
      */
     public function print_user_options_button($type, $courseid, $itemid, $return = '') {
-        global $CFG;
 
         $context = context_course::instance($courseid);
         if (!has_capability('report/learningtimecheck:export', $context)) {
@@ -356,7 +354,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     }
 
     public function print_send_to_batch_button($type, $courseid, $itemid, $params) {
-        global $CFG;
 
         $context = context_course::instance($courseid);
         if (!has_capability('report/learningtimecheck:export', $context)) {
@@ -377,7 +374,6 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
     }
 
     public function print_send_detail_to_batch_button($type, $courseid, $itemid, $params) {
-        global $CFG;
 
         $context = context_course::instance($courseid);
         if (!has_capability('report/learningtimecheck:export', $context)) {
@@ -419,7 +415,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $str .= '<input type="submit" name="addbatch" value="'.$addbatchstr.'" />';
         // $str .= '<input type="submit" name="makebatchfrommarks" value="'.$makebatchstr.'" />';
         $str .= '<input type="submit" name="clearownedresults" value="'.$clearownedresultsstr.'"/>';
-        
+
         $systemcontext = context_system::instance();
         if (has_capability('moodle/site:config', $systemcontext)) {
             $str .= '<br/>';
@@ -438,8 +434,10 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         $joboptions = '';
         $options = json_decode($job->options);
         if (!empty($options)) {
-            foreach($options as $optkey => $optvalue) {
-                if ($optkey == 'return') continue;
+            foreach ($options as $optkey => $optvalue) {
+                if ($optkey == 'return') {
+                    continue;
+                }
                 if (preg_match('/range$/', $optkey) && $optvalue) {
                     $optvalue = userdate($optvalue);
                 }
@@ -491,7 +489,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    function tabs($fromcourse) {
+    public function tabs($fromcourse) {
 
         $context = context_course::instance($fromcourse->id);
         $view = optional_param('view', 'course', PARAM_TEXT);
@@ -521,7 +519,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
      * @param int $id
      * @param int $itemid
      */
-    function options($view, $id, $itemid, $return = '') {
+    public function options($view, $id, $itemid, $return = '') {
         static $icons;
 
         if (is_null($icons)) {
