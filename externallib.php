@@ -45,9 +45,9 @@ class report_learningtimecheck_external extends external_api {
             array(
                 'uidsource' => new external_value(PARAM_TEXT, 'The source field for the user id. Can be id,idnumber,username or email.'),
                 'uid' => new external_value(PARAM_TEXT, 'The effective user identifier'),
-                'cidsource' => new external_value(PARAM_TEXT, 'The course id'),
-                'cid' => new external_value(PARAM_TEXT, 'The course id'),
-                'output' => new external_value(PARAM_TEXT, 'The output format of the document. May be csv, xls, pdf, txt. Some formats may require pro license.'),
+                'cidsource' => new external_value(PARAM_TEXT, 'The source field for identifying the course'),
+                'cid' => new external_value(PARAM_TEXT, 'The course identifier'),
+                'output' => new external_value(PARAM_TEXT, 'The output format of the document. May be csv, xls, pdf, xml. Some formats may require pro license.'),
             )
         );
     }
