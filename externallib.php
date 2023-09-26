@@ -28,13 +28,13 @@ require_once($CFG->libdir.'/externallib.php');
 
 class report_learningtimecheck_external extends external_api {
 
-    public static function get_user_report($userid, $useridnumber = false, $courseid = false) {
+    public static function get_user_report($uidsource = 'id', $uid = false, $cidsource = 'id', $cid = false, $output = 'csv') {
         global $CFG;
         // Invoke in silent mode.
 
         if (report_learningtimecheck_supports_feature('export/ws')) {
             include_once($CFG->dirroot.'/report/learningtimecheck/pro/externallib.php');
-            return report_learningtimecheck_external_pro::get_user_report($userid, $useridnumber, $courseid);
+            return report_learningtimecheck_external_pro::get_user_report($uidsource, $uid, $cidsource, $cid, $output);
         } else {
             throw new moodle_exception('WS only provided in "pro" versions. Please contact distributors (see global settings).');
         }
@@ -43,9 +43,11 @@ class report_learningtimecheck_external extends external_api {
     public static function get_user_report_parameters() {
         return new external_function_parameters(
             array(
-                'userid' => new external_value(PARAM_INT, 'userid'),
-                'useridnumber' => new external_value(PARAM_TEXT, 'useridnumber'),
-                'courseid' => new external_value(PARAM_INT, 'courseid'),
+                'uidsource' => new external_value(PARAM_TEXT, 'The source field for the user id. Can be id,idnumber,username or email.'),
+                'uid' => new external_value(PARAM_TEXT, 'The effective user identifier'),
+                'cidsource' => new external_value(PARAM_TEXT, 'The course id'),
+                'cid' => new external_value(PARAM_TEXT, 'The course id'),
+                'output' => new external_value(PARAM_TEXT, 'The output format of the document. May be csv, xls, pdf, txt. Some formats may require pro license.'),
             )
         );
     }
