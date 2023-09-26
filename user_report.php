@@ -53,7 +53,10 @@ if (empty($itemid) && has_capability('report/learningtimecheck:viewother', $cont
     if (($page !== false) || !empty($searchattern) || !empty($itemid)) {
          $select = "(UPPER(firstname) LIKE '%{$searchpattern}%' OR UPPER(lastname) LIKE '%{$searchpattern}%') AND deleted = 0";
          $alluserscount = $DB->count_records_select('user', $select, array());
-         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', 'id,'.get_all_user_name_fields(true, ''), $pagerecnum, $pagesize);
+        // M4.
+        $fields = \core_user\fields::for_name()->get_required_fields();
+        $fields = implode(',', $fields);
+         $results = $DB->get_records_select('user', $select, array(), 'lastname, firstname', $fields, $pagerecnum, $pagesize);
     }
 
     $formdata = new Stdclass;

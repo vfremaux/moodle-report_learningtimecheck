@@ -103,7 +103,9 @@ if ($data = $mform->get_data()) {
                 }
 
                 if (!array_key_exists($data[0], $USERCACHE)) {
-                    $userrec = $DB->get_record('user', array($field => $data[0]), 'id,'.get_all_user_name_fields(true, ''));
+                    // M4.
+                    $fields = \core_user\fields::for_name()->with_userpic()->get_required_fields();
+                    $userrec = $DB->get_record('user', array($field => $data[0]), 'id,'.implode(',', $fields));
                     if (empty($userrec)) {
                         mtrace("User $data[0] as $field does not exist in database.");
                         continue;
