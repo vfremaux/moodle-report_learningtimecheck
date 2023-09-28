@@ -258,8 +258,13 @@ if (report_learningtimecheck_supports_feature('format/pdf')) {
 
 if (report_learningtimecheck_supports_feature('emulate/community') == 'pro') {
     include_once($CFG->dirroot.'/report/learningtimecheck/pro/prolib.php');
+<<<<<<< HEAD
         $promanager = \report_trainingsessions\pro_manager::instance();
         $promanager->add_settings($ADMIN, $settings);
+=======
+    $promanager = \report_learningtimecheck\pro_manager::instance();
+    $promanager->add_settings($ADMIN, $settings);
+>>>>>>> MOODLE_401_STABLE
 } else {
     $label = get_string('plugindist', 'report_learningtimecheck');
     $desc = get_string('plugindist_desc', 'report_learningtimecheck');

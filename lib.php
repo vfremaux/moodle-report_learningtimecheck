@@ -265,13 +265,14 @@ class report_learningtimecheck {
     public static function get_cohort_users($cohortid) {
         global $DB;
 
+        // M4.
+        $fields = \core_user\fields::for_name()->excluding('id')->get_required_fields();
+        $fields = 'u.id,'.implode(',', $fields);
+
+
         $sql = "
             SELECT
-                u.id,
-                u.idnumber,
-                u.username,
-                u.email,
-                ".get_all_user_name_fields(true, 'u')."
+                ".$fields."
             FROM
                 {user} u,
                 {cohort_members} cm

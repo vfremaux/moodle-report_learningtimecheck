@@ -165,19 +165,25 @@ if (!$allgroupsaccess) {
             $targetusers = array();
             if ($groupinggroups = $DB->get_records('groupings_groups', array('groupingid' => $groupingid))) {
                 $alluserscount;
+                // M4.
+                $fields = \core_user\fields::for_name()->with_userpic()->get_required_fields();
+                $fields .= 'u.id'.implode(',', $fields);
                 foreach ($groupinggroups as $gpm) {
                     // Aggregate all groups in grouping.
-                    $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email', $orderby, 0, 0, $gpm->groupid, '', false);
+                    $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $orderby, 0, 0, $gpm->groupid, '', false);
                     if ($allusers) {
                         $alluserscount = $alluserscount + count($allusers);
-                        $targetusers = $targetusers + get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email', $orderby, $from, $pagesize, $gpm->groupid, '', false);
+                        $targetusers = $targetusers + get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $orderby, $from, $pagesize, $gpm->groupid, '', false);
                     }
                 }
             }
         } else {
             // This capability is usually given to students.
-            $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber,u.username, u.email', $orderby, 0, 0, 0, '', false);
-            $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.idnumber,u.username, u.email', $orderby, $from, $pagesize, 0, '', false);
+            // M4.
+            $fields = \core_user\fields::for_identity()->excluding('id')->get_required_fields();
+            $fields = 'u.id'.implode(',', $fields);
+            $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $orderby, 0, 0, 0, '', false);
+            $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $orderby, $from, $pagesize, 0, '', false);
             $alluserscount = count($allusers);
         }
     } else {
@@ -185,8 +191,11 @@ if (!$allgroupsaccess) {
         echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')), true);
         $groupid = optional_param('group', 0, PARAM_INT);
         groups_get_course_group($course, true); // update currently registered active group
-        $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email,u.idnumber', 'lastname, firstname', 0, 0, $groupid, '', false);
-        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', 'u.id,'.get_all_user_name_fields(true, 'u').',u.username, u.email,u.idnumber', 'lastname, firstname', $from, $pagesize, $groupid, '', false);
+        // M4.
+        $fields = \core_user\fields::for_name()->excluding('id')->get_required_fields();
+        $fields = 'u.id,'.implode(',', $fields);
+        $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, 'lastname, firstname', 0, 0, $groupid, '', false);
+        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $from, $pagesize, $groupid, '', false);
         $alluserscount = count($allusers);
     }
 }

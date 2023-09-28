@@ -133,7 +133,10 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                 $row[] = $batch->output;
                 switch ($batch->type) {
                     case 'user':
-                        $users = $DB->get_records_list('user', 'id', explode(',', $batch->itemids), 'id,'.get_all_user_name_fields(true, ''), 'lastname,firstname');
+                        // M4.
+                        $fields = \core_user\fields::for_name()->get_required_fields();
+                        $fields = implode(',', $fields);
+                        $users = $DB->get_records_list('user', 'id', explode(',', $batch->itemids), $fields, 'lastname,firstname');
                         if ($users) {
                             $usernames = array();
                             foreach ($users as $u) {
@@ -227,7 +230,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $course = $DB->get_record('course', array('id' => $batch->itemids));
                         if (!$course) {
                             // Course has gone away
-                            continue;
+                            continue 2;
                         }
                         $row[] = $batch->name.'<br/>['.$course->shortname.'] '.$course->fullname;
                         break;
@@ -236,7 +239,7 @@ class report_learningtimecheck_renderer extends plugin_renderer_base {
                         $cohort = $DB->get_record('cohort', array('id' => $batch->itemids), 'id,name');
                         if (!$cohort) {
                             // Cohort has gone away.
-                            continue;
+                            continue 2;
                         }
                         $row[] = $batch->name.'<br/>'.$cohort->name;
                         break;
