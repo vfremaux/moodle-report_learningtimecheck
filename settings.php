@@ -247,14 +247,20 @@ if (report_learningtimecheck_supports_feature('format/pdf')) {
     $previewconfig = null;
     $settings->add($setting = new admin_setting_configcolourpicker($name, $label, $desc, $default, $previewconfig));
     $setting->set_updatedcallback('theme_reset_all_caches');
-
-    $settings->add(new admin_setting_heading('mischdr', get_string('misc', 'report_learningtimecheck'), ''));
-
-    $key = 'report_learningtimecheck/allowdisabledenrols';
-    $label = get_string('allowdisabledenrols', 'report_learningtimecheck');
-    $desc = get_string('allowdisabledenrols_desc', 'report_learningtimecheck');
-    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 }
+
+$settings->add(new admin_setting_heading('mischdr', get_string('misc', 'report_learningtimecheck'), ''));
+
+$key = 'report_learningtimecheck/allowdisabledenrols';
+$label = get_string('configallowdisabledenrols', 'report_learningtimecheck');
+$desc = get_string('configallowdisabledenrols_desc', 'report_learningtimecheck');
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+$key = 'report_learningtimecheck/admitcompletedwithfailure';
+$label = get_string('configadmitcompletedwithfailure', 'report_learningtimecheck');
+$desc = get_string('configadmitcompletedwithfailure_desc', 'report_learningtimecheck');
+$default = 1;
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
 if (report_learningtimecheck_supports_feature('emulate/community') == 'pro') {
     include_once($CFG->dirroot.'/report/learningtimecheck/pro/prolib.php');

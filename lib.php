@@ -664,9 +664,11 @@ class report_learningtimecheck {
         // Returns a course arranged array of checks.
         $allchecklists = learningtimecheck_get_checklists(0, $courseid, array_keys($courseusers));
 
+        $globals->allusers = 0;
+
         foreach ($courseusers as $u) {
 
-            $globals->allusers = @$globals->allusers + 1;
+            $globals->allusers = $globals->allusers + 1;
 
             $reportlines = array();
 
@@ -709,14 +711,19 @@ class report_learningtimecheck {
             if ($useraggregate['totalitems']) {
                 $timecomplete = ($useraggregate['totaltime']) ? round(($useraggregate['tickedtimes'] * 100) / $useraggregate['totaltime']) : 0;
                 $percentcomplete = ($useraggregate['totalitems']) ? round(($useraggregate['tickeditems'] * 100) / $useraggregate['totalitems']) : 0;
-                if ($percentcomplete > 90) {
+                if ($percentcomplete > 99) {
                     $globals->fullusers  = @$globals->fullusers + 1;
+                }
+                if ($percentcomplete > 0 && $percentcomplete <= 99) {
+                    $globals->startedusers  = @$globals->startedusers + 1;
                 }
                 if ($percentcomplete > 50) {
                     $globals->halfusers  = @$globals->halfusers + 1;
                 }
                 if ($percentcomplete > 0) {
                     $globals->activeusers  = @$globals->activeusers + 1;
+                } else {
+                    $globals->nullusers = @$globals->nullusers + 1;
                 }
             } else {
                 $timecomplete = 0;
