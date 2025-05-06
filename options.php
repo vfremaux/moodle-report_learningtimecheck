@@ -95,15 +95,15 @@ if ($data = $form->get_data()) {
         }
     }
 
-    redirect(new moodle_url('/report/learningtimecheck/index.php', array('view' => $view, 'id' => $id, 'itemid' => $itemid)));
+    redirect(new moodle_url('/report/learningtimecheck/index.php', ['view' => $view, 'id' => $id, 'itemid' => $itemid]));
 }
 
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('myreportoptions', 'report_learningtimecheck'));
 
-$formdata = (object)report_learningtimecheck::get_user_options();
-if (array_key_exists('workdays', $formdata)) {
+$formdata = (object) report_learningtimecheck::get_user_options();
+if (property_exists($formdata, 'workdays')) {
     $formdata->workday = explode(',', $formdata->workdays);
     unset($formdata->workdays);
 }

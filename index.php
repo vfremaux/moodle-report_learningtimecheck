@@ -31,11 +31,11 @@ $itemid = optional_param('itemid', 0, PARAM_INT);
 $time = optional_param('time', 0, PARAM_INT);
 
 // This is the origin course. But reports are given over the course level.
-if (!$fromcourse = $DB->get_record('course', array('id' => $id))) {
-    print_error('invalidcourse');
+if (!$fromcourse = $DB->get_record('course', ['id' => $id])) {
+    throw new moodle_exception('invalidcourse');
 }
 
-$thisurl = new moodle_url('/report/learningtimecheck/index.php', array('view' => $view, 'id' => $id, 'itemid' => $itemid));
+$thisurl = new moodle_url('/report/learningtimecheck/index.php', ['view' => $view, 'id' => $id, 'itemid' => $itemid]);
 
 $PAGE->set_url($thisurl);
 $PAGE->set_pagelayout('report');
@@ -104,7 +104,7 @@ if (file_exists($CFG->dirroot.'/report/learningtimecheck/'.$view.'_report.php'))
     if (file_exists($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php')) {
         include($CFG->dirroot.'/report/learningtimecheck/pro/'.$view.'_report.php');
     } else {
-        print_error('errorbadviewid', 'report_learningtimecheck');
+        throw new moodle_exception('errorbadviewid', 'report_learningtimecheck');
     }
 }
 

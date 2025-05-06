@@ -61,7 +61,7 @@ if (empty($itemid)) {
         $table->width = '100%';
 
         foreach ($results as $cid => $cohort) {
-            $countusers = $DB->count_records('cohort_members', array('cohortid' => $cohort->id));
+            $countusers = $DB->count_records('cohort_members', ['cohortid' => $cohort->id]);
             $linkurl = $thisurl->out_omit_querystring().'?id='.$id.'&view=cohort&itemid='.$cohort->id;
             $link = '<a href="'.$linkurl.'">'.$cohort->name.'</a> ('.$countusers.' '.get_string('users').')<br>';
             $link .= $cohort->description;
@@ -81,7 +81,7 @@ if (empty($itemid)) {
     die;
 }
 
-$cohort = $DB->get_record('cohort', array('id' => $itemid));
+$cohort = $DB->get_record('cohort', ['id' => $itemid]);
 
 $renderer = $PAGE->get_renderer('mod_learningtimecheck');
 $cohortmembers = report_learningtimecheck::get_cohort_users($itemid);

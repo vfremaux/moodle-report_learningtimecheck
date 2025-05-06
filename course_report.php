@@ -43,7 +43,7 @@ $thisurl->params(array('itemid' => $itemid));
 
 // Do not even try if you can only see your stuff.
 if (!has_capability('report/learningtimecheck:viewother', $coursecontext)) {
-    print_error('You have no system wide permission to view other results');
+    throw new moodle_exception('You have no system wide permission to view other results');
 }
 
 if ($searchmode) {
@@ -51,13 +51,13 @@ if ($searchmode) {
     // Precheck categoryid from direct params.
     $categoryid = optional_param('category', 0, PARAM_INT);
     if ($categoryid) {
-        $selectedcategory = $DB->get_record('course_categories', array('id' => $categoryid));
+        $selectedcategory = $DB->get_record('course_categories', ['id' => $categoryid]);
     } else {
         $selectedcategory = null;
     }
 
-    $categories = $DB->get_records('course_categories', array('parent' => $categoryid), 'sortorder', 'id, name, visible');
-    $catmenu = array();
+    $categories = $DB->get_records('course_categories', ['parent' => $categoryid], 'sortorder', 'id, name, visible');
+    $catmenu = [];
     foreach ($categories as $catid => $category) {
         $catcontext = context_coursecat::instance($catid);
         if (!$category->visible && !has_capability('moodle/category:viewhiddencategories', $catcontext)) {
@@ -67,12 +67,12 @@ if ($searchmode) {
         }
     }
 
-    $form = new SearchCourseForm($thisurl, array('current' => $selectedcategory, 'categories' => $catmenu));
+    $form = new SearchCourseForm($thisurl, ['current' => $selectedcategory, 'categories' => $catmenu]);
 
     if ($data = $form->get_data()) {
         if (!empty($data->searchpattern)) {
             $select = " fullname LIKE '%{$data->searchpattern}%' ";
-            $results = $DB->get_records_select('course', $select, array(), 'sortorder', 'id,shortname,idnumber,fullname,summary');
+            $results = $DB->get_records_select('course', $select, [], 'sortorder', 'id,shortname,idnumber,fullname,summary');
             if ($results) {
                 $mycourses = enrol_get_my_courses('id, shortname, fullname');
                 $mycourseids = array_keys($mycourses);
@@ -86,7 +86,7 @@ if ($searchmode) {
             $categories = null;
         } else {
             if ($categoryid) {
-                $results = $DB->get_records('course', array('category' => $categoryid), 'sortorder', 'id,shortname,idnumber,fullname,summary');
+                $results = $DB->get_records('course', ['category' => $categoryid], 'sortorder', 'id,shortname,idnumber,fullname,summary');
             }
         }
     }
@@ -101,12 +101,12 @@ if ($searchmode) {
     if (!empty($results)) {
 
         $table = new html_table();
-        $table->head = array('', '', '');
-        $table->size = array('10%', '10%', '80%');
+        $table->head = ['', '', ''];
+        $table->size = ['10%', '10%', '80%'];
         $table->width = '100%';
 
         foreach ($results as $cid => $course) {
-            $row = array();
+            $row = [];
             $row[] = '<a href="'.$thisurl.'?id='.$id.'&view=course&itemid='.$course->id.'">'.$course->shortname.'</a><br>'.$course->summary;
             $row[] = $course->idnumber;
             $row[] = $course->fullname;
@@ -133,7 +133,7 @@ $page = optional_param('page', 0, PARAM_INT);
 $from = $pagesize * $page;
 $reportconfig = get_config('report_learningtimecheck');
 
-$course = $DB->get_record('course', array('id' => $itemid));
+$course = $DB->get_record('course', ['id' => $itemid]);
 $coursecontext = context_course::instance($course->id);
 
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $coursecontext);
@@ -143,11 +143,11 @@ if (!$allgroupsaccess) {
     $mygroups = groups_get_my_groups();
 
     if ($mygroups) {
-        echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')), true);
+        echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php',  ['id' => $course->id, 'view' => 'course']), true);
         if ($groupid) {
             $groupid = groups_get_course_group($course, true); // update currently registered active group
         }
-        $targetusers = report_learningtimecheck::get_users($course->id, $groupid);
+        $targetusers = report_learningtimecheck::get_users($course->id, $groupid, 0, $from, $pagesize);
     } else {
         echo $OUTPUT->notification(get_string('errornotingroups', 'report_trainingsessions'));
         echo $OUTPUT->footer($course);
@@ -159,11 +159,11 @@ if (!$allgroupsaccess) {
         $groupingid = optional_param('groupingid', 0, PARAM_INT);
         if (!empty($groupings)) {
             echo get_string('groupings', 'group').': ';
-            echo report_learningtimecheck::groupings_print_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')));
+            echo report_learningtimecheck::groupings_print_menu($course, new moodle_url('/report/learningtimecheck/index.php', ['id' => $course->id, 'view' => 'course']));
         }
         if ($groupingid) {
-            $targetusers = array();
-            if ($groupinggroups = $DB->get_records('groupings_groups', array('groupingid' => $groupingid))) {
+            $targetusers = [];
+            if ($groupinggroups = $DB->get_records('groupings_groups', ['groupingid' => $groupingid])) {
                 $alluserscount;
                 // M4.
                 $fields = \core_user\fields::for_name()->with_userpic()->get_required_fields();
@@ -188,14 +188,14 @@ if (!$allgroupsaccess) {
         }
     } else {
         // Group separation mode is "groups"
-        echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php', array('id' => $course->id, 'view' => 'course')), true);
+        echo groups_print_course_menu($course, new moodle_url('/report/learningtimecheck/index.php', ['id' => $course->id, 'view' => 'course']), true);
         $groupid = optional_param('group', 0, PARAM_INT);
         groups_get_course_group($course, true); // update currently registered active group
         // M4.
         $fields = \core_user\fields::for_name()->excluding('id')->get_required_fields();
         $fields = 'u.id,'.implode(',', $fields);
         $allusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, 'lastname, firstname', 0, 0, $groupid, '', false);
-        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, $from, $pagesize, $groupid, '', false);
+        $targetusers = get_users_by_capability($coursecontext, 'mod/learningtimecheck:updateown', $fields, 'lastname, firstname', $from, $pagesize, $groupid, '', false);
         $alluserscount = count($allusers);
     }
 }
@@ -213,7 +213,7 @@ $userurl = new moodle_url('/course/view.php', array('id' => $course->id));
 $course->fullname = '<a href="'.$userurl.'">'.$course->fullname.'</a>';
 
 if (!empty($targetusers)) {
-    $globals = array();
+    $globals = [];
     $coursetable = report_learningtimecheck::course_results($id, $targetusers, $course->id, $globals, $useroptions);
 
     $e = new StdClass;
@@ -245,6 +245,6 @@ if (!empty($targetusers)) {
 }
 
 echo '<p><center>';
-$thisurl->params(array('id' => $id, 'view' => 'course', 'search' => 1));
+$thisurl->params(['id' => $id, 'view' => 'course', 'search' => 1]);
 echo $OUTPUT->single_button($thisurl, get_string('searchcourses', 'report_learningtimecheck'));
 echo '</center></p>';
