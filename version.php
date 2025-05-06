@@ -26,37 +26,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-<<<<<<< HEAD
-$plugin->version = 2021102100; // The current plugin version (Date: YYYYMMDDXX).
-<<<<<<< HEAD
-$plugin->requires = 2020061500; // Requires this Moodle version.
-$plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_RC;
-$plugin->release = '3.9.0 (build 2021102100)';
-=======
+$plugin->version = 2025043000; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires = 2022112801; // Requires this Moodle version.
 $plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_RC;
-$plugin->release = '4.1.0 (build 2021102100)';
->>>>>>> MOODLE_401_STABLE
-=======
-$plugin->version = 2023101200; // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires = 2022112801; // Requires this Moodle version.
-$plugin->component = 'report_learningtimecheck'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_RC;
-$plugin->release = '4.1.0 (build 2023101200)';
->>>>>>> MOODLE_401_STABLE
+$plugin->release = '4.5.0 (build 2025043000)';
 $plugin->dependencies = array('local_vflibs' => '2015122000');
-$plugin->supported = [401, 402];
+$plugin->supported = [403, 405];
 
 // Non moodle attributes.
-<<<<<<< HEAD
-<<<<<<< HEAD
-$plugin->codeincrement = '3.9.0007';
-=======
-$plugin->codeincrement = '4.1.0007';
->>>>>>> MOODLE_401_STABLE
-=======
-$plugin->codeincrement = '4.1.0008';
->>>>>>> MOODLE_401_STABLE
+$plugin->codeincrement = '4.5.0007';
 $plugin->privacy = 'dualrelease';
